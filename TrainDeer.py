@@ -118,8 +118,8 @@ if __name__=='__main__':
 	# D = Brake
 	# E = Hybrid
 
-	Gfname = '/home/brownlab/Desktop/Summer2018/GenerationFiles/generations' + str(agent) + '/generation' + str(generation) + '/Generation' + str(generation) + '.txt';
-	IntGfname = '/home/brownlab/Desktop/Summer2018/GenerationFiles/generations' + str(agent) + '/generation' + str(generation) + '/Generation' + str(generation) + 'IntResults.txt';
+	Gfname = 'GenerationFiles/generations' + str(agent) + '/generation' + str(generation) + '/Generation' + str(generation) + '.txt';
+	IntGfname = 'GenerationFiles/generations' + str(agent) + '/generation' + str(generation) + '/Generation' + str(generation) + 'IntResults.txt';
 
 	intermediatePopulationSize = 10;
 	numberOfHumans = 8;
@@ -233,7 +233,7 @@ if __name__=='__main__':
 		print str(NewBaseGenArray[x].traits) + ' ' + str(NewBaseGenArray[x].result);	
 	print '';
 
-	G2fname = '/home/brownlab/Desktop/Summer2018/GenerationFiles/generations' + str(agent) + '/generation' + str(generation+1) + '/Generation' + str(generation+1) + '.txt';
+	G2fname = 'GenerationFiles/generations' + str(agent) + '/generation' + str(generation+1) + '/Generation' + str(generation+1) + '.txt';
 
 	newGenFile = open(G2fname,'w+');
 	newGenFile.close();
