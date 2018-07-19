@@ -104,7 +104,12 @@ def TestDeer(deer_ind, n):
 
 	return(avg_min_distance)
 
-
 if __name__=='__main__':
 
+	Deer1 = BinaryConversion('0101010000110001110001001')
 
+	print(Deer1)
+
+	Distance1 = TestDeer(deer_ind=Deer1, n=8)
+
+	print(Distance1)

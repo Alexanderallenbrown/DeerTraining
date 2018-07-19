@@ -5,7 +5,7 @@ from matplotlib.pyplot import *
 
 class Deer:
 
-    def __init__(self,Tau_Deer = 2.203,Vmax_Deer = 13.5, tturn_Deer = 0.594, Psi0_Deer = -.307, Sigma_Psi = 0.131, dT = 1./60, x_Deer = 0, y_Deer = 0):
+    def __init__(self, Psi0_Deer = -.307, Sigma_Psi = 0.131, tturn_Deer = 0.594, Vmax_Deer = 13.5, Tau_Deer = 2.203, dT = 1./60, x_Deer = 0, y_Deer = 0):
        
         self.Tau_Deer = Tau_Deer  
         self.Vmax_Deer = Vmax_Deer 
@@ -59,6 +59,7 @@ class Deer:
         
 
         return array([self.Speed_Deer, self.Psi_Deer, self.x_Deer, self.y_Deer])
+
 
 if __name__=='__main__':
 
