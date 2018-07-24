@@ -24,10 +24,14 @@ class Deer:
         self.Psi_Deer = Psi0_Deer
         self.Amax_Deer = 0.632*Vmax_Deer/Tau_Deer
         self.Psidot_Deer = (self.Psi2_Deer-self.Psi1_Deer)/(10*self.dT)
-        self.Vturn_Deer = abs(self.Amax_Deer/self.Psidot_Deer)
+        if self.Psidot_Deer == 0:
+            self.Vturn_Deer = 0
+        else:
+            self.Vturn_Deer = abs(self.Amax_Deer/self.Psidot_Deer)
         self.tmove_Deer = 0
 
     def updateDeer(self,x_Car):
+
         if (self.x_Deer - x_Car) > self.x_StartDeer:
             pass
 
@@ -88,7 +92,7 @@ if __name__=='__main__':
 
     #now simulate!!
     for k in range(1,len(t)):
-        carx[k,:],junk=car.euler_update(steervec[k],autopilot='on')
+        carx[k,:],junk=car.heuns_update(steervec[k],autopilot='on')
         deerx[k,:] = deer.updateDeer(car.x[2])
 
     distance = sqrt((carx[:,2]-deerx[:,2])**2+(carx[:,0]-deerx[:,3])**2)

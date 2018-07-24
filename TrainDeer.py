@@ -109,7 +109,7 @@ def TestDeer(deer_ind, n):
 if __name__=='__main__':
 
 
-	generation = 1;
+	generation = 10;
 	agent = "B";
 	#Select agent:
 	# A = Human
@@ -235,9 +235,13 @@ if __name__=='__main__':
 
 	G2fname = 'GenerationFiles/generations' + str(agent) + '/generation' + str(generation+1) + '/Generation' + str(generation+1) + '.txt';
 
+	Gfname = 'GenerationFiles/generations' + str(agent) + '/generation' + str(generation) + '/Generation' + str(generation) + '.txt';
+
 	newGenFile = open(G2fname,'w+');
 	newGenFile.close();
 	newGenFile = open(G2fname, 'a');
 	for x in range(0, len(NewBaseGenArray)):
 		newGenFile.write(str(NewBaseGenArray[x].traits) + ' ' + str(NewBaseGenArray[x].result) + '\n');
+
+
 

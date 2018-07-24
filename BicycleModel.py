@@ -219,12 +219,48 @@ class BicycleModel:
         #print("actual inputs passed:     "+str(Fxf)+","+str(Fxr)+","+str(steer))
         return self.x,xdot
 
+    def heuns_update(self,brake=0,gas=0,steer=0,cruise = 'on',setspeed=20.0,autopilot='off',mpc='off',patherror=0):
+        Fxf,Fxr,steer = self.calc_inputs(brake,gas,steer)
+        if cruise=='on': #TODO make this better. Hardcoded and awful for now...
+            gas = self.cruise(setspeed)
+            Fxf,Fxr,steer = self.calc_inputs(brake,gas,steer)
+        if autopilot=='on':
+            steer = self.autopilot_gain*patherror #VERY simple autopilot. Path error can be previewed, or can be angle, or whatever.
+            if abs(steer)>self.steer_limit:
+                steer = sign(steer)*self.steer_limit
+            #print steer
+            Fxf,Fxr,steer = self.calc_inputs(brake,gas,steer)
+
+        #this should have taken case of all contingencies and got us the correct inputs for the car.
+        k1x = self.state_eq(self.x,0,Fxf,Fxr,steer) # Calvulate k1
+        xhat = self.x + self.dT*k1x # Find x_hat
+        k2x = self.state_eq(xhat,0,Fxf,Fxr,steer) # Calcaulte k2 using x_hat
+        xdot = (k1x+k2x)/2 # Find xdot by averaging k1 and k2
+
+        self.x = self.x + xdot*self.dT
+        self.U = self.x[3]
+
+        return self.x,xdot
+
 
     def euler_predict(self,x,brake=0,gas=0,steer=0,dT=0.1):
         Fxf,Fxr,steer = self.calc_inputs(brake,gas,steer)
         xdot = self.state_eq(x,0,Fxf,Fxr,steer)
         x = x+self.dT*xdot #this should update the states
         return x,xdot
+
+    def heuns_predict(self,x,brake=0,gas=0,steer=0,dT=0.1):
+        Fxf,Fxr,steer = self.calc_inputs(brake,gas,steer)
+
+        k1x = self.state_eq(self.x,0,Fxf,Fxr,steer) # Calvulate k1
+        xhat = self.x + self.dT*k1x # Find x_hat
+        k2x = self.state_eq(xhat,0,Fxf,Fxr,steer) # Calcaulte k2 using x_hat
+        xdot = (k1x+k2x)/2 # Find xdot by averaging k1 and k2
+
+        x = x+self.dT*xdot #this should update the states
+        return x,xdot
+
+
 
     # def minError(self,uvec,roadvec,speedvec,xv,Rsteer,Rgas,Rbrake,Qroad,Qspeed,dT):
     #     """ minError(uvec,rvec,xvehicle) returns the objective value for minimizing vehicle-road error over a prediction horizon.
