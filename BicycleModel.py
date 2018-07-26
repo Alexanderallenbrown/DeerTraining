@@ -6,7 +6,7 @@ import sys
 # sys.path.append( '/home/brownlab/.config/blender/2.73/scripts/addons/modules')
 sys.path.append('/home/brownlab/Desktop/blender-2.79b-linux-glibc219-x86_64/2.79/python/lib/python3.4/site-packages')
 sys.path.append('/usr/lib/python3/dist-packages')
-print("PATHHHHHHHHHHHHHHHHHHHHHHHHH")
+print("PATH")
 print(sys.path)
 
 #sys.path.append("/usr/local/lib/python3.4/dist-packages/")

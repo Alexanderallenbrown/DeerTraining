@@ -2,6 +2,7 @@ import sys
 from numpy import *
 from BicycleModel import *
 from matplotlib.pyplot import *
+from Driver import *
 
 class Deer:
 
@@ -77,8 +78,12 @@ if __name__=='__main__':
     t = arange(0,simtime,dt) #takes min, max, and timestep
 
     #now set up the car's parameters
-    car = BicycleModel(dT=dt,U=20)
+    car = BicycleModel(dT=dt)
     steervec = zeros(len(t))
+
+    #set up the driver
+    driver = Driver(dt = dt)
+    drive = zeros(3)
 
     #initialize matrices to hold simulation data
     #car state vector #print array([[Ydot],[vdot],[Xdot],[Udot],[Psidot],[rdot]])
@@ -92,7 +97,13 @@ if __name__=='__main__':
 
     #now simulate!!
     for k in range(1,len(t)):
-        carx[k,:],junk=car.heuns_update(steervec[k],autopilot='on')
+
+        carx_now = carx[k-1,:]
+        print carx_now
+
+        drive[:] = driver.driving(carx = carx_now, deer_x = deerx[k-1,2], setSpeed = 20, brake = 'on', yr = -3.5)
+
+        carx[k,:],junk=car.heuns_update(brake = drive[1], gas = drive[0], steer = drive[2], cruise = 'off')
         deerx[k,:] = deer.updateDeer(car.x[2])
 
     distance = sqrt((carx[:,2]-deerx[:,2])**2+(carx[:,0]-deerx[:,3])**2)
@@ -117,6 +128,9 @@ if __name__=='__main__':
     plot(t,deerx[:,0],t[deermoving_index],deerx[deermoving_index,0],'ro',t[turn_index],deerx[turn_index,0],'bo')
     subplot(2,1,2)
     plot(t,carx[:,2],t[deermoving_index],carx[deermoving_index,2],'ro')
+
+    figure()
+    plot(t, carx[:,3])
 
     print(deer.Psi0_Deer,deer.Psi1_Deer,deer.Psi2_Deer)
     print(deer.Vturn_Deer,deer.Vmax_Deer)

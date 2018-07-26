@@ -106,7 +106,7 @@ def TestDeer(deer_ind, n):
 
 if __name__=='__main__':
 
-	Deer1 = BinaryConversion('0101010000110001110001001')
+	Deer1 = BinaryConversion('0001000001001100100110000')
 
 	print(Deer1)
 
