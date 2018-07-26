@@ -79,6 +79,7 @@ if __name__=='__main__':
 
     #now set up the car's parameters
     car = BicycleModel(dT=dt)
+    car.x[3] = 20
     steervec = zeros(len(t))
 
     #set up the driver

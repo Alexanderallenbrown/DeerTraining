@@ -53,6 +53,8 @@ def BinaryConversion(ind):
 
 def TestDeer(deer_ind, n, agent):
 
+	# Where n is the number of humans
+
 	min_distance = zeros(n)
 
 	if agent == "B":
@@ -109,6 +111,7 @@ def TestDeer(deer_ind, n, agent):
 	    #initialize matrices to hold simulation data
 	    #car state vector #print array([[Ydot],[vdot],[Xdot],[Udot],[Psidot],[rdot]])
 		carx = zeros((len(t),len(car.x)))
+		car.x[3] = setSpeed
 		carx[0,:] = car.x
 
 	    #initialize for deer as well
@@ -129,12 +132,7 @@ def TestDeer(deer_ind, n, agent):
 		
 		distance = sqrt((carx[:,2]-deerx[:,2])**2+(carx[:,0]-deerx[:,3])**2)
 
-
-
 		min_distance[k_1] = min(distance)
-
-		
-		print(min_distance)
 
 	# Calculate IQM
 
@@ -234,7 +232,7 @@ if __name__=='__main__':
 	for index in range(0,m):
 		CurrentDeer = BinaryConversion(str(NewInterGenArray[index].traits))
 		print CurrentDeer
-		NewInterGenArray[index].result = TestDeer(CurrentDeer, 8, agent)
+		NewInterGenArray[index].result = TestDeer(CurrentDeer, n, agent)
 		print NewInterGenArray[index].result
 
 	for x in range(0, n):
