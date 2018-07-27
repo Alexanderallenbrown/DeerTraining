@@ -249,19 +249,6 @@ class BicycleModel:
         x = x+self.dT*xdot #this should update the states
         return x,xdot
 
-    def heuns_predict(self,x,brake=0,gas=0,steer=0,dT=0.1):
-        Fxf,Fxr,steer = self.calc_inputs(brake,gas,steer)
-
-        k1x = self.state_eq(self.x,0,Fxf,Fxr,steer) # Calvulate k1
-        xhat = self.x + self.dT*k1x # Find x_hat
-        k2x = self.state_eq(xhat,0,Fxf,Fxr,steer) # Calcaulte k2 using x_hat
-        xdot = (k1x+k2x)/2 # Find xdot by averaging k1 and k2
-
-        x = x+self.dT*xdot #this should update the states
-        return x,xdot
-
-
-
     # def minError(self,uvec,roadvec,speedvec,xv,Rsteer,Rgas,Rbrake,Qroad,Qspeed,dT):
     #     """ minError(uvec,rvec,xvehicle) returns the objective value for minimizing vehicle-road error over a prediction horizon.
     #     uvec should be an array of length N where N is the prediction horizon.

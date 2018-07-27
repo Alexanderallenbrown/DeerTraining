@@ -48,49 +48,88 @@ def BinaryConversion(ind):
 
 	return array([Psi0,SigmaPsi,tturn,Vmax,Tau])
 
-def TestDeer(deer_ind, n):
+def TestDeer(deer_ind, n, agent):
+
+	# Where n is the number of humans
 
 	min_distance = zeros(n)
 
+	if agent == "B":
+		
+		setSpeed = 25
+		brake = 'off'
+		brakeTime = 0
+		yr = 0
+
+	if agent == "C":
+
+		setSpeed = 25
+		brake = 'off'
+		brakeTime = 0
+		yr = 3.5
+
+	if agent == "D":
+
+		setSpeed = 25
+		brake = 'on'
+		brakeTime = 3
+		yr = 0
+
+	if agent == "E":
+
+		setSpeed = 25
+		brake = 'on'
+		brakeTime = 3
+		yr = 3.5
+
+
 	for k_1 in range(0,n):
+
+		# Where n is the number of drivers we are goin to test each deer against
 
 		deer = Deer(Psi0_Deer = deer_ind[0], Sigma_Psi = deer_ind[1], tturn_Deer = deer_ind[2], Vmax_Deer = deer_ind[3], Tau_Deer = deer_ind[4])
 
 		# Indicate deer initial position
-	 	deer.x_Deer = 80
-	 	deer.y_Deer = -2
+		deer.x_Deer = 80
+		deer.y_Deer = -2
 	 	# Define simulation time and dt
-	 	simtime = 10
-	 	dt = deer.dT
-	 	t = arange(0,simtime,dt) #takes min, max, and timestep\
+		simtime = 10
+		dt = deer.dT
+		t = arange(0,simtime,dt) #takes min, max, and timestep\
 
-	    #now set up the car's parameters
-	 	car = BicycleModel(dT=dt,U=20)
-	 	steervec = zeros(len(t))
+	    #now set up the car's parameters		
+		car = BicycleModel(dT=dt,U=20)
+		steervec = zeros(len(t))
+
+	 	#set up the driver
+		driver = Driver(dt = dt)
+		drive = zeros(3)
 
 	    #initialize matrices to hold simulation data
 	    #car state vector #print array([[Ydot],[vdot],[Xdot],[Udot],[Psidot],[rdot]])
-	 	carx = zeros((len(t),len(car.x)))
-	 	carx[0,:] = car.x
+		carx = zeros((len(t),len(car.x)))
+		car.x[3] = setSpeed
+		carx[0,:] = car.x
 
 	    #initialize for deer as well
-	 	deerx = zeros((len(t),4))
+		deerx = zeros((len(t),4))
 	    #fill in initial conditions because they're nonzero
-	 	deerx[0,:] = array([deer.Speed_Deer,deer.Psi_Deer,deer.x_Deer,deer.y_Deer])
+		deerx[0,:] = array([deer.Speed_Deer,deer.Psi_Deer,deer.x_Deer,deer.y_Deer])
 
 	    #now simulate!!
-	 	for k in range(1,len(t)):
-	 	 	carx[k,:],junk=car.euler_update(steervec[k],autopilot='on')
-	 		deerx[k,:] = deer.updateDeer(car.x[2])
+		for k in range(1,len(t)):
 
-	 	distance = sqrt((carx[:,2]-deerx[:,2])**2+(carx[:,0]-deerx[:,3])**2)
+			carx_now = carx[k-1,:]
 
-	 	# print(min(distance))
+			drive[:] = driver.driving(carx = carx_now, deer_x = deerx[k-1,2], setSpeed = setSpeed, brake = brake, yr = yr, brakeTime = brakeTime)
 
-	 	min_distance[k_1] = min(distance)
+			carx[k,:],junk=car.heuns_update(brake = drive[1], gas = drive[0], steer = drive[2], cruise = 'off')
+			deerx[k,:] = deer.updateDeer(car.x[2])
 
 		
-		# print(min_distance)
+		distance = sqrt((carx[:,2]-deerx[:,2])**2+(carx[:,0]-deerx[:,3])**2)
+
+		min_distance[k_1] = min(distance)
 
 	# Calculate IQM
 
@@ -106,10 +145,18 @@ def TestDeer(deer_ind, n):
 
 if __name__=='__main__':
 
-	Deer1 = BinaryConversion('0001000001001100100110000')
+	Deer10 = ['1011110011010101111100000', '1000011110110111001101000', '0011010011101011111001101', '1011001010011011110100111', '1110001110010110110101000', '0101011010101111100110101', '1001011110101011000101110', '1110100000110001010111001', '1011101101011011001011011', '0010100010001101001001111', '0101111110001101001100001', '1001010110101111010110110', '0010010000000111000101001', '0001000001001100100110000', '0101010000110001110001001', '0101010000110001110001001']
 
-	print(Deer1)
+	for ind in range(1,len(Deer10)):
 
-	Distance1 = TestDeer(deer_ind=Deer1, n=8)
+		Deer1 = Deer10[(ind-1)]
 
-	print(Distance1)
+		print str(Deer1)
+
+		Deer1 = BinaryConversion(Deer1)
+
+		print(Deer1)
+
+		Distance1 = TestDeer(deer_ind=Deer1, n=8, agent ="E")
+
+		print(Distance1)

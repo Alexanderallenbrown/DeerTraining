@@ -77,7 +77,6 @@ class Driver:
                     gas = 0
                     brake = brakePower
                     self.brakeCount = self.brakeCount + 1    
-                    print "self.brakeCount"
 
                 else:
                      gas = self.cruise(setSpeed = setSpeed, carx = carx)

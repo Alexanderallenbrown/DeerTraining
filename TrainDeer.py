@@ -6,6 +6,7 @@ import sys
 from BicycleModel import *
 from Deer import *
 from Driver import *
+import time
 
 def BinaryConversion(ind):
 
@@ -148,140 +149,167 @@ def TestDeer(deer_ind, n, agent):
 
 if __name__=='__main__':
 
+	for driver_type in range(2,4):
 
-	generation = 1;
-	agent = "C";
-	#Select agent:
-	# A = Human
-	# B = Straight
-	# C = Swerve
-	# D = Brake
-	# E = Hybrid
+		if driver_type == 1:
+			agent_type = "B"
 
-	Gfname = 'GenerationFiles/generations' + str(agent) + '/generation' + str(generation) + '/Generation' + str(generation) + '.txt';
-	IntGfname = 'GenerationFiles/generations' + str(agent) + '/generation' + str(generation) + '/Generation' + str(generation) + 'IntResults.txt';
+		if driver_type == 2:
+			agent_type = "C"
 
-	intermediatePopulationSize = 10;
-	numberOfHumans = 8;
-	populationSize = 15;
+		if driver_type == 3:
+			agent_type = "D"
 
-	n = populationSize
-	m = intermediatePopulationSize;
-	h = numberOfHumans;
+		if driver_type == 4:
+			agent_type = "E"
 
-	#should have an array of size m*h (of object values )
+		for generation_number in range(2,9):
 
-	#in some way, read in a text file to fill an array
-	with open(Gfname, "r") as ins:
-		CurrentGenarray = []
-		for line in ins:
-			values = line.split()
-			deer = TraitResult();
-			deer.assign(str(values[0]),float(values[1]));
-			CurrentGenarray.append(deer)
+			print generation_number
 
-	# we now have an arrary of deer objects, paired values of attributes and the corresponding results
-	CurrentGenarray.sort(key=operator.attrgetter("result"))
+			generation = generation_number
+			agent = agent_type
+			#Select agent:
+			# A = Human
+			# B = Straight
+			# C = Swerve
+			# D = Brake
+			# E = Hybrid
+
+			print generation
+
+			Gfname = 'GenerationFiles/generations' + str(agent) + '/Generation' + str(generation) + '.txt';
+
+			print Gfname
+
+			intermediatePopulationSize = 10;
+			numberOfHumans = 8;
+			populationSize = 15;
+
+			n = populationSize
+			m = intermediatePopulationSize;
+			h = numberOfHumans;
+
+			#should have an array of size m*h (of object values )
+
+			#in some way, read in a text file to fill an array
+			with open(Gfname, "r") as ins:
+				CurrentGenarray = []
+				for line in ins:
+					values = line.split()
+					deer = TraitResult();
+					deer.assign(str(values[0]),float(values[1]));
+					CurrentGenarray.append(deer)
+
+			# we now have an arrary of deer objects, paired values of attributes and the corresponding results
+			CurrentGenarray.sort(key=operator.attrgetter("result"))
+
+			print "This is the CurrentGenarray"
+
+			print CurrentGenarray
+
+			for x in range(0, len(CurrentGenarray)):
+				print CurrentGenarray[x].traits
+
+			for x in range(0, len(CurrentGenarray)):
+				print CurrentGenarray[x].result
+
+			NewInterGenArray = [];
+
+			print "This is the CurrentGenarray again"
+
+			print CurrentGenarray
+
+			for x in range(0, m):
+				develMethod = random.randint(6);
+				if develMethod == 0:
+					inds = random.choice(len(CurrentGenarray),2);
+					print str(x) + ' do single point cross with ' + str(inds[0]) + ' ' + str(inds[1]);
+					NewDeer = SinglePoint(CurrentGenarray[inds[0]],CurrentGenarray[inds[1]]);
+				if develMethod == 1:
+					inds = random.choice(len(CurrentGenarray),2);
+					print str(x) + ' do double point cross with ' + str(inds[0]) + ' ' + str(inds[1]);
+					NewDeer = DoublePoint(CurrentGenarray[inds[0]],CurrentGenarray[inds[1]]);
+				if develMethod == 2:
+					inds = random.choice(len(CurrentGenarray),2);
+					print str(x) + ' do random point cross with ' + str(inds[0]) + ' ' + str(inds[1]);
+					NewDeer = RandomPoint(CurrentGenarray[inds[0]],CurrentGenarray[inds[1]]);
+				if develMethod == 3:
+					inds = random.choice(len(CurrentGenarray),2);
+					print str(x) + ' do and cross with ' + str(inds[0]) + ' ' + str(inds[1]);
+					NewDeer = AndCross(CurrentGenarray[inds[0]],CurrentGenarray[inds[1]]);
+				if develMethod == 4:
+					inds = random.choice(len(CurrentGenarray),2);
+					print str(x) + ' do or cross with ' + str(inds[0]) + ' ' + str(inds[1]);
+					NewDeer = OrCross(CurrentGenarray[inds[0]],CurrentGenarray[inds[1]]);
+				if develMethod == 5:
+					inds = random.choice(len(CurrentGenarray),1);
+					print str(x) + ' do mutation with ' + str(inds[0]);
+					NewDeer = Mutate(CurrentGenarray[inds[0]]);
+				NewInterGenArray.append(NewDeer);
+
+			print '';
+			for x in range(0, len(CurrentGenarray)):
+				print  str(x) + ' ' + str(CurrentGenarray[x].traits) + ' ' + str(CurrentGenarray[x].result);	
+			print '';
+			for x in range(0, len(NewInterGenArray)):
+				print  str(x) + ' ' + str(NewInterGenArray[x].traits) + ' ' + str(NewInterGenArray[x].result);	
+			print '';
+
+			#Test deer in intermediate generation
+			for index in range(0,m):
+				CurrentDeer = BinaryConversion(str(NewInterGenArray[index].traits))
+				print CurrentDeer
+				NewInterGenArray[index].result = TestDeer(CurrentDeer, n, agent)
+				print NewInterGenArray[index].result
+
+			for x in range(0, n):
+				NewInterGenArray.append(CurrentGenarray[x])
+
+			for x in range(0, len(NewInterGenArray)):
+				print str(NewInterGenArray[x].traits) + ' ' + str(NewInterGenArray[x].result);	
+			print '';
+
+			#Now, total array of intermediate and base generation, with scores
+
+			NewInterGenArray.sort(key=operator.attrgetter("result"))
+
+			for x in range(0, len(NewInterGenArray)):
+				print str(NewInterGenArray[x].traits) + ' ' + str(NewInterGenArray[x].result);	
+			print '';
+
+			NewBaseGenArray = []
+
+			for x in range(0, n/2):
+				NewBaseGenArray.append(NewInterGenArray[0]);
+				NewInterGenArray.pop(0)
+
+			for x in range(0,(n+m)/5):
+				NewInterGenArray.pop(len(NewInterGenArray)-1)
+
+			for x in range(0, n/2+1):
+				randIndex = random.randint(len(NewInterGenArray))
+				NewBaseGenArray.append(NewInterGenArray[randIndex]);
+				NewInterGenArray.pop(randIndex);
 
 
-	for x in range(0, len(CurrentGenarray)):
-		print CurrentGenarray[x].traits
+			for x in range(0, len(NewInterGenArray)):
+				print str(NewInterGenArray[x].traits) + ' ' + str(NewInterGenArray[x].result);	
+			print '';
 
-	for x in range(0, len(CurrentGenarray)):
-		print CurrentGenarray[x].result
+			for x in range(0, len(NewBaseGenArray)):
+				print str(NewBaseGenArray[x].traits) + ' ' + str(NewBaseGenArray[x].result);	
+			print '';
 
-	NewInterGenArray = [];
+			G2fname = 'GenerationFiles/generations' + str(agent) + '/Generation' + str(generation+1) + '.txt';
 
-	for x in range(0, m):
-		develMethod = random.randint(6);
-		if develMethod == 0:
-			inds = random.choice(len(CurrentGenarray),2);
-			print str(x) + ' do single point cross with ' + str(inds[0]) + ' ' + str(inds[1]);
-			NewDeer = SinglePoint(CurrentGenarray[inds[0]],CurrentGenarray[inds[1]]);
-		if develMethod == 1:
-			inds = random.choice(len(CurrentGenarray),2);
-			print str(x) + ' do double point cross with ' + str(inds[0]) + ' ' + str(inds[1]);
-			NewDeer = DoublePoint(CurrentGenarray[inds[0]],CurrentGenarray[inds[1]]);
-		if develMethod == 2:
-			inds = random.choice(len(CurrentGenarray),2);
-			print str(x) + ' do random point cross with ' + str(inds[0]) + ' ' + str(inds[1]);
-			NewDeer = RandomPoint(CurrentGenarray[inds[0]],CurrentGenarray[inds[1]]);
-		if develMethod == 3:
-			inds = random.choice(len(CurrentGenarray),2);
-			print str(x) + ' do and cross with ' + str(inds[0]) + ' ' + str(inds[1]);
-			NewDeer = AndCross(CurrentGenarray[inds[0]],CurrentGenarray[inds[1]]);
-		if develMethod == 4:
-			inds = random.choice(len(CurrentGenarray),2);
-			print str(x) + ' do or cross with ' + str(inds[0]) + ' ' + str(inds[1]);
-			NewDeer = OrCross(CurrentGenarray[inds[0]],CurrentGenarray[inds[1]]);
-		if develMethod == 5:
-			inds = random.choice(len(CurrentGenarray),1);
-			print str(x) + ' do mutation with ' + str(inds[0]);
-			NewDeer = Mutate(CurrentGenarray[inds[0]]);
-		NewInterGenArray.append(NewDeer);
+			newGenFile = open(G2fname,'w+');
+			newGenFile.close();
+			newGenFile = open(G2fname, 'a');
+			for x in range(0, len(NewBaseGenArray)):
+				newGenFile.write(str(NewBaseGenArray[x].traits) + ' ' + str(NewBaseGenArray[x].result) + '\n');
 
-	print '';
-	for x in range(0, len(CurrentGenarray)):
-		print  str(x) + ' ' + str(CurrentGenarray[x].traits) + ' ' + str(CurrentGenarray[x].result);	
-	print '';
-	for x in range(0, len(NewInterGenArray)):
-		print  str(x) + ' ' + str(NewInterGenArray[x].traits) + ' ' + str(NewInterGenArray[x].result);	
-	print '';
-
-	#Test deer in intermediate generation
-	for index in range(0,m):
-		CurrentDeer = BinaryConversion(str(NewInterGenArray[index].traits))
-		print CurrentDeer
-		NewInterGenArray[index].result = TestDeer(CurrentDeer, n, agent)
-		print NewInterGenArray[index].result
-
-	for x in range(0, n):
-		NewInterGenArray.append(CurrentGenarray[x])
-
-	for x in range(0, len(NewInterGenArray)):
-		print str(NewInterGenArray[x].traits) + ' ' + str(NewInterGenArray[x].result);	
-	print '';
-
-	#Now, total array of intermediate and base generation, with scores
-
-	NewInterGenArray.sort(key=operator.attrgetter("result"))
-
-	for x in range(0, len(NewInterGenArray)):
-		print str(NewInterGenArray[x].traits) + ' ' + str(NewInterGenArray[x].result);	
-	print '';
-
-	NewBaseGenArray = []
-
-	for x in range(0, n/2):
-		NewBaseGenArray.append(NewInterGenArray[0]);
-		NewInterGenArray.pop(0)
-
-	for x in range(0,(n+m)/5):
-		NewInterGenArray.pop(len(NewInterGenArray)-1)
-
-	for x in range(0, n/2+1):
-		randIndex = random.randint(len(NewInterGenArray))
-		NewBaseGenArray.append(NewInterGenArray[randIndex]);
-		NewInterGenArray.pop(randIndex);
-
-
-	for x in range(0, len(NewInterGenArray)):
-		print str(NewInterGenArray[x].traits) + ' ' + str(NewInterGenArray[x].result);	
-	print '';
-
-	for x in range(0, len(NewBaseGenArray)):
-		print str(NewBaseGenArray[x].traits) + ' ' + str(NewBaseGenArray[x].result);	
-	print '';
-
-	G2fname = 'GenerationFiles/generations' + str(agent) + '/generation' + str(generation+1) + '/Generation' + str(generation+1) + '.txt';
-
-	Gfname = 'GenerationFiles/generations' + str(agent) + '/generation' + str(generation) + '/Generation' + str(generation) + '.txt';
-
-	newGenFile = open(G2fname,'w+');
-	newGenFile.close();
-	newGenFile = open(G2fname, 'a');
-	for x in range(0, len(NewBaseGenArray)):
-		newGenFile.write(str(NewBaseGenArray[x].traits) + ' ' + str(NewBaseGenArray[x].result) + '\n');
+			time.sleep(20)
 
 
 
