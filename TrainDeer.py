@@ -149,21 +149,25 @@ def TestDeer(deer_ind, n, agent):
 
 if __name__=='__main__':
 
-	for driver_type in range(2,4):
+	for generation_number in range(6,11):
 
-		if driver_type == 1:
-			agent_type = "B"
+		for driver_type in range(2,3):
 
-		if driver_type == 2:
-			agent_type = "C"
+			if driver_type == 1:
+				agent_type = "B"
 
-		if driver_type == 3:
-			agent_type = "D"
+			if driver_type == 2:
+				agent_type = "C"
 
-		if driver_type == 4:
-			agent_type = "E"
+			if driver_type == 3:
+				agent_type = "D"
 
-		for generation_number in range(2,9):
+			if driver_type == 4:
+				agent_type = "E"
+
+			#for generation_number in range(5,9):
+
+			print "New generation"
 
 			print generation_number
 
@@ -309,7 +313,6 @@ if __name__=='__main__':
 			for x in range(0, len(NewBaseGenArray)):
 				newGenFile.write(str(NewBaseGenArray[x].traits) + ' ' + str(NewBaseGenArray[x].result) + '\n');
 
-			time.sleep(20)
 
 
 
