@@ -149,9 +149,9 @@ def TestDeer(deer_ind, n, agent):
 
 if __name__=='__main__':
 
-	for generation_number in range(9,11):
+	for generation_number in range(11,100):
 
-		for driver_type in range(1,3):
+		for driver_type in range(1,5):
 
 			if driver_type == 1:
 				agent_type = "B"
@@ -312,6 +312,7 @@ if __name__=='__main__':
 			newGenFile = open(G2fname, 'a');
 			for x in range(0, len(NewBaseGenArray)):
 				newGenFile.write(str(NewBaseGenArray[x].traits) + ' ' + str(NewBaseGenArray[x].result) + '\n');
+
 
 
 
