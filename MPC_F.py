@@ -37,6 +37,7 @@ class MPC_F:
 
     def predictCar(self,carnow,steervector):
         predictCar = copy.deepcopy(carnow)
+        predictCar.tiretype='linear'
         #compute the numper of timesteps we will simulate using the CAR's dt
         timesteps = self.prediction_time/predictCar.dT
         #compute a time vector for predicting
@@ -116,14 +117,14 @@ def demo():
     t = arange(0,simtime,dt) #takes min, max, and timestep\
 
 
-    car = BicycleModel(dT = dt, U = 25.0,tiretype='linear')
+    car = BicycleModel(dT = dt, U = 25.0,tiretype='pacejka')
 
 
      #car state vector #print array([[Ydot],[vdot],[Xdot],[Udot],[Psidot],[rdot]])
     carx = zeros((len(t),len(car.x)))
     carxdot = zeros((len(t),len(car.x)))
     car.x[3] = setSpeed
-    car.x[0] = 1.5 #let the vehicle start away from lane.
+    car.x[0] = 0.0 #let the vehicle start away from lane.
     carx[0,:] = car.x
 
     #initialize for deer as well
@@ -160,6 +161,8 @@ def demo():
             steervec[k] = opt_steer
 
             print t[k],opt_steer,deer.y_Deer
+
+    ayg = (carxdot[:,1]+carx[:,5]*carx[:,3])/9.81
     figure()
     plot(t,steervec,'k')
     xlabel('Time (s)')
@@ -174,6 +177,10 @@ def demo():
     xlabel('X (m)')
     ylabel('Y (m)')
     legend(['car','deer'])
+    figure()
+    plot(t,ayg,'k')
+    xlabel('time (s)')
+    ylabel('lateral acceleration (g)')
     show()
 if __name__ == '__main__':
     demo()
