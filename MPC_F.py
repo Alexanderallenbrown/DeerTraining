@@ -6,7 +6,7 @@ from BinaryConversion import *
 import copy
 
 class MPC_F:
-    def __init__(self, Np=20, dtp=1.0/60.0,q_lane_error = 1.0,q_obstacle_error = 1.0,q_steering_effort=1.0,steering_angle_max=.20, epsilon = 0.001):
+    def __init__(self, Np=3, dtp=.5,q_lane_error = 1.0,q_obstacle_error = 1.0,q_steering_effort=1.0,steering_angle_max=.20, epsilon = 0.001):
         self.Np = Np
         self.dtp = dtp
         self.q_lane_error = q_lane_error
@@ -14,29 +14,44 @@ class MPC_F:
         self.q_steering_effort = q_steering_effort
         self.steering_angle_max = steering_angle_max
         self.epsilon = epsilon
+        self.prediction_time = self.dtp*self.Np
+        self.t_horizon = arange(0,self.prediction_time,self.dtp)#go to one extra so the horizon matches
 
     def predictDeer_static(self,deernow,carnow):
         xdeer = copy.deepcopy(deernow)
-
-        xdeer_pred = zeros((self.Np,4))
-
-        for k in range(0,self.Np):
+        #make a time vector for prediction using 'fine' timestep of deer
+        tvec = arange(0,self.prediction_time+xdeer.dT,xdeer.dT)
+        #initialize the 'fine' predicted state vector
+        xdeer_pred = zeros((len(tvec),4))
+        for k in range(0,len(tvec)):
             #eventually, the deer will need to also have a model of how the CAR moves...
             xdeer_pred[k,:] = xdeer.updateDeer(carnow.x[3])
-
-        return xdeer_pred
+        #now downsample the prediction so that the horizon matches MPC rather than the deer
+        #this way, the MPC will only look at and attempt to optimize a few points, but the prediction will be high-fi
+        xdeer_pred_downsampled = zeros((self.Np,4))
+        for k in range(0,4):
+            xdeer_pred_downsampled[:,k] = interp(self.t_horizon,tvec,xdeer_pred[:,k])
+        return xdeer_pred_downsampled
 
     def predictCar(self,carnow,steervector):
         predictCar = copy.deepcopy(carnow)
-
-        xcar_pred = zeros((self.Np,6))
-
-        car1 = BicycleModel(dT = self.dtp, U = 25.0)
-
-        # xcar_pred[0,:] = self.predictCar(carnow,steervector)
+        #compute the numper of timesteps we will simulate using the CAR's dt
+        timesteps = self.prediction_time/predictCar.dT
+        #compute a time vector for predicting
+        tvec = arange(0,self.prediction_time+predictCar.dT,predictCar.dT)
+        #initialize the downsampled vector we will return
+        xcar_pred_downsampled = zeros((self.Np,6))
+        #initialize the 'fine' vector we will fill while predicting 
+        xcar_pred = zeros((len(tvec),6))
+        #we have to 'upsample' the steer vector since it is only Np long. it will look like 'stairs'
+        steervector_upsampled = interp(tvec,self.t_horizon,steervector)
+        #print steervector_upsampled.shape
+        #actually predict the car's states given the input
         for k in range(0,self.Np):
-            xcar_pred[k,:],junk = car1.heuns_update(steer = steervector[k], setspeed = 25.0)
-        
+            xcar_pred[k,:],junk = predictCar.heuns_update(steer = steervector_upsampled[k], setspeed = 25.0)
+        #now downsample the prediction so it is only MPC.Np points long
+        for k in range(0,6):
+            xcar_pred_downsampled[:,k] = interp(self.t_horizon,tvec,xcar_pred[:,k])
         return xcar_pred
 
     def ObjectiveFn(self,steervector,carnow,deernow,yroad):
@@ -78,10 +93,10 @@ def demo():
 
     # Indicate deer initial position
     deer.x_Deer = 80
-    deer.y_Deer = -2
+    deer.y_Deer = 0#PUT THE DEER IN THE MIDDLE OF THE ROAD!!
         
     # Define simulation time and dt
-    simtime = 10
+    simtime = 5
     dt = deer.dT
     t = arange(0,simtime,dt) #takes min, max, and timestep\
 
@@ -99,10 +114,10 @@ def demo():
     #fill in initial conditions because they're nonzero
     deerx[0,:] = array([deer.Speed_Deer,deer.Psi_Deer,deer.x_Deer,deer.y_Deer])
 
-    MPC = MPC_F()
+    MPC = MPC_F(q_lane_error = 1.0,q_obstacle_error = 50.0,q_steering_effort=1.0)
 
 
-
+    steervec = zeros(len(t))
     #now simulate!!
     for k in range(1,len(t)):
 
@@ -124,10 +139,25 @@ def demo():
                 opt_steer = 0
 
             carx[k,:],carxdot[k,:] = car.heuns_update(steer = opt_steer, setspeed = 25.0)
-            deerx[k,:] = deer.updateDeer(car.x[2])
+            deerx[k,:] = deer.x_Deer#updateDeer(car.x[2])
+            steervec[k] = opt_steer
 
-            print opt_steer
-
+            print t[k],opt_steer
+    figure()
+    plot(t,steervec,'k')
+    xlabel('Time (s)')
+    ylabel('steer angle (rad)')
+    figure()
+    plot(t,carx[:,0],'k')
+    xlabel('Time (s)')
+    ylabel('car Y position (m)')
+    figure()
+    plot(carx[:,2],carx[:,0],'k',deerx[:,2],deerx[:,3],'r')
+    axis('equal')
+    xlabel('X (m)')
+    ylabel('Y (m)')
+    legend(['car','deer'])
+    show()
 if __name__ == '__main__':
     demo()
 
