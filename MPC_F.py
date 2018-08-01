@@ -6,7 +6,7 @@ from BinaryConversion import *
 import copy
 
 class MPC_F:
-    def __init__(self, Np=3, dtp=.5,q_lane_error = 1.0,q_obstacle_error = 1.0,q_steering_effort=1.0,steering_angle_max=.20, epsilon = 0.001):
+    def __init__(self, Np=10, dtp=.1,q_lane_error = 1.0,q_obstacle_error = 1.0,q_steering_effort=1.0,steering_angle_max=.20, epsilon = 0.001):
         self.Np = Np
         self.dtp = dtp
         self.q_lane_error = q_lane_error
@@ -18,14 +18,14 @@ class MPC_F:
         self.t_horizon = arange(0,self.prediction_time,self.dtp)#go to one extra so the horizon matches
 
     def predictDeer_static(self,deernow,carnow):
-        xdeer = copy.deepcopy(deernow)
+        predictDeer = copy.deepcopy(deernow)
         #make a time vector for prediction using 'fine' timestep of deer
-        tvec = arange(0,self.prediction_time+xdeer.dT,xdeer.dT)
+        tvec = arange(0,self.prediction_time+predictDeer.dT,predictDeer.dT)
         #initialize the 'fine' predicted state vector
         xdeer_pred = zeros((len(tvec),4))
         for k in range(0,len(tvec)):
             #eventually, the deer will need to also have a model of how the CAR moves...
-            xdeer_pred[k,:] = xdeer.updateDeer(carnow.x[3])
+            xdeer_pred[k,:] = predictDeer.x_Deer
         #now downsample the prediction so that the horizon matches MPC rather than the deer
         #this way, the MPC will only look at and attempt to optimize a few points, but the prediction will be high-fi
         xdeer_pred_downsampled = zeros((self.Np,4))
@@ -63,13 +63,18 @@ class MPC_F:
         J = 0 # initialize the objective to zero
         #now loop through and upfdate J for every timestep in the prediction horizon.
         for k in range(0,self.Np):
-            distance = sqrt((xcar_pred[k,0] - xdeer_pred[k,3])**2 + (xcar_pred[k,2] - xdeer_pred[k,2])**2)
-            J = J +  self.q_steering_effort * (steervector[k])**2 + self.q_lane_error * (xcar_pred[k,0]-yroad)**2 + self.q_obstacle_error * 1/(distance+self.epsilon)**2
+            distance = sqrt((xcar_pred[k,0] - xdeer_pred[k,3])**2+ (xcar_pred[k,2] - xdeer_pred[k,2])**2)
+            #return distance
+            if(carnow.x[2]<deernow.x_Deer):
+                J = J +  self.q_steering_effort * (steervector[k])**2 + self.q_lane_error * (xcar_pred[k,0]-yroad)**2 + self.q_obstacle_error * (distance)**2
+            else:
+                #print "passed deer!"
+                J = J +  self.q_steering_effort * (steervector[k])**2 + self.q_lane_error * (xcar_pred[k,0]-yroad)**2
         return J
 
 
     def calcOptimal(self,carnow, deernow,yroad):
-        steervector = 0.01*random.randn(self.Np)
+        steervector = 0.1*random.randn(self.Np)
 
         bounds = [(-self.steering_angle_max,self.steering_angle_max)]
         for ind in range(1,self.Np):
@@ -96,12 +101,12 @@ def demo():
     deer.y_Deer = 0#PUT THE DEER IN THE MIDDLE OF THE ROAD!!
         
     # Define simulation time and dt
-    simtime = 5
+    simtime = 10
     dt = deer.dT
     t = arange(0,simtime,dt) #takes min, max, and timestep\
 
 
-    car = BicycleModel(dT = dt, U = 25.0)
+    car = BicycleModel(dT = dt, U = 25.0,tiretype='linear')
 
      #car state vector #print array([[Ydot],[vdot],[Xdot],[Udot],[Psidot],[rdot]])
     carx = zeros((len(t),len(car.x)))
@@ -114,7 +119,7 @@ def demo():
     #fill in initial conditions because they're nonzero
     deerx[0,:] = array([deer.Speed_Deer,deer.Psi_Deer,deer.x_Deer,deer.y_Deer])
 
-    MPC = MPC_F(q_lane_error = 1.0,q_obstacle_error = 50.0,q_steering_effort=1.0)
+    MPC = MPC_F(q_lane_error = 1.0,q_obstacle_error = .10,q_steering_effort=0.0)
 
 
     steervec = zeros(len(t))
@@ -139,10 +144,10 @@ def demo():
                 opt_steer = 0
 
             carx[k,:],carxdot[k,:] = car.heuns_update(steer = opt_steer, setspeed = 25.0)
-            deerx[k,:] = deer.x_Deer#updateDeer(car.x[2])
+            deerx[k,:] = array([deer.Speed_Deer, deer.Psi_Deer, deer.x_Deer, deer.y_Deer])#updateDeer(car.x[2])
             steervec[k] = opt_steer
 
-            print t[k],opt_steer
+            print t[k],opt_steer,deer.y_Deer
     figure()
     plot(t,steervec,'k')
     xlabel('Time (s)')
@@ -152,7 +157,7 @@ def demo():
     xlabel('Time (s)')
     ylabel('car Y position (m)')
     figure()
-    plot(carx[:,2],carx[:,0],'k',deerx[:,2],deerx[:,3],'r')
+    plot(carx[:,2],carx[:,0],'k',deerx[:,2],deerx[:,3],'ro')
     axis('equal')
     xlabel('X (m)')
     ylabel('Y (m)')
