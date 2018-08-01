@@ -6,7 +6,7 @@ from BinaryConversion import *
 import copy
 
 class MPC_F:
-    def __init__(self, Np=10, dtp=.1,q_lane_error = 1.0,q_obstacle_error = 1.0,q_steering_effort=1.0,steering_angle_max=.20, epsilon = 0.001):
+    def __init__(self, Np=20, dtp=.2,q_lane_error = 1.0,q_obstacle_error = 1.0,q_steering_effort=1.0,q_accel = 1.0,q_lateral_velocity=1.0,steering_angle_max=.20, epsilon = 0.00001):
         self.Np = Np
         self.dtp = dtp
         self.q_lane_error = q_lane_error
@@ -16,6 +16,8 @@ class MPC_F:
         self.epsilon = epsilon
         self.prediction_time = self.dtp*self.Np
         self.t_horizon = arange(0,self.prediction_time,self.dtp)#go to one extra so the horizon matches
+        self.q_accel = q_accel
+        self.q_lateral_velocity = q_lateral_velocity
 
     def predictDeer_static(self,deernow,carnow):
         predictDeer = copy.deepcopy(deernow)
@@ -41,24 +43,30 @@ class MPC_F:
         tvec = arange(0,self.prediction_time+predictCar.dT,predictCar.dT)
         #initialize the downsampled vector we will return
         xcar_pred_downsampled = zeros((self.Np,6))
+        xdotcar_pred_downsampled = zeros((self.Np,6))
         #initialize the 'fine' vector we will fill while predicting 
         xcar_pred = zeros((len(tvec),6))
+        xdotcar_pred  = zeros((len(tvec),6))
         #we have to 'upsample' the steer vector since it is only Np long. it will look like 'stairs'
         steervector_upsampled = interp(tvec,self.t_horizon,steervector)
         #print steervector_upsampled.shape
         #actually predict the car's states given the input
         for k in range(0,self.Np):
-            xcar_pred[k,:],junk = predictCar.heuns_update(steer = steervector_upsampled[k], setspeed = 25.0)
+            xcar_pred[k,:],xdotcar_pred[k,:] = predictCar.heuns_update(steer = steervector_upsampled[k], setspeed = 25.0)
         #now downsample the prediction so it is only MPC.Np points long
         for k in range(0,6):
             xcar_pred_downsampled[:,k] = interp(self.t_horizon,tvec,xcar_pred[:,k])
-        return xcar_pred
+            xdotcar_pred_downsampled[:,k] = interp(self.t_horizon,tvec,xdotcar_pred[:,k])
+        #print xdotcar_pred_downsampled.shape,xcar_pred_downsampled.shape
+        return xcar_pred_downsampled,xdotcar_pred_downsampled
 
     def ObjectiveFn(self,steervector,carnow,deernow,yroad):
         J=0
         #Np rows by 6 columns, one for each state (or vice versa)
-        xcar_pred = self.predictCar(carnow,steervector)
+        xcar_pred,xdotcar_pred = self.predictCar(carnow,steervector)
         xdeer_pred = self.predictDeer_static(deernow,carnow)
+        #calculate lateral acceleration Vdot+U*psidot for the prediction too, so we can use it in objective function
+        car_y_accel_pred = xdotcar_pred[:,1]+xcar_pred[:,3]*xcar_pred[:,5]
         #Np rows by 5 columns, one for x and y of deer
         J = 0 # initialize the objective to zero
         #now loop through and upfdate J for every timestep in the prediction horizon.
@@ -66,10 +74,10 @@ class MPC_F:
             distance = sqrt((xcar_pred[k,0] - xdeer_pred[k,3])**2+ (xcar_pred[k,2] - xdeer_pred[k,2])**2)
             #return distance
             if(carnow.x[2]<deernow.x_Deer):
-                J = J +  self.q_steering_effort * (steervector[k])**2 + self.q_lane_error * (xcar_pred[k,0]-yroad)**2 + self.q_obstacle_error * (distance)**2
+                J = J +  self.q_lateral_velocity*(xcar_pred[k,1])**2+self.q_steering_effort * (steervector[k])**2 + self.q_lane_error * (xcar_pred[k,0]-yroad)**2 + self.q_obstacle_error * ((distance+self.epsilon))**2 + self.q_accel*((car_y_accel_pred[k]))**2
             else:
                 #print "passed deer!"
-                J = J +  self.q_steering_effort * (steervector[k])**2 + self.q_lane_error * (xcar_pred[k,0]-yroad)**2
+                J = J +  self.q_steering_effort * (steervector[k])**2 + self.q_lane_error * (xcar_pred[k,0]-yroad)**2+ self.q_accel*((car_y_accel_pred[k]))**2
         return J
 
 
@@ -81,6 +89,8 @@ class MPC_F:
             bounds.insert(0,(-self.steering_angle_max,self.steering_angle_max))
 
         umpc = minimize(self.ObjectiveFn,steervector,args = (carnow,deernow,yroad),bounds = bounds, method = 'SLSQP')
+        # umpc = minimize(self.ObjectiveFn,steervector,args = (carnow,deernow,yroad),bounds = bounds, method='BFGS',options={'xtol': 1e-12, 'disp': False,'eps':.0001,'gtol':.0001})
+        #method='BFGS',options={'xtol': 1e-12, 'disp': False,'eps':.0001,'gtol':.0001}
         opt_steering = umpc.x[0]
 
         return opt_steering
@@ -108,10 +118,12 @@ def demo():
 
     car = BicycleModel(dT = dt, U = 25.0,tiretype='linear')
 
+
      #car state vector #print array([[Ydot],[vdot],[Xdot],[Udot],[Psidot],[rdot]])
     carx = zeros((len(t),len(car.x)))
     carxdot = zeros((len(t),len(car.x)))
     car.x[3] = setSpeed
+    car.x[0] = 1.5 #let the vehicle start away from lane.
     carx[0,:] = car.x
 
     #initialize for deer as well
@@ -119,7 +131,7 @@ def demo():
     #fill in initial conditions because they're nonzero
     deerx[0,:] = array([deer.Speed_Deer,deer.Psi_Deer,deer.x_Deer,deer.y_Deer])
 
-    MPC = MPC_F(q_lane_error = 1.0,q_obstacle_error = .10,q_steering_effort=0.0)
+    MPC = MPC_F(q_lane_error = 50.0,q_obstacle_error = 1.0,q_lateral_velocity=0.00,q_steering_effort=0.0,q_accel = 0.05)
 
 
     steervec = zeros(len(t))
@@ -130,15 +142,15 @@ def demo():
             #print deerx[k-1,:]
 
             if ((deer.x_Deer - car.x[2]) < swerveDistance): 
-                ##### The commented lines below allow you to test the objective function independently
-                # steervector = 0.01*random.randn(MPC.Np)
-                # bounds = [(-MPC.steering_angle_max,MPC.steering_angle_max)]
-                # for ind in range(1,MPC.Np):
-                #     bounds.insert(0,(-MPC.steering_angle_max,MPC.steering_angle_max))
-                # opt_steer = 0
-                # #steervector,carnow,deernow,yroad
-                # J = MPC.ObjectiveFn(steervector,car,deer,yroad=0)
-                # print J
+            #     ##### The commented lines below allow you to test the objective function independently
+            #     steervector = 0.01*random.randn(MPC.Np)
+            #     bounds = [(-MPC.steering_angle_max,MPC.steering_angle_max)]
+            #     for ind in range(1,MPC.Np):
+            #         bounds.insert(0,(-MPC.steering_angle_max,MPC.steering_angle_max))
+            #     opt_steer = 0
+            #     #steervector,carnow,deernow,yroad
+            #     J = MPC.ObjectiveFn(steervector,car,deer,yroad=0)
+            #     print J
                 opt_steer = MPC.calcOptimal(carnow = car,deernow = deer, yroad = 0)
             else:
                 opt_steer = 0
