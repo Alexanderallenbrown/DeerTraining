@@ -136,6 +136,8 @@ def demo():
 
 
     steervec = zeros(len(t))
+    cafvec = zeros(len(t))
+    carvec = zeros(len(t))
     #now simulate!!
     for k in range(1,len(t)):
 
@@ -157,11 +159,13 @@ def demo():
                 opt_steer = 0
 
             carx[k,:],carxdot[k,:] = car.heuns_update(steer = opt_steer, setspeed = 25.0)
+            cafvec[k] = car.Caf
+            carvec[k] = car.Car
             #deerx[k,:] = array([deer.Speed_Deer, deer.Psi_Deer, deer.x_Deer, deer.y_Deer])#updateDeer(car.x[2])
             deerx[k,:] = deer.updateDeer(car.x[2])
             steervec[k] = opt_steer
 
-            print t[k],opt_steer,deer.y_Deer
+            print round(t[k],2),round(opt_steer,2),round(deer.y_Deer,2)
 
     ayg = (carxdot[:,1]+carx[:,5]*carx[:,3])/9.81
     figure()
@@ -182,6 +186,13 @@ def demo():
     plot(t,ayg,'k')
     xlabel('time (s)')
     ylabel('lateral acceleration (g)')
+
+    figure()
+    plot(t,cafvec,t,carvec)
+    xlabel('time (s)')
+    ylabel('Cornering Stiffness (N/rad)')
+    legend(['front','rear'])
+
     show()
 if __name__ == '__main__':
     demo()

@@ -112,6 +112,14 @@ class BicycleModel:
                 self.Fyr = -self.Fzr*self.mu*sign(self.x[1]-self.b*self.x[5])
         elif self.tiretype=='pacejka':
             if self.x[3]>0:
+                #calculate effective Calphas RIGHT NOW
+                Fyf_high = 2*self.pacejkatire_front.calcFy_xforce(self.Fzf/2,self.alpha_f+.01,Fxf,0)
+                Fyf_low = 2*self.pacejkatire_front.calcFy_xforce(self.Fzf/2,self.alpha_f-.01,Fxf,0)
+                Fyr_high = 2*self.pacejkatire_rear.calcFy_xforce(self.Fzr/2,self.alpha_r+.01,Fxr,0)
+                Fyr_low = 2*self.pacejkatire_rear.calcFy_xforce(self.Fzr/2,self.alpha_r-.01,Fxr,0)
+                self.Caf = abs(Fyf_high-Fyf_low)/(.02)
+                self.Car = abs(Fyr_high-Fyr_low)/(.02)
+
                 self.Fyf = 2*self.pacejkatire_front.calcFy_xforce(self.Fzf/2,self.alpha_f,Fxf,0)
                 self.Fyr = 2*self.pacejkatire_rear.calcFy_xforce(self.Fzr/2,self.alpha_r,Fxr,0)
             else:

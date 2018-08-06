@@ -6,7 +6,7 @@ from BinaryConversion import *
 import copy
 
 class MPC_G:
-    def __init__(self, Np=20, dtp=.2, q_obstacle_error = 1.0, q_cruise_speed = 1.0, q_x_accel=1.0, gas_max=250, brake_max = 500, epsilon = 0.0001):
+    def __init__(self, Np=5, dtp=.5, q_obstacle_error = 1.0, q_cruise_speed = 1.0, q_x_accel=1.0, gas_max=1.0, brake_max = .5, epsilon = 0.0001):
         self.Np = Np
         self.dtp = dtp
         self.q_obstacle_error = q_obstacle_error
@@ -48,17 +48,17 @@ class MPC_G:
         xcar_pred = zeros((len(tvec),6))
         xdotcar_pred  = zeros((len(tvec),6))
         #we have to 'upsample' the steer vector since it is only Np long. it will look like 'stairs'
-        x_accelvector_unsampled = interp(tvec,self.t_horizon,x_accelvector)
+        x_accelvector_upsampled = interp(tvec,self.t_horizon,x_accelvector)
         #print steervector_upsampled.shape
         #actually predict the car's states given the input
         for k in range(0,self.Np):
             if x_accelvector_upsampled[k] > 0:
-                gas = x_accelvector_upsampled[k]*self.gas_max
+                gas = x_accelvector_upsampled[k]
                 brake = 0
                 xcar_pred[k,:],xdotcar_pred[k,:] = predictCar.heuns_update(gas = gas, brake = brake, steer = 0, cruise = 'off')
             else:
                 gas = 0
-                brake = x_accelvector_upsampled[k]*self.brake_max
+                brake = abs(x_accelvector_upsampled[k])
                 xcar_pred[k,:],xdotcar_pred[k,:] = predictCar.heuns_update(gas = gas, brake = brake, steer = 0, cruise = 'off')
         #now downsample the prediction so it is only MPC.Np points long
         for k in range(0,6):
@@ -90,9 +90,9 @@ class MPC_G:
     def calcOptimal(self,carnow,deernow,setSpeed):
         x_accelvector = 0.5*random.randn(self.Np)
 
-        bounds = [(-1,1)]
+        bounds = [(-self.brake_max,self.gas_max)]
         for ind in range(1,self.Np):
-            bounds.insert(0,(-1,1))
+            bounds.insert(0,(-self.brake_max,self.gas_max))
 
         umpc = minimize(self.ObjectiveFn,x_accelvector,args = (carnow,deernow,setSpeed),bounds = bounds, method = 'SLSQP')
         # umpc = minimize(self.ObjectiveFn,steervector,args = (carnow,deernow,yroad),bounds = bounds, method='BFGS',options={'xtol': 1e-12, 'disp': False,'eps':.0001,'gtol':.0001})
@@ -137,46 +137,62 @@ def demo():
     #fill in initial conditions because they're nonzero
     deerx[0,:] = array([deer.Speed_Deer,deer.Psi_Deer,deer.x_Deer,deer.y_Deer])
 
-    MPC = MPC_G(q_obstacle_error = 1.0,q_x_accel=1.0,q_cruise_speed=1.0)
+    MPC = MPC_G(q_obstacle_error = 1000000000.0,q_x_accel=0.0,q_cruise_speed=0.01,brake_max = 0.5)
 
 
     steervec = zeros(len(t))
+    accelvec = zeros(len(t))
+    distancevec = zeros(len(t))
     #now simulate!!
     for k in range(1,len(t)):
 
             #print carx[k-1,:]
             #print deerx[k-1,:]
+            #accelvec = zeros(5)
+            opt_steer = 0
+
+            #MPC.ObjectiveFn(accelvec,car,deer,25.0)
+            #opt_x_accel = 0#
             opt_x_accel = MPC.calcOptimal(carnow = car, deernow = deer, setSpeed = setSpeed)
 
             if (opt_x_accel > 0): 
-                gas = opt_x_accel*250
+                gas = opt_x_accel
                 brake = 0
 
             else:
                 gas = 0
-                brake = opt_x_accel*500
+                brake = abs(opt_x_accel)
 
-            if ((deer.x_Deer - car.x[2]) < x_acceldistance):
+            if ((sqrt((deer.x_Deer - car.x[2])**2+(deer.y_Deer - car.x[0])**2) < x_acceldistance) and (deer.x_Deer>car.x[2])):
+
                 carx[k,:],carxdot[k,:] = car.heuns_update(gas = gas, brake = brake, steer = 0, cruise = 'off')
                 deerx[k,:] = array([deer.Speed_Deer, deer.Psi_Deer, deer.x_Deer, deer.y_Deer])#updateDeer(car.x[2])
-                steervec[k] = opt_steer
+                deerx[k,:] = deer.updateDeer(car.x[2])
+                #steervec[k] = opt_steer
+                accelvec[k] = carxdot[k,3]
+                print "mpc active"
 
             else:
-                carx[k,:],carxdot[k,:] = car.heuns_update(steer = 0, setspeed = setSpeed)
-                deerx[k,:] = deer.updateDeer(car.x[2]) #array([deer.Speed_Deer, deer.Psi_Deer, deer.x_Deer, deer.y_Deer])#updateDeer(car.x[2])
-                steervec[k] = opt_steer
+                carx[k,:],carxdot[k,:] = car.heuns_update(steer = 0, setspeed = setSpeed,)
+                #carx[k,:],carxdot[k,:] = car.heuns_update(gas = gas, brake = brake, steer = 0, cruise = 'off')
+                #deerx[k,:] = array([deer.Speed_Deer, deer.Psi_Deer, deer.x_Deer, deer.y_Deer])#updateDeer(car.x[2])
+                deerx[k,:] = deer.updateDeer(car.x[2])
+                #steervec[k] = opt_steer
+                accelvec[k] = carxdot[k,3]
 
-            print t[k],opt_steer,deer.y_Deer
+            distancevec[k] = sqrt((deer.x_Deer - car.x[2])**2+(deer.y_Deer - car.x[0])**2)
+            print round(t[k],2),round(opt_x_accel,2)
 
     ayg = (carxdot[:,1]+carx[:,5]*carx[:,3])/9.81
+    
+    # figure()
+    # plot(t,steervec,'k')
+    # xlabel('Time (s)')
+    # ylabel('steer angle (rad)')
     figure()
-    plot(t,steervec,'k')
+    plot(t,carx[:,3],'k')
     xlabel('Time (s)')
-    ylabel('steer angle (rad)')
-    figure()
-    plot(t,carx[:,0],'k')
-    xlabel('Time (s)')
-    ylabel('car Y position (m)')
+    ylabel('car forward velocity (m/s)')
     figure()
     plot(carx[:,2],carx[:,0],'k',deerx[:,2],deerx[:,3],'ro')
     axis('equal')
@@ -184,9 +200,13 @@ def demo():
     ylabel('Y (m)')
     legend(['car','deer'])
     figure()
-    plot(t,ayg,'k')
+    plot(t,accelvec,'k')
     xlabel('time (s)')
-    ylabel('lateral acceleration (g)')
+    ylabel('longitudinal acceleration (m/s/s)')
+    figure()
+    plot(t,distancevec,'k')
+    xlabel('time (s)')
+    ylabel('car-deer distance (m)')
     show()
 if __name__ == '__main__':
     demo()

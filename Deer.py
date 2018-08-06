@@ -25,6 +25,7 @@ class Deer:
         self.Psi_Deer = Psi0_Deer
         self.Amax_Deer = 0.632*Vmax_Deer/Tau_Deer
         self.Psidot_Deer = (self.Psi2_Deer-self.Psi1_Deer)/(10*self.dT)
+        self.xdeer = array([self.Speed_Deer,self.Psi_Deer,self.x_Deer,self.y_Deer])
         if self.Psidot_Deer == 0:
             self.Vturn_Deer = 0
         else:
@@ -63,7 +64,8 @@ class Deer:
 
         
 
-        return array([self.Speed_Deer, self.Psi_Deer, self.x_Deer, self.y_Deer])
+        self.xdeer = array([self.Speed_Deer, self.Psi_Deer, self.x_Deer, self.y_Deer])
+        return self.xdeer
 
 
 if __name__=='__main__':
