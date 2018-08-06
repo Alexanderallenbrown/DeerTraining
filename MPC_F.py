@@ -6,7 +6,7 @@ from BinaryConversion import *
 import copy
 
 class MPC_F:
-    def __init__(self, Np=5, dtp=.1,q_lane_error = 1.0,q_obstacle_error = 1.0,q_steering_effort=1.0,q_accel = 1.0,q_lateral_velocity=1.0,steering_angle_max=.20, epsilon = 0.00001):
+    def __init__(self, Np=5, dtp=.5,q_lane_error = 1.0,q_obstacle_error = 1.0,q_steering_effort=1.0,q_accel = 1.0,q_lateral_velocity=1.0,steering_angle_max=.20, epsilon = 0.00001):
         self.Np = Np
         self.dtp = dtp
         self.q_lane_error = q_lane_error
@@ -109,7 +109,7 @@ def demo():
 
     # Indicate deer initial position
     deer.x_Deer = 80
-    deer.y_Deer = 0#PUT THE DEER IN THE MIDDLE OF THE ROAD!!
+    deer.y_Deer = -2#PUT THE DEER IN THE MIDDLE OF THE ROAD!!
         
     # Define simulation time and dt
     simtime = 10
@@ -117,7 +117,7 @@ def demo():
     t = arange(0,simtime,dt) #takes min, max, and timestep\
 
 
-    car = BicycleModel(dT = dt, U = 25.0,tiretype='linear')
+    car = BicycleModel(dT = dt, U = 25.0,tiretype='pacejka')
 
 
      #car state vector #print array([[Ydot],[vdot],[Xdot],[Udot],[Psidot],[rdot]])
@@ -132,7 +132,7 @@ def demo():
     #fill in initial conditions because they're nonzero
     deerx[0,:] = array([deer.Speed_Deer,deer.Psi_Deer,deer.x_Deer,deer.y_Deer])
 
-    MPC = MPC_F(q_lane_error = 10.0,q_obstacle_error = 100.0,q_lateral_velocity=0.00,q_steering_effort=0.0,q_accel = 0.005)
+    MPC = MPC_F(q_lane_error = 10.0,q_obstacle_error = 5000000.0,q_lateral_velocity=0.00,q_steering_effort=0.0,q_accel = 0.005)
 
 
     steervec = zeros(len(t))
@@ -157,7 +157,8 @@ def demo():
                 opt_steer = 0
 
             carx[k,:],carxdot[k,:] = car.heuns_update(steer = opt_steer, setspeed = 25.0)
-            deerx[k,:] = array([deer.Speed_Deer, deer.Psi_Deer, deer.x_Deer, deer.y_Deer])#updateDeer(car.x[2])
+            #deerx[k,:] = array([deer.Speed_Deer, deer.Psi_Deer, deer.x_Deer, deer.y_Deer])#updateDeer(car.x[2])
+            deerx[k,:] = deer.updateDeer(car.x[2])
             steervec[k] = opt_steer
 
             print t[k],opt_steer,deer.y_Deer
