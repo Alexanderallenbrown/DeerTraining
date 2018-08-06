@@ -52,7 +52,7 @@ class MPC_F:
         steervector_upsampled = interp(tvec,self.t_horizon,steervector)
         #print steervector_upsampled.shape
         #actually predict the car's states given the input
-        for k in range(0,self.Np):
+        for k in range(0,sel:
             xcar_pred[k,:],xdotcar_pred[k,:] = predictCar.heuns_update(steer = steervector_upsampled[k], setspeed = 25.0)
         #now downsample the prediction so it is only MPC.Np points long
         for k in range(0,6):
@@ -157,7 +157,7 @@ def demo():
                 opt_steer = 0
 
             carx[k,:],carxdot[k,:] = car.heuns_update(steer = opt_steer, setspeed = 25.0)
-            deerx[k,:] = array([deer.Speed_Deer, deer.Psi_Deer, deer.x_Deer, deer.y_Deer])#updateDeer(car.x[2])
+            deerx[k,:] = deer.updateDeer(car.x[2]) #array([deer.Speed_Deer, deer.Psi_Deer, deer.x_Deer, deer.y_Deer])#updateDeer(car.x[2])
             steervec[k] = opt_steer
 
             print t[k],opt_steer,deer.y_Deer
