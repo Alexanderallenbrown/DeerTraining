@@ -6,7 +6,7 @@ from BinaryConversion import *
 import copy
 
 class MPC_F:
-    def __init__(self, Np=20, dtp=.2,q_lane_error = 1.0,q_obstacle_error = 1.0,q_steering_effort=1.0,q_accel = 1.0,q_lateral_velocity=1.0,steering_angle_max=.20, epsilon = 0.00001):
+    def __init__(self, Np=5, dtp=.5,q_lane_error = 1.0,q_obstacle_error = 1.0,q_steering_effort=1.0,q_accel = 1.0,q_lateral_velocity=1.0,steering_angle_max=.20, epsilon = 0.00001):
         self.Np = Np
         self.dtp = dtp
         self.q_lane_error = q_lane_error
@@ -52,7 +52,7 @@ class MPC_F:
         steervector_upsampled = interp(tvec,self.t_horizon,steervector)
         #print steervector_upsampled.shape
         #actually predict the car's states given the input
-        for k in range(0,sel:
+        for k in range(0,len(tvec)):
             xcar_pred[k,:],xdotcar_pred[k,:] = predictCar.heuns_update(steer = steervector_upsampled[k], setspeed = 25.0)
         #now downsample the prediction so it is only MPC.Np points long
         for k in range(0,6):
@@ -72,10 +72,10 @@ class MPC_F:
         J = 0 # initialize the objective to zero
         #now loop through and upfdate J for every timestep in the prediction horizon.
         for k in range(0,self.Np):
-            distance = sqrt((xcar_pred[k,0] - xdeer_pred[k,3])**2+ (xcar_pred[k,2] - xdeer_pred[k,2])**2)
+            distance = 1.0/(sqrt((xcar_pred[k,0] - xdeer_pred[k,3])**2)+self.epsilon)#+ (xcar_pred[k,2] - xdeer_pred[k,2])**2+self.epsilon)
             #return distance
             if(carnow.x[2]<deernow.x_Deer):
-                J = J +  self.q_lateral_velocity*(xcar_pred[k,1])**2+self.q_steering_effort * (steervector[k])**2 + self.q_lane_error * (xcar_pred[k,0]-yroad)**2 + self.q_obstacle_error * ((distance+self.epsilon))**2 + self.q_accel*((car_y_accel_pred[k]))**2
+                J = J +  self.q_lateral_velocity*(xcar_pred[k,1])**2+self.q_steering_effort * (steervector[k])**2 + self.q_lane_error * (xcar_pred[k,0]-yroad)**2 + self.q_obstacle_error * (distance)**2 + self.q_accel*((car_y_accel_pred[k]))**2
             else:
                 #print "passed deer!"
                 J = J +  self.q_steering_effort * (steervector[k])**2 + self.q_lane_error * (xcar_pred[k,0]-yroad)**2+ self.q_accel*((car_y_accel_pred[k]))**2
@@ -109,7 +109,7 @@ def demo():
 
     # Indicate deer initial position
     deer.x_Deer = 80
-    deer.y_Deer = 0#PUT THE DEER IN THE MIDDLE OF THE ROAD!!
+    deer.y_Deer = -2#PUT THE DEER IN THE MIDDLE OF THE ROAD!!
         
     # Define simulation time and dt
     simtime = 10
@@ -124,7 +124,7 @@ def demo():
     carx = zeros((len(t),len(car.x)))
     carxdot = zeros((len(t),len(car.x)))
     car.x[3] = setSpeed
-    car.x[0] = 0.0 #let the vehicle start away from lane.
+    car.x[0] = -0.0 #let the vehicle start away from lane.
     carx[0,:] = car.x
 
     #initialize for deer as well
@@ -132,7 +132,7 @@ def demo():
     #fill in initial conditions because they're nonzero
     deerx[0,:] = array([deer.Speed_Deer,deer.Psi_Deer,deer.x_Deer,deer.y_Deer])
 
-    MPC = MPC_F(q_lane_error = 50.0,q_obstacle_error = 1.0,q_lateral_velocity=0.00,q_steering_effort=0.0,q_accel = 0.05)
+    MPC = MPC_F(q_lane_error = 10.0,q_obstacle_error = 5000000.0,q_lateral_velocity=0.00,q_steering_effort=0.0,q_accel = 0.005)
 
 
     steervec = zeros(len(t))
@@ -157,7 +157,8 @@ def demo():
                 opt_steer = 0
 
             carx[k,:],carxdot[k,:] = car.heuns_update(steer = opt_steer, setspeed = 25.0)
-            deerx[k,:] = deer.updateDeer(car.x[2]) #array([deer.Speed_Deer, deer.Psi_Deer, deer.x_Deer, deer.y_Deer])#updateDeer(car.x[2])
+            #deerx[k,:] = array([deer.Speed_Deer, deer.Psi_Deer, deer.x_Deer, deer.y_Deer])#updateDeer(car.x[2])
+            deerx[k,:] = deer.updateDeer(car.x[2])
             steervec[k] = opt_steer
 
             print t[k],opt_steer,deer.y_Deer
@@ -173,9 +174,9 @@ def demo():
     ylabel('car Y position (m)')
     figure()
     plot(carx[:,2],carx[:,0],'k',deerx[:,2],deerx[:,3],'ro')
-    axis('equal')
     xlabel('X (m)')
     ylabel('Y (m)')
+    ylim([-5,5])
     legend(['car','deer'])
     figure()
     plot(t,ayg,'k')

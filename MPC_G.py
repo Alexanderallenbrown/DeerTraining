@@ -6,7 +6,7 @@ from BinaryConversion import *
 import copy
 
 class MPC_G:
-    def __init__(self, Np=20, dtp=.2,q_obstacle_error = 1.0,q_cruise_speed = 1.0,q_x_accel=1.0, gas_max=250, brake_max = 500, epsilon = 0.0001):
+    def __init__(self, Np=20, dtp=.2, q_obstacle_error = 1.0, q_cruise_speed = 1.0, q_x_accel=1.0, gas_max=250, brake_max = 500, epsilon = 0.0001):
         self.Np = Np
         self.dtp = dtp
         self.q_obstacle_error = q_obstacle_error
@@ -78,13 +78,13 @@ class MPC_G:
         #now loop through and upfdate J for every timestep in the prediction horizon.
         for k in range(0,self.Np):
             distance = sqrt((xcar_pred[k,0] - xdeer_pred[k,3])**2+ (xcar_pred[k,2] - xdeer_pred[k,2])**2)
-            return distance
+            #return distance
             if(carnow.x[2]<deernow.x_Deer):
                 J = J + self.q_x_accel * (x_accelvector[k])**2 + self.q_cruise_speed * (xcar_pred[k,3]-setSpeed)**2 + self.q_obstacle_error * (1/(distance+self.epsilon))**2
             else:
                 #print "passed deer!"
                 J = J + self.q_cruise_speed * (xcar_pred[k,3]-setSpeed)**2
-        #return J
+        return J
 
 
     def calcOptimal(self,carnow,deernow,setSpeed):
