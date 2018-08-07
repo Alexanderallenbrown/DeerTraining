@@ -6,7 +6,7 @@ from BinaryConversion import *
 import copy
 
 class MPC_F:
-    def __init__(self, Np=5, dtp=.5,q_lane_error = 1.0,q_obstacle_error = 1.0,q_steering_effort=1.0,q_accel = 1.0,q_lateral_velocity=1.0,steering_angle_max=.20, epsilon = 0.00001):
+    def __init__(self, Np=2, dtp=.5,q_lane_error = 1.0,q_obstacle_error = 1.0,q_steering_effort=1.0,q_accel = 1.0,q_lateral_velocity=1.0,steering_angle_max=.20, epsilon = 0.00001):
         self.Np = Np
         self.dtp = dtp
         self.q_lane_error = q_lane_error
@@ -186,12 +186,42 @@ def demo():
     plot(t,ayg,'k')
     xlabel('time (s)')
     ylabel('lateral acceleration (g)')
-
     figure()
     plot(t,cafvec,t,carvec)
     xlabel('time (s)')
     ylabel('Cornering Stiffness (N/rad)')
     legend(['front','rear'])
+
+    ### CREATE ANIMATION
+    import matplotlib.pyplot as plt
+    import matplotlib.animation as animation
+
+
+    def update_line(num, data1, data2, line1, line2):
+        line1.set_data(data1[..., :num])
+        line2.set_data(data2[..., :num])
+        return line1,line2,
+
+    fig1 = plt.figure()
+
+    data1 = vstack((carx[:,2],carx[:,0]))
+    data2 = vstack((deerx[:,2],deerx[:,3]))
+    #np.random.rand(2, 5)
+    print data1, data2
+    line1, = plt.plot([], [], 'ro')
+    line2, = plt.plot([], [], 'ko')
+    plt.xlim(0, 100)
+    plt.ylim(-10, 10)
+    plt.xlabel('X (m)')
+    plt.ylabel('Y (m)')
+    plt.legend(['car','deer'])
+    line_ani = animation.FuncAnimation(fig1, update_line, len(carx[:,2]), fargs=(data1,data2, line1, line2),interval=50, blit=True)
+
+
+    plt.show()
+    
+    ### ANIMATION END
+
 
     show()
 if __name__ == '__main__':

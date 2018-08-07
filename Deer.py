@@ -71,7 +71,7 @@ class Deer:
 if __name__=='__main__':
 
     #set up our deer
-    deer = Deer(Psi0_Deer = deer_ind[0], Sigma_Psi = deer_ind[1], tturn_Deer = deer_ind[2], Vmax_Deer = deer_ind[3], Tau_Deer = deer_ind[4])
+    deer = Deer(Psi0_Deer = 0.00000001, Sigma_Psi = 0.000000001, tturn_Deer = 0.0000001, Vmax_Deer = 10, Tau_Deer = 0.000000001)
     deer.x_Deer = 80
     deer.y_Deer = -2
 
