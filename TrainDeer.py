@@ -149,7 +149,7 @@ def TestDeer(deer_ind, n, agent):
 
 if __name__=='__main__':
 
-	for generation_number in range(11,100):
+	for generation_number in range(1,100):
 
 		for driver_type in range(1,5):
 

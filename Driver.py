@@ -32,6 +32,9 @@ class Driver:
         if gas<0:
             gas = 0
 
+        else:
+            pass
+
         return gas
 
     # def brake(self, brakeTime = 3):
@@ -67,7 +70,7 @@ class Driver:
         if ((deer_x - carx[2]) > brakeDistance):
         
             gas = self.cruise(setSpeed = setSpeed, carx = carx)
-            brake = 0    
+            brake = 0
 
         if ((deer_x - carx[2]) <= brakeDistance):
 
@@ -85,7 +88,6 @@ class Driver:
             else:
                 gas = self.cruise(setSpeed = setSpeed, carx = carx)
                 brake = 0
-
 
         return array([gas,brake,steer])
 
