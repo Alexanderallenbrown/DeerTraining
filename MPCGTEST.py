@@ -6,7 +6,7 @@ from BinaryConversion import *
 import copy
 
 class MPC_G:
-    def __init__(self, Np=5, dtp=.2, q_obstacle_error = 1.0, q_cruise_speed = 1.0, q_x_accel=1.0, gas_max=1.0, brake_max = .5, epsilon = 0.0001):
+    def __init__(self, Np=5, dtp=.5, q_obstacle_error = 1.0, q_cruise_speed = 1.0, q_x_accel=1.0, gas_max=1.0, brake_max = .5, epsilon = 0.0001):
         self.Np = Np
         self.dtp = dtp
         self.q_obstacle_error = q_obstacle_error
@@ -88,7 +88,7 @@ class MPC_G:
 
 
     def calcOptimal(self,carnow,deernow,setSpeed):
-        x_accelvector = 0.005*random.randn(self.Np)
+        x_accelvector = 0.5*random.randn(self.Np)
 
         bounds = [(-self.brake_max,self.gas_max)]
         for ind in range(1,self.Np):
