@@ -117,6 +117,7 @@ def demo():
             print round(t[k],2),round(gas,2),round(brake,2)
 
     ayg = (carxdot[:,1]+carx[:,5]*carx[:,3])/9.81
+    axg = (carxdot[:,3]-carx[:,5]*carx[:,1])/9.81
 
     figure()
     plot(t,carx[:,3],'k')
@@ -161,6 +162,12 @@ def demo():
     plot(t,deerx[:,0],'k')
     xlabel('time (s)')
     ylabel('deer speed (m/s)')
+
+    figure()
+    plot(axg,ayg,'k')
+    axis('equal')
+    xlabel('Forward Acceleration (g)')
+    ylabel('Lateral Acceleration (g)')
 
 
     ### CREATE ANIMATION
