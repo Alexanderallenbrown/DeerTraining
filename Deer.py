@@ -6,7 +6,7 @@ from Driver import *
 
 class Deer:
 
-    def __init__(self, Psi0_Deer = -.307, Sigma_Psi = 0.131, tturn_Deer = 0.594, Vmax_Deer = 13.5, Tau_Deer = 2.203, dT = 1./60, x_Deer = 0, y_Deer = 0):
+    def __init__(self, Psi0_Deer = -.307, Sigma_Psi = 0.131, tturn_Deer = 0.594, Vmax_Deer = 13.5, Tau_Deer = 2.203, dT = 1./60, x_Deer = 80, y_Deer = -2):
        
         self.Tau_Deer = Tau_Deer  
         self.Vmax_Deer = Vmax_Deer 
