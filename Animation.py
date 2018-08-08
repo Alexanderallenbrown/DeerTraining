@@ -1,57 +1,66 @@
-# import numpy as np
-# from matplotlib import pyplot as plt
-# from matplotlib import animation
-
-# # First set up the figure, the axis, and the plot element we want to animate
-# fig = plt.figure()
-# ax = plt.axes(xlim=(0, 5), ylim=(0, 5))
-# line, = ax.plot([], [], lw=2)
-
-
-# def init():
-#     line.set_data([], [])
-#     return line,
-
-# # animation function.  This is called sequentially
-# def animate(i):
-#     x = [0,1,2,3,4,5]
-#     y_data = [[0,0,0,0,0,0][0,1,0,0,0,0][0,1,2,0,0,0][0,1,2,3,0,0][0,1,2,3,4,0][0,1,2,3,4,5]]
-#     y = line.set_ydata(y_data[i, :])
-#     line.set_data(x, y)
-#     return line,
-
-# if __name__ == '__main__':
-
-#     # call the animator.  blit=True means only re-draw the parts that have changed.
-#     anim = animation.FuncAnimation(fig, animate, init_func=init,frames=200, interval=1000, blit=True)
-
-#     # save the animation as an mp4.  This requires ffmpeg or mencoder to be
-#     # installed.  The extra_args ensure that the x264 codec is used, so that
-#     # the video can be embedded in html5.  You may need to adjust this for
-#     # your system: for more information, see
-#     # http://matplotlib.sourceforge.net/api/animation_api.html
-
-#     plt.show()
-
-import numpy
+from numpy import *
 import matplotlib.pyplot as plt
-import matplotlib.animation as animation
+import matplotlib.patches as patches
+from matplotlib import animation
 
+TestNumber = 1
+FileName ='Test/Test' + str(TestNumber) + '.txt';
 
-def update_line(num, data, line):
-    line.set_data(data[..., :num])
-    return line,
+lines = [line.rstrip('\n') for line in open(FileName)]
 
-fig1 = plt.figure()
+car_y = lines[0]
+car_v = lines[1]
+car_x = lines[2]
+car_u = lines[3]
+car_psi = lines[4]
+car_r = lines[5]
 
-data = numpy.array([[[0.1,0.2],[0.2,0.3],[0.4,0.5]],[[0.1,0.2],[0.3,0.4],[0.4,0.5]]])#np.random.rand(2, 5)
-print data
-l, = plt.plot([], [], 'r-')
-plt.xlim(0, 1)
-plt.ylim(0, 1)
-plt.xlabel('x')
-plt.title('test')
-line_ani = animation.FuncAnimation(fig1, update_line, 5, fargs=(data, l),interval=500, blit=True)
+deer_speed = lines[6]
+deer_psi = lines[7]
+deer_x = lines[8]
+deer_y = lines[9]
 
+# Define parameters
+deer_length = 1.5 # meters
+deer_width = 0.5 # meters
+car_length = 4.5 # meters
+car_width = 2.0 # meters
+
+# Create figure
+fig = plt.figure()
+ax = fig.add_subplot(111)
+plt.axis('equal')
+ax.set_xlim(0, 100)
+ax.set_ylim(-25, 25)
+
+# Initialize rectangles
+car_plot = patches.Rectangle((0, 0), 0, 0,angle = 0.0, fc='k')
+deer_plot = patches.Rectangle((0, 0), 0, 0,angle = 0.0, fc='y')
+
+def init():
+    ax.add_patch(car_plot)
+    ax.add_patch(deer_plot)
+    return car_plot,deer_plot,
+
+print cos(car_psi[0])
+
+# Set animation
+def animate(i):
+    car_plot.set_width(car_length)
+    car_plot.set_height(car_width)
+    car_plot.set_xy([car_x[i]-(car_length/2*cos(car_psi[i])), car_y[i]-(car_width/2*sin(car_psi[i]))])
+    car_plot.angle = car_psi[i]*180/3.14
+
+    deer_plot.set_width(deer_length)
+    deer_plot.set_height(deer_width)
+    deer_plot.set_xy([deer_x[i]-(deer_length/2*sin(deer_psi[i])), deer_y[i]]-(deer_width/2*cos(deer_psi[i])))
+    deer_plot.angle = 90-deer_psi[i]*180/3.14
+
+    return car_plot,deer_plot,
+
+# Run anumation
+anim = animation.FuncAnimation(fig, animate,init_func=init,frames=len(car_x),interval=50,blit=True)
+
+### ANIMATION END
 
 plt.show()

@@ -25,9 +25,10 @@ class MPC_H:
         self.q_cruise_speed = q_cruise_speed
         self.gas_max = gas_max
         self.brake_max = brake_max
+        self.predictionmethod = predictionmethod
 
-        self.MPCF = MPC_F(q_lane_error = self.q_lane_error,q_obstacle_error = self.q_obstacle_error_F,q_lateral_velocity = self.q_lateral_velocity,q_steering_effort = self.q_obstacle_error_F,q_accel = self.q_lat_accel,predictionmethod = 'static')
-        self.MPCG = MPC_G(q_obstacle_error = self.q_obstacle_error_G, q_x_accel = self.q_x_accel,q_cruise_speed = self.q_cruise_speed, gas_max = self.gas_max, brake_max = self.brake_max)
+        self.MPCF = MPC_F(q_lane_error = self.q_lane_error,q_obstacle_error = self.q_obstacle_error_F,q_lateral_velocity = self.q_lateral_velocity,q_steering_effort = self.q_obstacle_error_F,q_accel = self.q_lat_accel,predictionmethod = self.predictionmethod)
+        self.MPCG = MPC_G(q_obstacle_error = self.q_obstacle_error_G, q_x_accel = self.q_x_accel,q_cruise_speed = self.q_cruise_speed, gas_max = self.gas_max, brake_max = self.brake_max, predictionmethod = self.predictionmethod)
 
 
     def calcOptimal(self,carnow,deernow,setSpeed = 25.0,yroad = 0.0):    
@@ -58,9 +59,6 @@ def demo():
 
 
     car = BicycleModel(dT = dt, U = 25.0,tiretype='pacejka')
-
-
-     #car state vector #print array([[Ydot],[vdot],[Xdot],[Udot],[Psidot],[rdot]])
     carx = zeros((len(t),len(car.x)))
     carxdot = zeros((len(t),len(car.x)))
     car.x[3] = setSpeed
@@ -72,7 +70,7 @@ def demo():
     #fill in initial conditions because they're nonzero
     deerx[0,:] = array([deer.Speed_Deer,deer.Psi_Deer,deer.x_Deer,deer.y_Deer])
 
-    MPC = MPC_H(q_lane_error = 10.0,q_obstacle_error_F = .05,q_lateral_velocity = 0.00,q_steering_effort = 0.0,q_lat_accel = 0.005,q_obstacle_error_G = 1000000000.0, q_x_accel = 0.0, q_cruise_speed = 25.0, gas_max = 0.25, brake_max = 0.25)
+    MPC = MPC_H(q_lane_error = 10.0,q_obstacle_error_F = .05,q_lateral_velocity = 0.00,q_steering_effort = 0.0,q_lat_accel = 0.005,q_obstacle_error_G = 1000000000.0, q_x_accel = 0.0, q_cruise_speed = 25.0, gas_max = 0.25, brake_max = 0.25, predictionmethod = 'CV')
 
     steervec = zeros(len(t))
     accelvec = zeros(len(t))
@@ -167,31 +165,59 @@ def demo():
 
     ### CREATE ANIMATION
     import matplotlib.pyplot as plt
-    import matplotlib.animation as animation
+    import matplotlib.patches as patches
+    from matplotlib import animation
 
+    # Define parameters
+    deer_length = 1.5 # meters
+    deer_width = 0.5 # meters
+    car_length = 4.5 # meters
+    car_width = 2.0 # meters
 
-    def update_line(num, data1, data2, line1, line2):
-        line1.set_data(data1[:, num])
-        line2.set_data(data2[:, num])
-        return line1,line2,
+    # Create car vectors to be used
+    car_x = carx[:,2]
+    car_y = carx[:,0]
+    car_yaw = carx[:,4]
 
-    fig1 = plt.figure()
+    # Create deer vectors to be used
+    deer_x = deerx[:,2]
+    deer_y = deerx[:,3]
+    deer_yaw = deerx[:,1]
 
+    # Create figure
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    plt.axis('equal')
+    ax.set_xlim(0, 100)
+    ax.set_ylim(-25, 25)
 
-    data1 = vstack((carx[:,2],carx[:,0]))
-    data2 = vstack((deerx[:,2],deerx[:,3]))
-    #np.random.rand(2, 5)
-    print data1, data2
-    line1, = plt.plot([], [], 'ro')
-    line2, = plt.plot([], [], 'ko')
-    plt.xlim(0, 100)
-    plt.ylim(-10, 10)
-    plt.xlabel('X (m)')
-    plt.ylabel('Y (m)')
-    plt.legend(['car','deer'])
-    line_ani = animation.FuncAnimation(fig1, update_line, len(carx[:,2]), fargs=(data1,data2, line1, line2),interval=50, blit=True)
+    # Initialize rectangles
+    car_plot = patches.Rectangle((0, 0), 0, 0,angle = 0.0, fc='k')
+    deer_plot = patches.Rectangle((0, 0), 0, 0,angle = 0.0, fc='y')
 
+    def init():
+        ax.add_patch(car_plot)
+        ax.add_patch(deer_plot)
+        return car_plot,deer_plot,
 
+    # Set animation
+    def animate(i):
+        car_plot.set_width(car_length)
+        car_plot.set_height(car_width)
+        car_plot.set_xy([car_x[i]-(car_length/2*cos(car_yaw[i])), car_y[i]-(car_width/2*sin(car_yaw[i]))])
+        car_plot.angle = car_yaw[i]*180/3.14
+
+        deer_plot.set_width(deer_length)
+        deer_plot.set_height(deer_width)
+        deer_plot.set_xy([deer_x[i]-(deer_length/2*sin(deer_yaw[i])), deer_y[i]]-(deer_width/2*cos(deer_yaw[i])))
+        deer_plot.angle = 90-deer_yaw[i]*180/3.14
+
+        return car_plot,deer_plot,
+
+    # Run anumation
+    anim = animation.FuncAnimation(fig, animate,init_func=init,frames=len(car_x),interval=50,blit=True)
+
+    ### ANIMATION END
 
     show()
 

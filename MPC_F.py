@@ -190,6 +190,8 @@ def demo():
     steervec = zeros(len(t))
     cafvec = zeros(len(t))
     carvec = zeros(len(t))
+    distancevec = zeros(len(t))
+
     #now simulate!!
     for k in range(1,len(t)):
 
@@ -215,8 +217,29 @@ def demo():
             #deerx[k,:] = array([deer.Speed_Deer, deer.Psi_Deer, deer.x_Deer, deer.y_Deer])#updateDeer(car.x[2])
             deerx[k,:] = deer.updateDeer(car.x[2])
             steervec[k] = opt_steer
+            distancevec[k] = sqrt((deer.x_Deer - car.x[2])**2+(deer.y_Deer - car.x[0])**2)
 
             print round(t[k],2),round(opt_steer,2),round(deer.y_Deer,2)
+
+
+    ## SAVE xcar and xdeer
+
+    TestNumber = 1
+    FileName ='Test/Test' + str(TestNumber) + '.csv';
+
+    newFile = open(FileName,'w+');
+    newFile.close();
+    newFile = open(FileName, 'a');
+
+    for ind2 in range(0,6):
+        for ind1 in range(0, len(carx)):
+            newFile.write(str(carx[ind1,ind2]) + ' ');
+        newFile.write('\n')
+    for ind2 in range(0,4):
+        for ind1 in range(0, len(deerx)):
+            newFile.write(str(deerx[ind1,ind2]) + ' ');
+        newFile.write('\n')
+
 
     ayg = (carxdot[:,1]+carx[:,5]*carx[:,3])/9.81
     figure()
@@ -245,37 +268,62 @@ def demo():
 
     ### CREATE ANIMATION
     import matplotlib.pyplot as plt
-    import matplotlib.animation as animation
+    import matplotlib.patches as patches
+    from matplotlib import animation
 
+    # Define parameters
+    deer_length = 1.5 # meters
+    deer_width = 0.5 # meters
+    car_length = 4.5 # meters
+    car_width = 2.0 # meters
 
-    def update_line(num, data1, data2, line1, line2):
-        line1.set_data(data1[:, num])
-        line2.set_data(data2[:, num])
-        return line1,line2,
+    # Create car vectors to be used
+    car_x = carx[:,2]
+    car_y = carx[:,0]
+    car_yaw = carx[:,4]
 
-    fig1 = plt.figure()
+    # Create deer vectors to be used
+    deer_x = deerx[:,2]
+    deer_y = deerx[:,3]
+    deer_yaw = deerx[:,1]
 
+    # Create figure
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    plt.axis('equal')
+    ax.set_xlim(0, 100)
+    ax.set_ylim(-25, 25)
 
-    data1 = vstack((carx[:,2],carx[:,0]))
-    data2 = vstack((deerx[:,2],deerx[:,3]))
-    #np.random.rand(2, 5)
-    print data1, data2
-    line1, = plt.plot([], [], 'ro')
-    line2, = plt.plot([], [], 'ko')
-    plt.xlim(0, 100)
-    plt.ylim(-10, 10)
-    plt.xlabel('X (m)')
-    plt.ylabel('Y (m)')
-    plt.legend(['car','deer'])
-    line_ani = animation.FuncAnimation(fig1, update_line, len(carx[:,2]), fargs=(data1,data2, line1, line2),interval=50, blit=True)
+    # Initialize rectangles
+    car_plot = patches.Rectangle((0, 0), 0, 0,angle = 0.0, fc='k')
+    deer_plot = patches.Rectangle((0, 0), 0, 0,angle = 0.0, fc='y')
 
+    def init():
+        ax.add_patch(car_plot)
+        ax.add_patch(deer_plot)
+        return car_plot,deer_plot,
 
-    plt.show()
-    
+    # Set animation
+    def animate(i):
+        car_plot.set_width(car_length)
+        car_plot.set_height(car_width)
+        car_plot.set_xy([car_x[i]-(car_length/2*cos(car_yaw[i])), car_y[i]-(car_width/2*sin(car_yaw[i]))])
+        car_plot.angle = car_yaw[i]*180/3.14
+
+        deer_plot.set_width(deer_length)
+        deer_plot.set_height(deer_width)
+        deer_plot.set_xy([deer_x[i]-(deer_length/2*sin(deer_yaw[i])), deer_y[i]]-(deer_width/2*cos(deer_yaw[i])))
+        deer_plot.angle = 90-deer_yaw[i]*180/3.14
+
+        return car_plot,deer_plot,
+
+    # Run anumation
+    anim = animation.FuncAnimation(fig, animate,init_func=init,frames=len(car_x),interval=50,blit=True)
+
     ### ANIMATION END
 
-
     show()
+
 if __name__ == '__main__':
     demo()
 

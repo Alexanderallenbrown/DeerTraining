@@ -6,7 +6,7 @@ from BinaryConversion import *
 import copy
 
 class MPC_G:
-    def __init__(self, Np=5, dtp=.2, q_obstacle_error = 1.0, q_cruise_speed = 1.0, q_x_accel=1.0, gas_max=1.0, brake_max = .5, epsilon = 0.0001):
+    def __init__(self, Np=5, dtp=.2, q_obstacle_error = 1.0, q_cruise_speed = 1.0, q_x_accel=1.0, gas_max=1.0, brake_max = .5, epsilon = 0.0001,downsample_horizon = 'false',predictionmethod = 'static'):
         self.Np = Np
         self.dtp = dtp
         self.q_obstacle_error = q_obstacle_error
@@ -17,22 +17,82 @@ class MPC_G:
         self.epsilon = epsilon
         self.prediction_time = self.dtp*self.Np
         self.t_horizon = arange(0,self.prediction_time,self.dtp)#go to one extra so the horizon matches
+        self.downsample_horizon = downsample_horizon
+        self.predictionmethod = predictionmethod
 
     def predictDeer_static(self,deernow,carnow):
         predictDeer = copy.deepcopy(deernow)
-        #make a time vector for prediction using 'fine' timestep of deer
-        tvec = arange(0,self.prediction_time+predictDeer.dT,predictDeer.dT)
-        #initialize the 'fine' predicted state vector
-        xdeer_pred = zeros((len(tvec),4))
-        for k in range(0,len(tvec)):
-            #eventually, the deer will need to also have a model of how the CAR moves...
-            xdeer_pred[k,:] = predictDeer.xdeer
-        #now downsample the prediction so that the horizon matches MPC rather than the deer
-        #this way, the MPC will only look at and attempt to optimize a few points, but the prediction will be high-fi
-        xdeer_pred_downsampled = zeros((self.Np,4))
-        for k in range(0,4):
-            xdeer_pred_downsampled[:,k] = interp(self.t_horizon,tvec,xdeer_pred[:,k])
+        if(self.downsample_horizon=='false'):
+            predictDeer.dT = self.dtp
+            xdeer_pred_downsampled = zeros((self.Np,4))
+            for k in range(0,self.Np):
+                #eventually, the deer will need to also have a model of how the CAR moves...
+                xdeer_pred_downsampled[k,:] = predictDeer.xdeer#array([predictDeer.Speed_Deer,predictDeer.Psi_Deer,predictDeer.x_Deer,predictDeer.y_Deer])
+        else:
+            
+            #make a time vector for prediction using 'fine' timestep of deer
+            tvec = arange(0,self.prediction_time+predictDeer.dT,predictDeer.dT)
+            #initialize the 'fine' predicted state vector
+            xdeer_pred = zeros((len(tvec),4))
+            for k in range(0,len(tvec)):
+                #eventually, the deer will need to also have a model of how the CAR moves...
+                xdeer_pred[k,:] = predictDeer.xdeer#array([predictDeer.Speed_Deer,predictDeer.Psi_Deer,predictDeer.x_Deer,predictDeer.y_Deer])
+            #now downsample the prediction so that the horizon matches MPC rather than the deer
+            #this way, the MPC will only look at and attempt to optimize a few points, but the prediction will be high-fi
+            xdeer_pred_downsampled = zeros((self.Np,4))
+            for k in range(0,4):
+                xdeer_pred_downsampled[:,k] = interp(self.t_horizon,tvec,xdeer_pred[:,k])
         return xdeer_pred_downsampled
+
+    # def predictDeer_static(self,deernow,carnow):
+    #     predictDeer = copy.deepcopy(deernow)
+    #     #make a time vector for prediction using 'fine' timestep of deer
+    #     tvec = arange(0,self.prediction_time+predictDeer.dT,predictDeer.dT)
+    #     #initialize the 'fine' predicted state vector
+    #     xdeer_pred = zeros((len(tvec),4))
+    #     for k in range(0,len(tvec)):
+    #         #eventually, the deer will need to also have a model of how the CAR moves...
+    #         xdeer_pred[k,:] = predictDeer.xdeer
+    #     #now downsample the prediction so that the horizon matches MPC rather than the deer
+    #     #this way, the MPC will only look at and attempt to optimize a few points, but the prediction will be high-fi
+    #     xdeer_pred_downsampled = zeros((self.Np,4))
+    #     for k in range(0,4):
+    #         xdeer_pred_downsampled[:,k] = interp(self.t_horizon,tvec,xdeer_pred[:,k])
+    #     return xdeer_pred_downsampled
+
+    def predictDeer_CV(self,deernow,carnow):
+        predictDeer = copy.deepcopy(deernow)
+        if(self.downsample_horizon=='false'):
+            predictDeer.dT = self.dtp
+            xdeer_pred_downsampled = zeros((self.Np,4))
+            #note: the deer's global coordinate system is rotated by 90 degrees compared to car.... :(  >:(
+            xvel = predictDeer.xdeer[0]*sin(predictDeer.xdeer[1])
+            yvel = predictDeer.xdeer[0]*cos(predictDeer.xdeer[1])
+            for k in range(0,self.Np):
+                #eventually, the deer will need to also have a model of how the CAR moves...
+                xdeer_pred_downsampled[k,:] = predictDeer.xdeer#array([predictDeer.Speed_Deer,predictDeer.Psi_Deer,predictDeer.x_Deer,predictDeer.y_Deer])
+                xdeer_pred_downsampled[k,2] += xvel*k*self.dtp
+                xdeer_pred_downsampled[k,3] += yvel*k*self.dtp
+        else:
+            
+            #make a time vector for prediction using 'fine' timestep of deer
+            tvec = arange(0,self.prediction_time+predictDeer.dT,predictDeer.dT)
+            #initialize the 'fine' predicted state vector
+            xdeer_pred = zeros((len(tvec),4))
+            xvel = predictDeer.xdeer[0]*sin(predictDeer.xdeer[1])
+            yvel = predictDeer.xdeer[0]*cos(predictDeer.xdeer[1])
+            for k in range(0,len(tvec)):
+                #eventually, the deer will need to also have a model of how the CAR moves...
+                xdeer_pred[k,:] = predictDeer.xdeer#array([predictDeer.Speed_Deer,predictDeer.Psi_Deer,predictDeer.x_Deer,predictDeer.y_Deer])
+                xdeer_pred_downsampled[k,2] += xvel*k*predictDeer.dT
+                xdeer_pred_downsampled[k,3] += yvel*k*predictDeer.dT
+            #now downsample the prediction so that the horizon matches MPC rather than the deer
+            #this way, the MPC will only look at and attempt to optimize a few points, but the prediction will be high-fi
+            xdeer_pred_downsampled = zeros((self.Np,4))
+            for k in range(0,4):
+                xdeer_pred_downsampled[:,k] = interp(self.t_horizon,tvec,xdeer_pred[:,k])
+        return xdeer_pred_downsampled
+
 
     def predictCar(self,carnow,x_accelvector):
         predictCar = copy.deepcopy(carnow)
@@ -71,7 +131,10 @@ class MPC_G:
         J=0
         #Np rows by 6 columns, one for each state (or vice versa)
         xcar_pred,xdotcar_pred = self.predictCar(carnow,x_accelvector)
-        xdeer_pred = self.predictDeer_static(deernow,carnow)
+        if (self.predictionmethod == 'static'):
+            xdeer_pred = self.predictDeer_static(deernow,carnow)
+        else:
+            xdeer_pred = self.predictDeer_CV(deernow,carnow)
 
         #Np rows by 5 columns, one for x and y of deer
         J = 0 # initialize the objective to zero
@@ -110,7 +173,7 @@ class MPC_G:
         return gas,brake
 
 def demo():
-
+    
     x_acceldistance = 50.0
     setSpeed = 25.0
 
@@ -145,7 +208,7 @@ def demo():
     #fill in initial conditions because they're nonzero
     deerx[0,:] = array([deer.Speed_Deer,deer.Psi_Deer,deer.x_Deer,deer.y_Deer])
 
-    MPC = MPC_G(q_obstacle_error = 1000000000.0,q_x_accel=0.0,q_cruise_speed=0.01,brake_max = 0.5)
+    MPC = MPC_G(q_obstacle_error = 1000000000.0,q_x_accel=0.0,q_cruise_speed=0.01,brake_max = 0.5,predictionmethod='CV')
 
 
     steervec = zeros(len(t))
@@ -215,6 +278,63 @@ def demo():
     plot(t,distancevec,'k')
     xlabel('time (s)')
     ylabel('car-deer distance (m)')
+
+    ### CREATE ANIMATION
+    import matplotlib.pyplot as plt
+    import matplotlib.patches as patches
+    from matplotlib import animation
+
+    # Define parameters
+    deer_length = 1.5 # meters
+    deer_width = 0.5 # meters
+    car_length = 4.5 # meters
+    car_width = 2.0 # meters
+
+    # Create car vectors to be used
+    car_x = carx[:,2]
+    car_y = carx[:,0]
+    car_yaw = carx[:,4]
+
+    # Create deer vectors to be used
+    deer_x = deerx[:,2]
+    deer_y = deerx[:,3]
+    deer_yaw = deerx[:,1]
+
+    # Create figure
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    plt.axis('equal')
+    ax.set_xlim(0, 100)
+    ax.set_ylim(-25, 25)
+
+    # Initialize rectangles
+    car_plot = patches.Rectangle((0, 0), 0, 0,angle = 0.0, fc='k')
+    deer_plot = patches.Rectangle((0, 0), 0, 0,angle = 0.0, fc='y')
+
+    def init():
+        ax.add_patch(car_plot)
+        ax.add_patch(deer_plot)
+        return car_plot,deer_plot,
+
+    # Set animation
+    def animate(i):
+        car_plot.set_width(car_length)
+        car_plot.set_height(car_width)
+        car_plot.set_xy([car_x[i]-(car_length/2*cos(car_yaw[i])), car_y[i]-(car_width/2*sin(car_yaw[i]))])
+        car_plot.angle = car_yaw[i]*180/3.14
+
+        deer_plot.set_width(deer_length)
+        deer_plot.set_height(deer_width)
+        deer_plot.set_xy([deer_x[i]-(deer_length/2*sin(deer_yaw[i])), deer_y[i]]-(deer_width/2*cos(deer_yaw[i])))
+        deer_plot.angle = 90-deer_yaw[i]*180/3.14
+
+        return car_plot,deer_plot,
+
+    # Run anumation
+    anim = animation.FuncAnimation(fig, animate,init_func=init,frames=len(car_x),interval=50,blit=True)
+
+    ### ANIMATION END
+
     show()
 
 
