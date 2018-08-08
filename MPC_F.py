@@ -240,6 +240,8 @@ def demo():
             newFile.write(str(deerx[ind1,ind2]) + ' ');
         newFile.write('\n')
 
+    ## SAVE end
+
 
     ayg = (carxdot[:,1]+carx[:,5]*carx[:,3])/9.81
     figure()

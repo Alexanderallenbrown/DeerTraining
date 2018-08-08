@@ -247,6 +247,26 @@ def demo():
             print round(t[k],2),round(gas,2),round(brake,2)
 
     ayg = (carxdot[:,1]+carx[:,5]*carx[:,3])/9.81
+
+    ## SAVE xcar and xdeer
+
+    TestNumber = 1
+    FileName ='Test/Test' + str(TestNumber) + '.csv';
+
+    newFile = open(FileName,'w+');
+    newFile.close();
+    newFile = open(FileName, 'a');
+
+    for ind2 in range(0,6):
+        for ind1 in range(0, len(carx)):
+            newFile.write(str(carx[ind1,ind2]) + ' ');
+        newFile.write('\n')
+    for ind2 in range(0,4):
+        for ind1 in range(0, len(deerx)):
+            newFile.write(str(deerx[ind1,ind2]) + ' ');
+        newFile.write('\n')
+
+    ## SAVE end
     
     figure()
     plot(t,steervec,'k')

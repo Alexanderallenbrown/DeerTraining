@@ -119,6 +119,8 @@ def demo():
     ayg = (carxdot[:,1]+carx[:,5]*carx[:,3])/9.81
     axg = (carxdot[:,3]-carx[:,5]*carx[:,1])/9.81
 
+    
+
     figure()
     plot(t,carx[:,3],'k')
     xlabel('Time (s)')
