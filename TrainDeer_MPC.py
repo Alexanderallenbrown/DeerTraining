@@ -278,7 +278,7 @@ def demo():
             for index in range(0,m):
                 CurrentDeer = BinaryConversion(str(NewInterGenArray[index].traits))
                 print CurrentDeer
-                NewInterGenArray[index].result = TestDeer(CurrentDeer, n, agent)
+                NewInterGenArray[index].result = TestDeer_MPC(CurrentDeer, n, agent)
                 print NewInterGenArray[index].result
 
             for x in range(0, n):
