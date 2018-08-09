@@ -168,7 +168,7 @@ def demo():
     t = arange(0,simtime,dt) #takes min, max, and timestep\
 
 
-    car = BicycleModel(dT = dt, U = 25.0,tiretype='pacejka')
+    car = BicycleModel(dT = dt, U = 25.0,tiretype='linear')
 
 
      #car state vector #print array([[Ydot],[vdot],[Xdot],[Udot],[Psidot],[rdot]])
@@ -185,7 +185,7 @@ def demo():
 
     #MPC = MPC_F(q_lane_error = 10.0,q_obstacle_error = 5000000.0,q_lateral_velocity=0.00,q_steering_effort=0.0,q_accel = 0.005)
     weight = 10.0
-    MPC = MPC_F(q_lane_error = weight,q_obstacle_error =1.0/weight*0.5,q_lateral_velocity=0.00,q_steering_effort=0.0,q_accel = 0.005,predictionmethod='CV')
+    MPC = MPC_F(q_lane_error = weight,q_obstacle_error =1.0/weight*10,q_lateral_velocity=0.00,q_steering_effort=0.0,q_accel = 0.005,predictionmethod='CV')
 
     steervec = zeros(len(t))
     cafvec = zeros(len(t))
@@ -297,19 +297,29 @@ def demo():
     ax.set_ylim(-25, 25)
 
     # Initialize rectangles
-    car_plot = patches.Rectangle((0, 0), 0, 0,angle = 0.0, fc='k')
-    deer_plot = patches.Rectangle((0, 0), 0, 0,angle = 0.0, fc='y')
+    car_plot = patches.Rectangle((0, 0), 0, 0,angle = 0.0, fc='b', alpha = 0.5)
+    deer_plot = patches.Rectangle((0, 0), 0, 0,angle = 0.0, fc='r', alpha = 0.5)
+    background = patches.Rectangle((-100,-100),200,200,fc='k')
+    center_line_1 = patches.Rectangle((-10,(1.75+0.025)),200,0.1,fc='y')
+    center_line_2 = patches.Rectangle((-10,(1.75-0.1-0.025)),200,0.1,fc='y')
+    right_line = patches.Rectangle((-10,-1.75),200,0.1,fc='w')
+    left_line = patches.Rectangle((-10,4.75),200,0.1,fc='w')
 
     def init():
         ax.add_patch(car_plot)
         ax.add_patch(deer_plot)
+        ax.add_patch(background)
+        ax.add_patch(left_line)
+        ax.add_patch(right_line)
+        ax.add_patch(center_line_1)
+        ax.add_patch(center_line_2)
         return car_plot,deer_plot,
 
     # Set animation
     def animate(i):
         car_plot.set_width(car_length)
         car_plot.set_height(car_width)
-        car_plot.set_xy([car_x[i]-(car_length/2*cos(car_yaw[i])), car_y[i]-(car_width/2*sin(car_yaw[i]))])
+        car_plot.set_xy([car_x[i]-(car_length/2), car_y[i]-(car_width/2)])
         car_plot.angle = car_yaw[i]*180/3.14
 
         deer_plot.set_width(deer_length)
@@ -320,7 +330,7 @@ def demo():
         return car_plot,deer_plot,
 
     # Run anumation
-    anim = animation.FuncAnimation(fig, animate,init_func=init,frames=len(car_x),interval=50,blit=True)
+    anim = animation.FuncAnimation(fig, animate,init_func=init,frames=len(car_x),interval=20,blit=True)
 
     ### ANIMATION END
 
