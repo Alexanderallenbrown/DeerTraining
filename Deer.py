@@ -27,7 +27,7 @@ class Deer:
         self.Psidot_Deer = (self.Psi2_Deer-self.Psi1_Deer)/(10*self.dT)
         self.xdeer = array([self.Speed_Deer,self.Psi_Deer,self.x_Deer,self.y_Deer])
         if self.Psidot_Deer == 0:
-            self.Vturn_Deer = 0
+            self.Vturn_Deer = self.Vmax_Deer
         else:
             self.Vturn_Deer = abs(self.Amax_Deer/self.Psidot_Deer)
         self.tmove_Deer = 0
