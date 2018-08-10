@@ -21,7 +21,7 @@ class CV_Deer:
     def updateDeer(self,x_Car):
 
         if (self.x_Deer - x_Car) > self.x_StartDeer:
-            self.Speed_Deer = 0
+            speed_Deer = 0
 
         else:
             self.Speed_Deer = self.Speed_Deer

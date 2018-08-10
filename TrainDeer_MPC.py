@@ -93,7 +93,7 @@ def TestDeer_MPC(deer_ind, n, agent):
 
         if agent == "F":
             weight = 10.0
-            MPC = MPC_F(q_lane_error = weight,q_obstacle_error =1.0/weight*0.5,q_lateral_velocity=0.00,q_steering_effort=0.0,q_accel = 0.005,predictionmethod='CV')
+            MPC = MPC_F(q_lane_error = weight,q_obstacle_error =1.0/weight*2,q_lateral_velocity=0.00,q_steering_effort=0.0,q_accel = 0.005,predictionmethod='CV')
   
             for k in range(1,len(t)):
 
@@ -362,4 +362,4 @@ def FirstGen():
 
 if __name__=='__main__':
     
-    FirstGen()
+    demo()
