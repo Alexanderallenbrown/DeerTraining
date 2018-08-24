@@ -6,35 +6,35 @@ from Driver import *
 
 class CV_Deer:
 
-    def __init__(self,speed = 13.5, dT = 1./60, x = 0., y = 0., Psi0 = 0.):
+    def __init__(self,Speed_Deer = 13.5, dT = 1./60, x_Deer = 0., y_Deer = 0., Psi0_Deer = 0.):
        
-        self.speed = speed
+        self.Speed_Deer = Speed_Deer
         self.dT = dT
-        self.x = x
-        self.y = y
-        self.Psi0 = Psi0
-        self.xdot = 0.
-        self.ydot = 0.
+        self.x_Deer = x_Deer
+        self.y_Deer = y_Deer
+        self.Psi0_Deer = Psi0_Deer
+        self.xdot_Deer = 0.
+        self.ydot_Deer = 0.
         self.x_StartDeer = 60.
-        self.xdeer = array([self.speed,self.x,self.y])
+        self.xdeer = array([self.Speed_Deer,self.Psi0_Deer,self.x_Deer,self.y_Deer])
 
     def updateDeer(self,x_Car):
 
-        if (self.x - x_Car) > self.x_StartDeer:
-            speed_now = 0
+        if (self.x_Deer - x_Car) > self.x_StartDeer:
+            speed_Deer = 0
 
         else:
-            speed_now = self.speed
+            self.Speed_Deer = self.Speed_Deer
 
-        self.xdot = speed_now*sin(self.Psi0)
-        self.ydot = speed_now*cos(self.Psi0)
-        print self.xdot
-        print self.ydot
+        self.xdot_Deer = self.Speed_Deer*sin(self.Psi0_Deer)
+        self.ydot_Deer = self.Speed_Deer*cos(self.Psi0_Deer)
+        print self.xdot_Deer
+        print self.ydot_Deer
 
-        self.x += self.dT * self.xdot
-        self.y += self.dT * self.ydot
+        self.x_Deer += self.dT * self.xdot_Deer
+        self.y_Deer += self.dT * self.ydot_Deer
 
-        self.xdeer = array([self.speed,self.Psi0, self.x, self.y])
+        self.xdeer = array([self.Speed_Deer,self.Psi0_Deer, self.x_Deer, self.y_Deer])
         return self.xdeer
 
 if __name__=='__main__':
@@ -65,7 +65,7 @@ if __name__=='__main__':
     #initialize for deer as well
     deerx = zeros((len(t),4))
     #fill in initial conditions because they're nonzero
-    deerx[0,:] = array([deer.speed,deer.Psi0,deer.x,deer.y])
+    deerx[0,:] = array([deer.Speed_Deer,deer.Psi0_Deer,deer.x_Deer,deer.y_Deer])
 
     #now simulate!!
     for k in range(1,len(t)):

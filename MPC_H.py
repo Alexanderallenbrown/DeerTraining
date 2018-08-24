@@ -43,8 +43,11 @@ def demo():
 
     deer_ind = '1010000001110010110011110'
     deer_ind = '1001000100000000000010000'#trained against E, 
+    deer_ind = '000110000000001000100001'#trained against H for 8 generations.
+
 
     deer_ind = BinaryConversion(deer_ind)
+    print(deer_ind)
 
     deer = Deer(Psi0_Deer = deer_ind[0], Sigma_Psi = deer_ind[1], tturn_Deer = deer_ind[2], Vmax_Deer = deer_ind[3], Tau_Deer = deer_ind[4])
     #deer.Psi1_Deer = -60*3.14/180.0
@@ -118,7 +121,7 @@ def demo():
 
     ayg = (carxdot[:,1]+carx[:,5]*carx[:,3])/9.81
     axg = (carxdot[:,3]-carx[:,5]*carx[:,1])/9.81
-
+    print(deer_ind)
     
 
     figure()
@@ -162,6 +165,11 @@ def demo():
 
     figure()
     plot(t,deerx[:,0],'k')
+    xlabel('time (s)')
+    ylabel('deer speed (m/s)')
+
+    figure()
+    plot(t,deerx[:,1],'k')
     xlabel('time (s)')
     ylabel('deer speed (m/s)')
 
@@ -213,12 +221,12 @@ def demo():
     def animate(i):
         car_plot.set_width(car_length)
         car_plot.set_height(car_width)
-        car_plot.set_xy([car_x[i]-(car_length/2*cos(car_yaw[i])), car_y[i]-(car_width/2*sin(car_yaw[i]))])
+        car_plot.set_xy([car_x[i]-(car_length/2), car_y[i]-(car_width/2)])
         car_plot.angle = car_yaw[i]*180/3.14
 
         deer_plot.set_width(deer_length)
         deer_plot.set_height(deer_width)
-        deer_plot.set_xy([deer_x[i]-(deer_length/2*sin(deer_yaw[i])), deer_y[i]]-(deer_width/2*cos(deer_yaw[i])))
+        deer_plot.set_xy([deer_x[i]-(deer_length/2), deer_y[i]-(deer_width/2)])
         deer_plot.angle = 90-deer_yaw[i]*180/3.14
 
         return car_plot,deer_plot,

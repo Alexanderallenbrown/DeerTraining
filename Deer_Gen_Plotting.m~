@@ -52,35 +52,7 @@ Egen9  = [0.100627486158 0.158082408823 0.283425357497 0.33242955326 0.360964058
 Egen10 = [0.100627486158 0.158082408823 0.283425357497 0.325259037667 0.33242955326 0.360964058173 0.423840771906 0.622342655702 0.433428772441 0.807005108202 0.863505070995 0.603893505944 0.445554429838 0.55429604113 0.501932168607];
 Egen11 = [0.100627486158 0.142413157895 0.158082408823 0.283425357497 0.325259037667 0.33242955326 0.360964058173 0.554296041133 0.863505070995 0.603893505944 0.622342655702 0.423840771906 0.429362927367 0.394108972569 0.445554429838];
 
-Fdata = zeros(8,15);
-for k=1:8
-    f = load(['GenerationFiles/generationsF/Generation' num2str(k) '.txt']);
-    Fdata(k,:) = f(:,2);
-end
-
-Gdata = zeros(8,15);
-for k=1:8
-    g = load(['GenerationFiles/generationsG/Generation' num2str(k) '.txt']);
-    Gdata(k,:) = g(:,2);
-end
-
-Hdata = zeros(8,15);
-for k=1:8
-    h = load(['GenerationFiles/generationsH/Generation' num2str(k) '.txt']);
-    Hdata(k,:) = h(:,2);
-end
-
-Fmeans = mean(Fdata,2);
-Gmeans = mean(Gdata,2);
-Hmeans = mean(Hdata,2);
-
-Fmins = min(Fdata,[],2);
-Gmins = min(Gdata,[],2);
-Hmins = min(Hdata,[],2);
-
-Fmaxs = max(Fdata,[],2);
-Gmaxs = max(Gdata,[],2);
-Hmaxs = max(Hdata,[],2);
+F = zeros(8,
 
 B = [mean(Bgen1) mean(Bgen2) mean(Bgen3) mean(Bgen4) mean(Bgen5) mean(Bgen6) mean(Bgen7) mean(Bgen8) mean(Bgen9) mean(Bgen10) mean(Bgen11)]
 C = [mean(Cgen1) mean(Cgen2) mean(Bgen3) mean(Cgen4) mean(Cgen5) mean(Cgen6) mean(Cgen7) mean(Cgen8) mean(Cgen9) mean(Cgen10) mean(Cgen11)]
@@ -106,14 +78,4 @@ legend('Agent B', 'Agent C', 'Agent D', 'Agent E')
 xlabel('Generation Number')
 ylabel('Mean Minimum Distance (m)')
 xlim([0,12])
-
-figure
-hold on
-errorbar(1:8,Fmeans,Fmeans-Fmins,Fmeans+Fmaxs,'--o')
-errorbar(1:8,Gmeans,Gmeans-Gmins,Gmeans+Gmaxs,'--o')
-errorbar(1:8,Hmeans,Hmeans-Hmins,Hmeans+Hmaxs,'--o')
-legend('Agent F', 'Agent G', 'Agent H')
-xlabel('Generation Number')
-ylabel('Mean Minimum Distance (m)')
-xlim([0,9])
 
