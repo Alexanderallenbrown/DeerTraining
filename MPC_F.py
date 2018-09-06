@@ -178,13 +178,18 @@ class MPC_F:
 
         umpc = minimize(self.ObjectiveFn,steervector,args = (carnow,deernow,yroad),bounds = bounds, method = 'SLSQP',constraints=cons)
 
+        opt_steering = umpc.x[0]
+
         if (isnan(umpc.x[0])==True):
             print "Collision unavoidable: Eliminate collision constraint"
+            # Eliminate collision constraint
+            cons = ({'type': 'ineq','fun':self.stayInRoad, 'args':(carnow,)})
+            # Re-do minimization
             umpc = minimize(self.ObjectiveFn,steervector,args = (carnow,deernow,yroad),bounds = bounds, method = 'SLSQP')
-
+            # Recalculate opt_steering
+            opt_steering = umpc.x[0]
         # umpc = minimize(self.ObjectiveFn,steervector,args = (carnow,deernow,yroad),bounds = bounds, method='BFGS',options={'xtol': 1e-12, 'disp': False,'eps':.0001,'gtol':.0001})
         #method='BFGS',options={'xtol': 1e-12, 'disp': False,'eps':.0001,'gtol':.0001}
-        opt_steering = umpc.x[0]
 
         return opt_steering
 
@@ -386,8 +391,8 @@ def demo_CVdeer():
     swerveDistance = 50.0
     setSpeed = 25.0
 
-    angle = -85
-    speed = 12
+    angle = -82
+    speed = 15
     # Initiate process
     deer = CV_Deer()
     deer.x_Deer = 80
