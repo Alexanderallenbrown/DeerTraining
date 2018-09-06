@@ -154,18 +154,17 @@ class MPC_F:
 
     def stayInRoad(self,steervector,carnow):
         # Predict the future location of the car
-        print "Stay"
         xcar_pred,junk = self.predictCar(carnow,steervector)
 
         # Find the minimum and maximum values for the predicted y-position
-        min_y = min(xcar_pred[:,0],)
-        max_y = max(xcar_pred[:,0],)
+        min_y = min(xcar_pred[:,0])
+        max_y = max(xcar_pred[:,0])
 
         # Determine the min and max allowable y-positions
         max_allow_y = 1.75+3.5+1.5
         min_allow_y = -1.75-1.5
 
-        return min_y-min_allow_y #,max_y-max_allow_y
+        return min_y-min_allow_y,max_y-max_allow_y
 
 
     def calcOptimal(self,carnow, deernow,yroad):
@@ -175,7 +174,7 @@ class MPC_F:
         for ind in range(1,self.Np):
             bounds.insert(0,(-self.steering_angle_max,self.steering_angle_max))
 
-        cons = ({'type': 'ineq','fun':self.calcDist, 'args':(carnow,deernow)},{'type': 'ineq','fun':self.stayInRoad, 'args':(carnow)})
+        cons = ({'type': 'ineq','fun':self.calcDist, 'args':(carnow,deernow)},{'type': 'ineq','fun':self.stayInRoad, 'args':(carnow,)})
 
         umpc = minimize(self.ObjectiveFn,steervector,args = (carnow,deernow,yroad),bounds = bounds, method = 'SLSQP',constraints=cons)
 
@@ -387,8 +386,8 @@ def demo_CVdeer():
     swerveDistance = 50.0
     setSpeed = 25.0
 
-    angle = -77
-    speed = 5
+    angle = -85
+    speed = 12
     # Initiate process
     deer = CV_Deer()
     deer.x_Deer = 80
@@ -397,7 +396,7 @@ def demo_CVdeer():
     deer.Speed_Deer = speed
         
     # Define simulation time and dt
-    simtime = 10
+    simtime = 5
     dt = deer.dT
     t = arange(0,simtime,dt) #takes min, max, and timestep\
 
