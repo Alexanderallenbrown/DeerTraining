@@ -27,6 +27,7 @@ class PacejkaTire:
         for ind in range(0,len(kappa)):
           Fx[ind] = self.calcFx(5000,kappa[ind],ialpha)
         maxfx = max(Fx)
+        #print Fx
         maxfx_kappa = where(Fx==maxfx)[0][0]
         mykappa = interp(iFx,Fx,kappa,right=maxfx_kappa,left=-maxfx_kappa)
         return mykappa
@@ -118,15 +119,27 @@ class PacejkaTire:
         self.phix = (1-self.Ex)*self.kappa*100+self.Ex/(self.Bx+.001)*arctan(self.Bx*self.kappa*100);
         #println("Bx, Phix= "+str(Bx)+","+str((1-Ex)*kappa*100));
         self.Fx = self.Dx*sin(self.Cx*arctan(self.Bx*self.phix));
+        #print self.Fx
         if (abs(self.alpha)>0 or abs(self.kappa)>0 or abs(self.camb)>0):
           #self is not part of Pacejka's original formulation, but was developed by MSC
           kappac= self.kappa;
           alphac = self.alpha+self.Sh+self.Sv/self.K;
           alphastar = sin(alphac);
-          beta = arccos(abs(kappac)/sqrt(pow(kappac, 2)+pow(alphastar, 2)));#NOTE had abs(kappac) in num
+          thecosine = abs(kappac)/sqrt(pow(kappac, 2)+pow(alphastar, 2))
+          print thecosine
+          if(abs(thecosine)>1):
+            #print "THE COSINE WAS: "+str(thecosine)
+            thecosine = sign(thecosine)*1.0
+          elif (isnan(thecosine)):
+            #print "found a nan cosine"
+            thecosine = 1.0
+
+          beta = arccos(thecosine);#NOTE had abs(kappac) in num
+         # print beta
           mux_now = (self.Fx)/self.Fz;#
           muy_max = self.D/self.Fz;
-          mux = 1/sqrt(pow(1/(mux_now+.01), 2)+pow(tan(beta)/muy_max, 2));
+          mux = 1/sqrt(.001+pow(1/(mux_now+.001), 2)+pow(tan(beta)/muy_max, 2));
+
           self.Fx_comb = self.Fx*mux/abs(mux_now+.001);
         else :
           self.Fx_comb=self.Fx;
