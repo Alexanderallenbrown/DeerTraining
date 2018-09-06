@@ -130,18 +130,17 @@ class MPC_F:
                 J = J +  self.q_lateral_velocity*(xcar_pred[k,1])**2+self.q_steering_effort * (steervector[k])**2 + self.q_lane_error * (xcar_pred[k,0]-yroad)**2 + self.q_obstacle_error * (distance)**2 + self.q_accel*((car_y_accel_pred[k]))**2
             else:
                 #print "passed deer!"
-                J = J +  self.q_steering_effort * (steervector[k])**2 + self.q_lane_error * (xcar_pred[k,0]-yroad)**2+ self.q_accel*((car_y_accel_pred[k]))**2
+                J = J +  5*self.q_steering_effort * (steervector[k])**2 + self.q_lane_error * (xcar_pred[k,0]-yroad)**2+ 5*self.q_accel*((car_y_accel_pred[k]))**2
         return J
 
     def calcDist(self,steervector,carnow,deernow):
+        # Predict the future location of the car
         xcar_pred,junk = self.predictCar(carnow,steervector)
         if (self.predictionmethod == 'static'):
             xdeer_pred = self.predictDeer_static(deernow,carnow)
         else:
             xdeer_pred = self.predictDeer_CV(deernow,carnow)
         #Np rows by 5 columns, one for x and y of deer
-        J = 0 # initialize the objective to zero
-        #now loop through and upfdate J for every timestep in the prediction horizon.
         distance=zeros(self.Np)
         for k in range(0,self.Np):
             #print k
@@ -151,6 +150,24 @@ class MPC_F:
         #print min(distance)
         return min(distance)-3
 
+
+
+    def stayInRoad(self,steervector,carnow):
+        # Predict the future location of the car
+        print "Stay"
+        xcar_pred,junk = self.predictCar(carnow,steervector)
+
+        # Find the minimum and maximum values for the predicted y-position
+        min_y = min(xcar_pred[:,0],)
+        max_y = max(xcar_pred[:,0],)
+
+        # Determine the min and max allowable y-positions
+        max_allow_y = 1.75+3.5+1.5
+        min_allow_y = -1.75-1.5
+
+        return min_y-min_allow_y #,max_y-max_allow_y
+
+
     def calcOptimal(self,carnow, deernow,yroad):
         steervector = 0.1*random.randn(self.Np)
 
@@ -158,9 +175,14 @@ class MPC_F:
         for ind in range(1,self.Np):
             bounds.insert(0,(-self.steering_angle_max,self.steering_angle_max))
 
-        cons = ({'type': 'ineq','fun':self.calcDist, 'args':(carnow,deernow)})
+        cons = ({'type': 'ineq','fun':self.calcDist, 'args':(carnow,deernow)},{'type': 'ineq','fun':self.stayInRoad, 'args':(carnow)})
 
         umpc = minimize(self.ObjectiveFn,steervector,args = (carnow,deernow,yroad),bounds = bounds, method = 'SLSQP',constraints=cons)
+
+        if (isnan(umpc.x[0])==True):
+            print "Collision unavoidable: Eliminate collision constraint"
+            umpc = minimize(self.ObjectiveFn,steervector,args = (carnow,deernow,yroad),bounds = bounds, method = 'SLSQP')
+
         # umpc = minimize(self.ObjectiveFn,steervector,args = (carnow,deernow,yroad),bounds = bounds, method='BFGS',options={'xtol': 1e-12, 'disp': False,'eps':.0001,'gtol':.0001})
         #method='BFGS',options={'xtol': 1e-12, 'disp': False,'eps':.0001,'gtol':.0001}
         opt_steering = umpc.x[0]
@@ -318,7 +340,7 @@ def demo_GAdeer():
     ax = fig.add_subplot(111)
     plt.axis('equal')
     ax.set_xlim(0, 150)
-    ax.set_ylim(-25, 25)
+    #ax.set_ylim(-25, 25)
 
     # Initialize rectangles
     car_plot = patches.Rectangle((0, 0), 0, 0,angle = 0.0, fc='b', alpha = 0.5)

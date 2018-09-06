@@ -126,7 +126,7 @@ class PacejkaTire:
           alphac = self.alpha+self.Sh+self.Sv/self.K;
           alphastar = sin(alphac);
           thecosine = abs(kappac)/sqrt(pow(kappac, 2)+pow(alphastar, 2))
-          print thecosine
+          #print thecosine
           if(abs(thecosine)>1):
             #print "THE COSINE WAS: "+str(thecosine)
             thecosine = sign(thecosine)*1.0

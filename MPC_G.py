@@ -183,7 +183,7 @@ class MPC_G:
 
         opt_x_accel = umpc.x[0]
 
-        print opt_x_accel
+        #print opt_x_accel
 
         if (isnan(opt_x_accel)==True):
             opt_x_accel = -self.brake_max

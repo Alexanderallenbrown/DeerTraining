@@ -9,7 +9,7 @@ import copy
 
 class MPC_H:
 
-    def __init__(self,q_lane_error = 10.0,q_obstacle_error_F = .05,q_lateral_velocity = 0.00,q_steering_effort = 0.0,q_lat_accel = 0.005,q_obstacle_error_G = 1000000000.0, q_x_accel = 0.0, q_cruise_speed = 0.01, gas_max = 1.0, brake_max = 0.5,predictionmethod = 'static'):
+    def __init__(self,q_lane_error = 10.0,q_obstacle_error_F = .05,q_lateral_velocity = 0.00,q_steering_effort = 0.0,q_lat_accel = 0.05,q_obstacle_error_G = 1000000000.0, q_x_accel = 0.0, q_cruise_speed = 0.01, gas_max = 1.0, brake_max = 0.5,predictionmethod = 'static'):
 
         self.q_lane_error = q_lane_error
         self.q_obstacle_error_F = q_obstacle_error_F
@@ -243,8 +243,8 @@ def demo_CVdeer():
     x_acceldistance = 50.0
     setSpeed = 25.0
 
-    angle = -83
-    speed = 12
+    angle = -78
+    speed = 5
     # Initiate process
     deer = CV_Deer()
     deer.x_Deer = 80
