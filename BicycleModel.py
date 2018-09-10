@@ -151,7 +151,7 @@ class BicycleModel:
             gas = 0
         if abs(gas)>1:
             gas = 1
-
+            
         if self.x[3]>0:
             Engine_Force = gas * self.power/self.x[3]
             if Engine_Force>self.mu*self.m*9.81:

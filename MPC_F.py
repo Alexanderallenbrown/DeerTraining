@@ -148,23 +148,33 @@ class MPC_F:
             #print distance[k]
 
         #print min(distance)
-        return min(distance)-3
+        return min(distance)-2
 
 
 
-    def stayInRoad(self,steervector,carnow):
+    def stayInRoadRight(self,steervector,carnow):
         # Predict the future location of the car
         xcar_pred,junk = self.predictCar(carnow,steervector)
 
         # Find the minimum and maximum values for the predicted y-position
         min_y = min(xcar_pred[:,0])
+
+        # Determine the min and max allowable y-positions
+        min_allow_y = -1.75-1.5
+
+        return min_y-min_allow_y
+
+    def stayInRoadLeft(self,steervector,carnow):
+        # Predict the future location of the car
+        xcar_pred,junk = self.predictCar(carnow,steervector)
+
+        # Find the minimum and maximum values for the predicted y-position
         max_y = max(xcar_pred[:,0])
 
         # Determine the min and max allowable y-positions
         max_allow_y = 1.75+3.5+1.5
-        min_allow_y = -1.75-1.5
 
-        return min_y-min_allow_y,max_y-max_allow_y
+        return max_allow_y-max_y
 
 
     def calcOptimal(self,carnow, deernow,yroad):
@@ -174,18 +184,18 @@ class MPC_F:
         for ind in range(1,self.Np):
             bounds.insert(0,(-self.steering_angle_max,self.steering_angle_max))
 
-        cons = ({'type': 'ineq','fun':self.calcDist, 'args':(carnow,deernow)},{'type': 'ineq','fun':self.stayInRoad, 'args':(carnow,)})
+        cons = ({'type': 'ineq','fun':self.calcDist, 'args':(carnow,deernow)},{'type': 'ineq','fun':self.stayInRoadRight, 'args':(carnow,)},{'type': 'ineq','fun':self.stayInRoadLeft, 'args':(carnow,)})
 
-        umpc = minimize(self.ObjectiveFn,steervector,args = (carnow,deernow,yroad),bounds = bounds, method = 'SLSQP',constraints=cons)
+        umpc = minimize(self.ObjectiveFn,steervector,args = (carnow,deernow,yroad),bounds = bounds, method = 'SLSQP',constraints=cons, options ={'maxiter': 100})
 
         opt_steering = umpc.x[0]
 
         if (isnan(umpc.x[0])==True):
             print "Collision unavoidable: Eliminate collision constraint"
             # Eliminate collision constraint
-            cons = ({'type': 'ineq','fun':self.stayInRoad, 'args':(carnow,)})
+            cons = ({'type': 'ineq','fun':self.stayInRoadRight, 'args':(carnow,)},{'type': 'ineq','fun':self.stayInRoadLeft, 'args':(carnow,)})
             # Re-do minimization
-            umpc = minimize(self.ObjectiveFn,steervector,args = (carnow,deernow,yroad),bounds = bounds, method = 'SLSQP')
+            umpc = minimize(self.ObjectiveFn,steervector,args = (carnow,deernow,yroad),bounds = bounds, method = 'SLSQP', constraints=cons, options ={'maxiter': 100})
             # Recalculate opt_steering
             opt_steering = umpc.x[0]
         # umpc = minimize(self.ObjectiveFn,steervector,args = (carnow,deernow,yroad),bounds = bounds, method='BFGS',options={'xtol': 1e-12, 'disp': False,'eps':.0001,'gtol':.0001})

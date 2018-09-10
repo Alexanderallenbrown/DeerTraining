@@ -177,7 +177,7 @@ class MPC_G:
  
         cons = ({'type': 'ineq','fun':self.calcDist, 'args':(carnow,deernow)})
 
-        umpc = minimize(self.ObjectiveFn,x_accelvector,args = (carnow,deernow,setSpeed),bounds = bounds, method = 'SLSQP',constraints=cons)
+        umpc = minimize(self.ObjectiveFn,x_accelvector,args = (carnow,deernow,setSpeed),bounds = bounds, method = 'SLSQP',constraints=cons, options ={'maxiter': 100})
         # umpc = minimize(self.ObjectiveFn,steervector,args = (carnow,deernow,yroad),bounds = bounds, method='BFGS',options={'xtol': 1e-12, 'disp': False,'eps':.0001,'gtol':.0001})
         #method='BFGS',options={'xtol': 1e-12, 'disp': False,'eps':.0001,'gtol':.0001}
 
