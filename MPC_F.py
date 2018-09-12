@@ -419,11 +419,12 @@ def demo_CVdeer():
         
     # Define simulation time and dt
     simtime = 5
-    dt = deer.dT
+    dt = 1/60.0
+    deer.dT = dt
     t = arange(0,simtime,dt) #takes min, max, and timestep\
 
 
-    car = BicycleModel(dT = dt, U = 25.0,tiretype='linear', steering_actuator = 'off')
+    car = BicycleModel(dT = dt, U = 25.0,tiretype='pacejka', steering_actuator = 'on')
 
 
      #car state vector #print array([[Ydot],[vdot],[Xdot],[Udot],[Psidot],[rdot]])

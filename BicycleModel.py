@@ -62,7 +62,7 @@ class BicycleModel:
         # Steering actuator dynamics
         self.steering_actuator = steering_actuator
         self.z = 0.9
-        self.w = 10
+        self.w = 20
         self.delta_r = 0
         self.delta_rdot = 0
         self.delta_rold = 0
