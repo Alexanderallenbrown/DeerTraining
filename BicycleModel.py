@@ -15,13 +15,13 @@ print(sys.path)
 #import numpy
 from numpy import *#array,dot,cos,sin,sqrt,tan
 from pacejkatire import PacejkaTire
-#from matplotlib.pyplot import *
+from matplotlib.pyplot import *
 
 #from matplotlib.pyplot import *
 
 class BicycleModel:
 
-    def __init__(self,a = 0.8,b = 1.5,m = 1000.0,I=2000.0,U=20.0,Cf=100000.0,Cr=100000.0,mu=1.0,dT=0.01,tiretype='pacejka',drive='rear',bias=0.2,autopilot_gain = 1, xinit = 0, yinit = 0, zinit = 0):
+    def __init__(self,a = 0.8,b = 1.5,m = 1000.0,I=2000.0,U=20.0,Cf=100000.0,Cr=100000.0,mu=1.0,dT=0.01,tiretype='pacejka',drive='rear',bias=0.2,autopilot_gain = 1, xinit = 0, yinit = 0, zinit = 0,steering_actuator = 'on'):
         """ 
         BicycleModel(a = 1.2,b = 1.0,m = 1000.0,I=2000.0,U=20.0,Cf=-100000.0,Cr=-100000.0,mu=1.0,dT=0.01,tiretype='dugoff',coords='local'))
         This is a bicycle model. It can use a dugoff tire model or a linear tire model.
@@ -59,6 +59,18 @@ class BicycleModel:
         self.pacejkatire_front = PacejkaTire(self.Fzf/2,mu,mu)
         self.pacejkatire_rear = PacejkaTire(self.Fzf/2,mu,mu)
 
+        # Steering actuator dynamics
+        self.steering_actuator = steering_actuator
+        self.z = 0.9
+        self.w = 10
+        self.delta_r = 0
+        self.delta_rdot = 0
+        self.delta_rold = 0
+        self.e = 0
+        self.e_old = 0
+        self.delta = 0
+        self.deltadot = 0
+        self.deltaold = 0
 
         #engine stuff TODO:
         self.power  = 20000 #~100 HP  (100 KW) engine, constant power all the time. For now.
@@ -228,6 +240,11 @@ class BicycleModel:
         return self.x,xdot
 
     def heuns_update(self,brake=0,gas=0,steer=0,cruise = 'on',setspeed=20.0,autopilot='off',mpc='off',patherror=0):
+       
+        # Update steering actuator
+        if self.steering_actuator == 'on':
+            steer = self.steering_update(steer)
+
         Fxf,Fxr,steer = self.calc_inputs(brake,gas,steer)
         if cruise=='on': #TODO make this better. Hardcoded and awful for now...
             gas = self.cruise(setspeed)
@@ -248,7 +265,7 @@ class BicycleModel:
         self.x = self.x + xdot*self.dT
         self.U = self.x[3]
 
-        return self.x,xdot
+        return self.x,xdot,steer
 
 
     def euler_predict(self,x,brake=0,gas=0,steer=0,dT=0.1):
@@ -256,6 +273,29 @@ class BicycleModel:
         xdot = self.state_eq(x,0,Fxf,Fxr,steer)
         x = x+self.dT*xdot #this should update the states
         return x,xdot
+
+
+    def steering_statederivs(self, delta, deltadot, delta_r, delta_rdot):
+        deltaddot = 2 * self.z * self.w * (delta_rdot - deltadot) + self.w * self.w * (delta_r - delta)
+        return [deltadot, deltaddot]
+  
+    def steering_update(self, delta_r):
+        self.delta_r = delta_r;
+        self.delta_rdot = (self.delta_r - self.delta_rold) / self.dT;
+        self.deltadot = (self.delta - self.deltaold) / self.dT;
+        self.deltaold = self.delta;
+        self.delta_rold = self.delta_r;
+        #self uses Heun's method (trapezoidal)
+        xdot1 = self.steering_statederivs(self.delta, self.deltadot, self.delta_r, self.delta_rdot);
+        #first calculation
+        deltaprime = self.delta + xdot1[0] * self.dT;
+        deltadotprime = self.deltadot + xdot1[1] * self.dT;
+        #now compute again
+        xdot2 = self.steering_statederivs(deltaprime, deltadotprime, self.delta_r, self.delta_rdot);
+        #now compute the final update
+        self.delta = self.delta + self.dT / 2 * (xdot1[0] + xdot2[0]);
+        self.deltadot = self.deltadot + self.dT / 2 * (xdot1[1] + xdot2[1]);
+        return self.delta;
 
     # def minError(self,uvec,roadvec,speedvec,xv,Rsteer,Rgas,Rbrake,Qroad,Qspeed,dT):
     #     """ minError(uvec,rvec,xvehicle) returns the objective value for minimizing vehicle-road error over a prediction horizon.
@@ -593,6 +633,5 @@ if __name__=='__main__':
         ylabel('North (m)')
         legend(['Dugoff Tire','Linear Tire'])
         show()
-
 
 

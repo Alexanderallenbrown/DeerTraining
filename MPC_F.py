@@ -7,7 +7,7 @@ from CV_Deer import *
 import copy
 
 class MPC_F:
-    def __init__(self, Np=5, dtp=.2,q_lane_error = 1.0,q_obstacle_error = 1.0,q_steering_effort=1.0,q_accel = 1.0,q_lateral_velocity=1.0,steering_angle_max=.20, epsilon = 0.00001,downsample_horizon = 'false',predictionmethod = 'static'):
+    def __init__(self, Np=10, dtp=.1,q_lane_error = 1.0,q_obstacle_error = 1.0,q_steering_effort=1.0,q_accel = 1.0,q_lateral_velocity=1.0,steering_angle_max=.20, epsilon = 0.00001,downsample_horizon = 'false',predictionmethod = 'static'):
         self.Np = Np
         self.dtp = dtp
         self.q_lane_error = q_lane_error
@@ -82,12 +82,13 @@ class MPC_F:
     def predictCar(self,carnow,steervector):
         predictCar = copy.deepcopy(carnow)
         predictCar.tiretype='linear'
+        predictCar.steering_actuator = 'off'
         if(self.downsample_horizon=='false'):
             xcar_pred_downsampled = zeros((self.Np,6))
             xdotcar_pred_downsampled  = zeros((self.Np,6))
             predictCar.dT = self.dtp
             for k in range(0,self.Np):
-                xcar_pred_downsampled[k,:],xdotcar_pred_downsampled[k,:] = predictCar.heuns_update(steer = steervector[k], setspeed = 25.0)
+                xcar_pred_downsampled[k,:],xdotcar_pred_downsampled[k,:],steer = predictCar.heuns_update(steer = steervector[k], setspeed = 25.0)
         else:
             #compute a time vector for predicting
             tvec = arange(0,self.prediction_time+predictCar.dT,predictCar.dT)
@@ -102,7 +103,7 @@ class MPC_F:
             #print steervector_upsampled.shape
             #actually predict the car's states given the input
             for k in range(0,len(tvec)):
-                xcar_pred[k,:],xdotcar_pred[k,:] = predictCar.heuns_update(steer = steervector_upsampled[k], setspeed = 25.0)
+                xcar_pred[k,:],xdotcar_pred[k,:],steer = predictCar.heuns_update(steer = steervector_upsampled[k], setspeed = 25.0)
             #now downsample the prediction so it is only MPC.Np points long
             for k in range(0,6):
                 xcar_pred_downsampled[:,k] = interp(self.t_horizon,tvec,xcar_pred[:,k])
@@ -243,10 +244,13 @@ def demo_GAdeer():
     weight = 10.0
     MPC = MPC_F(q_lane_error = weight,q_obstacle_error =1.0/weight*10,q_lateral_velocity=0.00,q_steering_effort=0.0,q_accel = 0.005,predictionmethod='CV')
 
-    steervec = zeros(len(t))
+    actual_steervec = zeros(len(t))
+    command_steervec = zeros(len(t))
     cafvec = zeros(len(t))
     carvec = zeros(len(t))
     distancevec = zeros(len(t))
+    last_steer_t = 0
+    opt_steer = 0
 
     #now simulate!!
     for k in range(1,len(t)):
@@ -263,16 +267,19 @@ def demo_GAdeer():
                 # opt_steer = 0
                 # #steervector,carnow,deernow,yroad
                 # J = MPC.ObjectiveFn(steervector,car,deer,yroad=0)
-                opt_steer = MPC.calcOptimal(carnow = car,deernow = deer, yroad = 0)
+
+                if ((t[k]- last_steer_t) >= MPC.dtp):
+                    opt_steer = MPC.calcOptimal(carnow = car,deernow = deer, yroad = 0)
+                    last_steer_t = t[k]
             else:
                 opt_steer = 0
 
-            carx[k,:],carxdot[k,:] = car.heuns_update(steer = opt_steer, setspeed = 25.0)
+            carx[k,:],carxdot[k,:],actual_steervec[k] = car.heuns_update(steer = opt_steer, setspeed = 25.0)
             cafvec[k] = car.Caf
             carvec[k] = car.Car
             #deerx[k,:] = array([deer.Speed_Deer, deer.Psi_Deer, deer.x_Deer, deer.y_Deer])#updateDeer(car.x[2])
             deerx[k,:] = deer.updateDeer(car.x[2])
-            steervec[k] = opt_steer
+            command_steervec[k] = opt_steer
             distancevec[k] = sqrt((deer.x_Deer - car.x[2])**2+(deer.y_Deer - car.x[0])**2)
 
             print round(t[k],2),round(opt_steer,2),round(deer.y_Deer,2)
@@ -416,7 +423,7 @@ def demo_CVdeer():
     t = arange(0,simtime,dt) #takes min, max, and timestep\
 
 
-    car = BicycleModel(dT = dt, U = 25.0,tiretype='linear')
+    car = BicycleModel(dT = dt, U = 25.0,tiretype='linear', steering_actuator = 'off')
 
 
      #car state vector #print array([[Ydot],[vdot],[Xdot],[Udot],[Psidot],[rdot]])
@@ -435,10 +442,13 @@ def demo_CVdeer():
     weight = 10.0
     MPC = MPC_F(q_lane_error = weight,q_obstacle_error =1.0/weight*10,q_lateral_velocity=0.00,q_steering_effort=0.0,q_accel = 0.005,predictionmethod='CV')
 
-    steervec = zeros(len(t))
+    actual_steervec = zeros(len(t))
+    command_steervec = zeros(len(t))
     cafvec = zeros(len(t))
     carvec = zeros(len(t))
     distancevec = zeros(len(t))
+    opt_steer = 0
+    last_steer_t = 0
 
     #now simulate!!
     for k in range(1,len(t)):
@@ -455,16 +465,18 @@ def demo_CVdeer():
                 # opt_steer = 0
                 # #steervector,carnow,deernow,yroad
                 # J = MPC.ObjectiveFn(steervector,car,deer,yroad=0)
-                opt_steer = MPC.calcOptimal(carnow = car,deernow = deer, yroad = 0)
+                if ((t[k]- last_steer_t) >= MPC.dtp):
+                    opt_steer = MPC.calcOptimal(carnow = car,deernow = deer, yroad = 0)
+                    last_steer_t = t[k]
             else:
                 opt_steer = 0
 
-            carx[k,:],carxdot[k,:] = car.heuns_update(steer = opt_steer, setspeed = 25.0)
+            carx[k,:],carxdot[k,:],actual_steervec[k] = car.heuns_update(steer = opt_steer, setspeed = 25.0)
             cafvec[k] = car.Caf
             carvec[k] = car.Car
             #deerx[k,:] = array([deer.Speed_Deer, deer.Psi_Deer, deer.x_Deer, deer.y_Deer])#updateDeer(car.x[2])
             deerx[k,:] = deer.updateDeer(car.x[2])
-            steervec[k] = opt_steer
+            command_steervec[k] = opt_steer
             distancevec[k] = sqrt((deer.x_Deer - car.x[2])**2+(deer.y_Deer - car.x[0])**2)
 
             print round(t[k],2),round(opt_steer,2),round(deer.y_Deer,2)
@@ -493,7 +505,7 @@ def demo_CVdeer():
 
     ayg = (carxdot[:,1]+carx[:,5]*carx[:,3])/9.81
     figure()
-    plot(t,steervec,'k')
+    plot(t,actual_steervec,'k',t,command_steervec,'r')
     xlabel('Time (s)')
     ylabel('steer angle (rad)')
     figure()
