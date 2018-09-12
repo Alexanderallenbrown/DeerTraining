@@ -95,14 +95,13 @@ def demo_GAdeer():
 
             if ((deer.x_Deer - car.x[2]) < x_acceldistance):
 
-                carx[k,:],carxdot[k,:] = car.heuns_update(gas = gas, brake = brake, steer = steer, cruise = 'off')
+                carx[k,:],carxdot[k,:],steervec[k] = car.heuns_update(gas = gas, brake = brake, steer = steer, cruise = 'off')
                 deerx[k,:] = array([deer.Speed_Deer, deer.Psi_Deer, deer.x_Deer, deer.y_Deer])#updateDeer(car.x[2])
                 deerx[k,:] = deer.updateDeer(car.x[2])
                 #steervec[k] = opt_steer
                 accelvec[k] = carxdot[k,3]
                 cafvec[k] = car.Caf
                 carvec[k] = car.Car
-                steervec[k] = steer
                 print "mpc active"
 
             else:
@@ -253,7 +252,7 @@ def demo_CVdeer():
     deer.Speed_Deer = speed
         
     # Define simulation time and dt
-    simtime = 5
+    simtime = 10
     dt = deer.dT
     t = arange(0,simtime,dt) #takes min, max, and timestep\
 
@@ -292,7 +291,7 @@ def demo_CVdeer():
 
             if ((deer.x_Deer - car.x[2]) < x_acceldistance):
 
-                carx[k,:],carxdot[k,:] = car.heuns_update(gas = gas, brake = brake, steer = steer, cruise = 'off')
+                carx[k,:],carxdot[k,:],steervec[k] = car.heuns_update(gas = gas, brake = brake, steer = steer, cruise = 'off')
                 deerx[k,:] = array([deer.Speed_Deer, deer.Psi_Deer, deer.x_Deer, deer.y_Deer])#updateDeer(car.x[2])
                 deerx[k,:] = deer.updateDeer(car.x[2])
                 #steervec[k] = opt_steer
@@ -303,7 +302,7 @@ def demo_CVdeer():
                 print "mpc active"
 
             else:
-                carx[k,:],carxdot[k,:] = car.heuns_update(steer = steer, setspeed = setSpeed,)
+                carx[k,:],carxdot[k,:],steervec[k] = car.heuns_update(steer = steer, setspeed = setSpeed,)
                 #carx[k,:],carxdot[k,:] = car.heuns_update(gas = gas, brake = brake, steer = 0, cruise = 'off')
                 #deerx[k,:] = array([deer.Speed_Deer, deer.Psi_Deer, deer.x_Deer, deer.y_Deer])#updateDeer(car.x[2])
                 deerx[k,:] = deer.updateDeer(car.x[2])
@@ -311,7 +310,6 @@ def demo_CVdeer():
                 accelvec[k] = carxdot[k,3]
                 cafvec[k] = car.Caf
                 carvec[k] = car.Car
-                steervec[k] = 0
 
             distancevec[k] = sqrt((deer.x_Deer - car.x[2])**2+(deer.y_Deer - car.x[0])**2)
             print round(t[k],2),round(gas,2),round(brake,2)
