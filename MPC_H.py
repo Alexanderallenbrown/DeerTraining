@@ -73,9 +73,10 @@ def demo_GAdeer():
     #fill in initial conditions because they're nonzero
     deerx[0,:] = array([deer.Speed_Deer,deer.Psi_Deer,deer.x_Deer,deer.y_Deer])
 
-    MPC = MPC_H(q_lane_error = 10.0,q_obstacle_error_F = .05,q_lateral_velocity = 0.00,q_steering_effort = 0.0,q_lat_accel = 0.005,q_obstacle_error_G = 1000000000.0, q_x_accel = 0.0, q_cruise_speed = 25.0, gas_max = 0.25, brake_max = 0.25, predictionmethod = 'CV')
+    MPC = MPC_H(q_lane_error = 10.0,q_obstacle_error_F = .5,q_lateral_velocity = 1.00,q_steering_effort = 1.0,q_lat_accel = 0.005,q_obstacle_error_G = 1000000000.0, q_x_accel = 0.0, q_cruise_speed = 25.0, gas_max = 0.25, brake_max = 0.25, predictionmethod = 'CV')
 
-    steervec = zeros(len(t))
+    actual_steervec = zeros(len(t))
+    command_steervec = zeros(len(t))
     accelvec = zeros(len(t))
     distancevec = zeros(len(t))
     cafvec = zeros(len(t))
@@ -95,18 +96,18 @@ def demo_GAdeer():
 
             if ((deer.x_Deer - car.x[2]) < x_acceldistance):
 
-                carx[k,:],carxdot[k,:] = car.heuns_update(gas = gas, brake = brake, steer = steer, cruise = 'off')
+                carx[k,:],carxdot[k,:],actual_steervec[k] = car.rk_update(gas = gas, brake = brake, steer = steer, cruise = 'off')
                 deerx[k,:] = array([deer.Speed_Deer, deer.Psi_Deer, deer.x_Deer, deer.y_Deer])#updateDeer(car.x[2])
                 deerx[k,:] = deer.updateDeer(car.x[2])
                 #steervec[k] = opt_steer
                 accelvec[k] = carxdot[k,3]
                 cafvec[k] = car.Caf
                 carvec[k] = car.Car
-                steervec[k] = steer
+                command_steervec[k] = steer
                 print "mpc active"
 
             else:
-                carx[k,:],carxdot[k,:] = car.heuns_update(steer = steer, setspeed = setSpeed,)
+                carx[k,:],carxdot[k,:],actual_steervec[k] = car.rk_update(steer = steer, setspeed = setSpeed,)
                 #carx[k,:],carxdot[k,:] = car.heuns_update(gas = gas, brake = brake, steer = 0, cruise = 'off')
                 #deerx[k,:] = array([deer.Speed_Deer, deer.Psi_Deer, deer.x_Deer, deer.y_Deer])#updateDeer(car.x[2])
                 deerx[k,:] = deer.updateDeer(car.x[2])
@@ -114,7 +115,7 @@ def demo_GAdeer():
                 accelvec[k] = carxdot[k,3]
                 cafvec[k] = car.Caf
                 carvec[k] = car.Car
-                steervec[k] = 0
+                command_steervec[k] = 0
 
             distancevec[k] = sqrt((deer.x_Deer - car.x[2])**2+(deer.y_Deer - car.x[0])**2)
             print round(t[k],2),round(gas,2),round(brake,2)
@@ -243,8 +244,8 @@ def demo_CVdeer():
     x_acceldistance = 50.0
     setSpeed = 25.0
 
-    angle = -78
-    speed = 5
+    angle = -85
+    speed = 8
     # Initiate process
     deer = CV_Deer()
     deer.x_Deer = 80
@@ -270,13 +271,16 @@ def demo_CVdeer():
     #fill in initial conditions because they're nonzero
     deerx[0,:] = array([deer.Speed_Deer,deer.Psi_Deer,deer.x_Deer,deer.y_Deer])
 
-    MPC = MPC_H(q_lane_error = 10.0,q_obstacle_error_F = .05,q_lateral_velocity = 0.00,q_steering_effort = 0.0,q_lat_accel = 0.005,q_obstacle_error_G = 1000000000.0, q_x_accel = 0.0, q_cruise_speed = 25.0, gas_max = 0.25, brake_max = 0.25, predictionmethod = 'CV')
+    MPC = MPC_H(q_lane_error = 10.0,q_obstacle_error_F = 100.0,q_lateral_velocity = 0.10,q_steering_effort = .10,q_lat_accel = 0.005,q_obstacle_error_G = 1000000000.0, q_x_accel = 0.0, q_cruise_speed = 25.0, gas_max = 0.25, brake_max = 0.5, predictionmethod = 'CV')
 
-    steervec = zeros(len(t))
+    actual_steervec = zeros(len(t))
+    command_steervec = zeros(len(t))
     accelvec = zeros(len(t))
     distancevec = zeros(len(t))
     cafvec = zeros(len(t))
     carvec = zeros(len(t))
+    last_command_t = -0.1
+    steer = 0
 
     #now simulate!!
     for k in range(1,len(t)):
@@ -288,22 +292,34 @@ def demo_CVdeer():
 
             #MPC.ObjectiveFn(accelvec,car,deer,25.0)
             #opt_x_accel = 0#
-            gas,brake,steer = MPC.calcOptimal(carnow = car, deernow = deer, setSpeed = setSpeed)
+
+            if ((t[k]- last_command_t) >= 0.1):
+                if ((deer.x_Deer - car.x[2]) > x_acceldistance):
+                    steer = 0
+                    gas = 0
+                    brake = 0
+
+                else:
+                    gas,brake,steer = MPC.calcOptimal(carnow = car, deernow = deer, setSpeed = setSpeed)
+                    last_command_t = t[k]
+
+            else:
+                pass
 
             if ((deer.x_Deer - car.x[2]) < x_acceldistance):
 
-                carx[k,:],carxdot[k,:] = car.heuns_update(gas = gas, brake = brake, steer = steer, cruise = 'off')
+                carx[k,:],carxdot[k,:],actual_steervec[k] = car.rk_update(gas = gas, brake = brake, steer = steer, cruise = 'off')
                 deerx[k,:] = array([deer.Speed_Deer, deer.Psi_Deer, deer.x_Deer, deer.y_Deer])#updateDeer(car.x[2])
                 deerx[k,:] = deer.updateDeer(car.x[2])
                 #steervec[k] = opt_steer
                 accelvec[k] = carxdot[k,3]
                 cafvec[k] = car.Caf
                 carvec[k] = car.Car
-                steervec[k] = steer
+                command_steervec[k] = steer
                 print "mpc active"
 
             else:
-                carx[k,:],carxdot[k,:] = car.heuns_update(steer = steer, setspeed = setSpeed,)
+                carx[k,:],carxdot[k,:], actual_steervec[k] = car.rk_update(steer = steer, setspeed = setSpeed,)
                 #carx[k,:],carxdot[k,:] = car.heuns_update(gas = gas, brake = brake, steer = 0, cruise = 'off')
                 #deerx[k,:] = array([deer.Speed_Deer, deer.Psi_Deer, deer.x_Deer, deer.y_Deer])#updateDeer(car.x[2])
                 deerx[k,:] = deer.updateDeer(car.x[2])
@@ -311,7 +327,7 @@ def demo_CVdeer():
                 accelvec[k] = carxdot[k,3]
                 cafvec[k] = car.Caf
                 carvec[k] = car.Car
-                steervec[k] = 0
+                command_steervec[k] = 0
 
             distancevec[k] = sqrt((deer.x_Deer - car.x[2])**2+(deer.y_Deer - car.x[0])**2)
             print round(t[k],2),round(gas,2),round(brake,2)
@@ -341,7 +357,7 @@ def demo_CVdeer():
 
     ayg = (carxdot[:,1]+carx[:,5]*carx[:,3])/9.81
     figure()
-    plot(t,steervec,'k')
+    plot(t,actual_steervec,'k',t,command_steervec,'r')
     xlabel('Time (s)')
     ylabel('steer angle (rad)')
     figure()

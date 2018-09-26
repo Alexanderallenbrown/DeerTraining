@@ -116,11 +116,11 @@ class MPC_G:
             if x_accelvector_upsampled[k] > 0:
                 gas = x_accelvector_upsampled[k]
                 brake = 0
-                xcar_pred[k,:],xdotcar_pred[k,:] = predictCar.heuns_update(gas = gas, brake = brake, steer = 0, cruise = 'off')
+                xcar_pred[k,:],xdotcar_pred[k,:],steer = predictCar.rk_update(gas = gas, brake = brake, steer = 0, cruise = 'off')
             else:
                 gas = 0
                 brake = abs(x_accelvector_upsampled[k])
-                xcar_pred[k,:],xdotcar_pred[k,:] = predictCar.heuns_update(gas = gas, brake = brake, steer = 0, cruise = 'off')
+                xcar_pred[k,:],xdotcar_pred[k,:],steer = predictCar.rk_update(gas = gas, brake = brake, steer = 0, cruise = 'off')
         #now downsample the prediction so it is only MPC.Np points long
         for k in range(0,6):
             xcar_pred_downsampled[:,k] = interp(self.t_horizon,tvec,xcar_pred[:,k])
@@ -254,7 +254,7 @@ def demo_GAdeer():
 
             if ((sqrt((deer.x_Deer - car.x[2])**2+(deer.y_Deer - car.x[0])**2) < x_acceldistance) and (deer.x_Deer>car.x[2])):
 
-                carx[k,:],carxdot[k,:] = car.heuns_update(gas = gas, brake = brake, steer = 0, cruise = 'off')
+                carx[k,:],carxdot[k,:],steer = car.rk_update(gas = gas, brake = brake, steer = 0, cruise = 'off')
                 deerx[k,:] = array([deer.Speed_Deer, deer.Psi_Deer, deer.x_Deer, deer.y_Deer])#updateDeer(car.x[2])
                 deerx[k,:] = deer.updateDeer(car.x[2])
                 #steervec[k] = opt_steer
@@ -262,7 +262,7 @@ def demo_GAdeer():
                 print "mpc active"
 
             else:
-                carx[k,:],carxdot[k,:] = car.heuns_update(steer = 0, setspeed = setSpeed,)
+                carx[k,:],carxdot[k,:],steer = car.rk_update(steer = 0, setspeed = setSpeed,)
                 #carx[k,:],carxdot[k,:] = car.heuns_update(gas = gas, brake = brake, steer = 0, cruise = 'off')
                 #deerx[k,:] = array([deer.Speed_Deer, deer.Psi_Deer, deer.x_Deer, deer.y_Deer])#updateDeer(car.x[2])
                 deerx[k,:] = deer.updateDeer(car.x[2])
@@ -438,7 +438,7 @@ def demo_CVdeer():
 
             if ((sqrt((deer.x_Deer - car.x[2])**2+(deer.y_Deer - car.x[0])**2) < x_acceldistance) and (deer.x_Deer>car.x[2])):
 
-                carx[k,:],carxdot[k,:] = car.heuns_update(gas = gas, brake = brake, steer = 0, cruise = 'off')
+                carx[k,:],carxdot[k,:],steer = car.rk_update(gas = gas, brake = brake, steer = 0, cruise = 'off')
                 deerx[k,:] = array([deer.Speed_Deer, deer.Psi_Deer, deer.x_Deer, deer.y_Deer])#updateDeer(car.x[2])
                 deerx[k,:] = deer.updateDeer(car.x[2])
                 #steervec[k] = opt_steer
@@ -446,7 +446,7 @@ def demo_CVdeer():
                 print "mpc active"
 
             else:
-                carx[k,:],carxdot[k,:] = car.heuns_update(steer = 0, setspeed = setSpeed,)
+                carx[k,:],carxdot[k,:],steer = car.rk_update(steer = 0, setspeed = setSpeed,)
                 #carx[k,:],carxdot[k,:] = car.heuns_update(gas = gas, brake = brake, steer = 0, cruise = 'off')
                 #deerx[k,:] = array([deer.Speed_Deer, deer.Psi_Deer, deer.x_Deer, deer.y_Deer])#updateDeer(car.x[2])
                 deerx[k,:] = deer.updateDeer(car.x[2])

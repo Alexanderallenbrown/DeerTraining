@@ -7,7 +7,7 @@ from CV_Deer import *
 import copy
 
 class MPC_F:
-    def __init__(self, Np=10, dtp=.1,q_lane_error = 1.0,q_obstacle_error = 1.0,q_steering_effort=1.0,q_accel = 1.0,q_lateral_velocity=1.0,steering_angle_max=.20, epsilon = 0.00001,downsample_horizon = 'false',predictionmethod = 'static'):
+    def __init__(self, Np=10, dtp=.1,q_lane_error = 1.0,q_obstacle_error = 1.0,q_steering_effort=1.0,q_accel = 1.0,q_lateral_velocity=1.0,steering_angle_max=.25, epsilon = 0.00001,downsample_horizon = 'false',predictionmethod = 'static'):
         self.Np = Np
         self.dtp = dtp
         self.q_lane_error = q_lane_error
@@ -88,7 +88,7 @@ class MPC_F:
             xdotcar_pred_downsampled  = zeros((self.Np,6))
             predictCar.dT = self.dtp
             for k in range(0,self.Np):
-                xcar_pred_downsampled[k,:],xdotcar_pred_downsampled[k,:],steer = predictCar.heuns_update(steer = steervector[k], setspeed = 25.0)
+                xcar_pred_downsampled[k,:],xdotcar_pred_downsampled[k,:],steer = predictCar.rk_update(steer = steervector[k], setspeed = 25.0)
         else:
             #compute a time vector for predicting
             tvec = arange(0,self.prediction_time+predictCar.dT,predictCar.dT)
@@ -103,7 +103,7 @@ class MPC_F:
             #print steervector_upsampled.shape
             #actually predict the car's states given the input
             for k in range(0,len(tvec)):
-                xcar_pred[k,:],xdotcar_pred[k,:],steer = predictCar.heuns_update(steer = steervector_upsampled[k], setspeed = 25.0)
+                xcar_pred[k,:],xdotcar_pred[k,:],steer = predictCar.rk_update(steer = steervector_upsampled[k], setspeed = 25.0)
             #now downsample the prediction so it is only MPC.Np points long
             for k in range(0,6):
                 xcar_pred_downsampled[:,k] = interp(self.t_horizon,tvec,xcar_pred[:,k])
@@ -128,10 +128,16 @@ class MPC_F:
             distance = 1.0/(sqrt((xcar_pred[k,0] - xdeer_pred[k,3])**2)+self.epsilon)#+ (xcar_pred[k,2] - xdeer_pred[k,2])**2+self.epsilon)
             #return distance
             if(carnow.x[2]<deernow.x_Deer):
-                J = J +  self.q_lateral_velocity*(xcar_pred[k,1])**2+self.q_steering_effort * (steervector[k])**2 + self.q_lane_error * (xcar_pred[k,0]-yroad)**2 + self.q_obstacle_error * (distance)**2 + self.q_accel*((car_y_accel_pred[k]))**2
+                if k==1:
+                    J = J +  self.q_lateral_velocity*(xcar_pred[k,1])**2+1*self.q_steering_effort * ((steervector[k]-carnow.delta)*60.0)**2 + self.q_lane_error * (xcar_pred[k,0]-yroad)**2 + self.q_obstacle_error * (distance)**2 + self.q_accel*((car_y_accel_pred[k]))**2
+                else:
+                    J = J +  self.q_lateral_velocity*(xcar_pred[k,1])**2+1*self.q_steering_effort * ((steervector[k]-steervector[k-1])*60.0)**2 + self.q_lane_error * (xcar_pred[k,0]-yroad)**2 + self.q_obstacle_error * (distance)**2 + self.q_accel*((car_y_accel_pred[k]))**2                    
             else:
                 #print "passed deer!"
-                J = J +  5*self.q_steering_effort * (steervector[k])**2 + self.q_lane_error * (xcar_pred[k,0]-yroad)**2+ 5*self.q_accel*((car_y_accel_pred[k]))**2
+                if k==1:
+                    J = J +  1*self.q_steering_effort * ((steervector[k]-carnow.delta)*60.0)**2 + self.q_lane_error * (xcar_pred[k,0]-yroad)**2+ 5*self.q_accel*((car_y_accel_pred[k]))**2
+                else:
+                    J = J +  1*self.q_steering_effort * ((steervector[k]-steervector[k-1])*60.0)**2 + self.q_lane_error * (xcar_pred[k,0]-yroad)**2+ 5*self.q_accel*((car_y_accel_pred[k]))**2
         return J
 
     def calcDist(self,steervector,carnow,deernow):
@@ -161,7 +167,7 @@ class MPC_F:
         min_y = min(xcar_pred[:,0])
 
         # Determine the min and max allowable y-positions
-        min_allow_y = -1.75-1.5
+        min_allow_y = -1.75-4
 
         return min_y-min_allow_y
 
@@ -199,6 +205,13 @@ class MPC_F:
             umpc = minimize(self.ObjectiveFn,steervector,args = (carnow,deernow,yroad),bounds = bounds, method = 'SLSQP', constraints=cons, options ={'maxiter': 100})
             # Recalculate opt_steering
             opt_steering = umpc.x[0]
+            
+            if (isnan(umpc.x[0])==True):
+                print "Impossible to stay in lane: Eliminate lane constraint"
+                # Re-do minimization
+                umpc = minimize(self.ObjectiveFn,steervector,args = (carnow,deernow,yroad),bounds = bounds, method = 'SLSQP', options ={'maxiter': 100})
+                # Recalculate opt_steering
+                opt_steering = umpc.x[0]
         # umpc = minimize(self.ObjectiveFn,steervector,args = (carnow,deernow,yroad),bounds = bounds, method='BFGS',options={'xtol': 1e-12, 'disp': False,'eps':.0001,'gtol':.0001})
         #method='BFGS',options={'xtol': 1e-12, 'disp': False,'eps':.0001,'gtol':.0001}
 
@@ -225,7 +238,7 @@ def demo_GAdeer():
     t = arange(0,simtime,dt) #takes min, max, and timestep\
 
 
-    car = BicycleModel(dT = dt, U = 25.0,tiretype='linear')
+    car = BicycleModel(dT = dt, U = 25.0,tiretype='pacejka')
 
 
      #car state vector #print array([[Ydot],[vdot],[Xdot],[Udot],[Psidot],[rdot]])
@@ -242,7 +255,7 @@ def demo_GAdeer():
 
     #MPC = MPC_F(q_lane_error = 10.0,q_obstacle_error = 5000000.0,q_lateral_velocity=0.00,q_steering_effort=0.0,q_accel = 0.005)
     weight = 10.0
-    MPC = MPC_F(q_lane_error = weight,q_obstacle_error =1.0/weight*10,q_lateral_velocity=0.00,q_steering_effort=0.0,q_accel = 0.005,predictionmethod='CV')
+    MPC = MPC_F(q_lane_error = weight,q_obstacle_error =10.0/weight*10,q_lateral_velocity=0.00,q_steering_effort=0.0,q_accel = 0.005,predictionmethod='CV')
 
     actual_steervec = zeros(len(t))
     command_steervec = zeros(len(t))
@@ -274,7 +287,7 @@ def demo_GAdeer():
             else:
                 opt_steer = 0
 
-            carx[k,:],carxdot[k,:],actual_steervec[k] = car.heuns_update(steer = opt_steer, setspeed = 25.0)
+            carx[k,:],carxdot[k,:],actual_steervec[k] = car.rk_update(steer = opt_steer, setspeed = 25.0)
             cafvec[k] = car.Caf
             carvec[k] = car.Car
             #deerx[k,:] = array([deer.Speed_Deer, deer.Psi_Deer, deer.x_Deer, deer.y_Deer])#updateDeer(car.x[2])
@@ -408,8 +421,8 @@ def demo_CVdeer():
     swerveDistance = 50.0
     setSpeed = 25.0
 
-    angle = -82
-    speed = 15
+    angle = -85
+    speed = 8
     # Initiate process
     deer = CV_Deer()
     deer.x_Deer = 80
@@ -419,7 +432,9 @@ def demo_CVdeer():
         
     # Define simulation time and dt
     simtime = 5
-    dt = 1/60.0
+    dt = 1/60.0    
+    last_command_t = -0.1
+
     deer.dT = dt
     t = arange(0,simtime,dt) #takes min, max, and timestep\
 
@@ -441,7 +456,7 @@ def demo_CVdeer():
 
     #MPC = MPC_F(q_lane_error = 10.0,q_obstacle_error = 5000000.0,q_lateral_velocity=0.00,q_steering_effort=0.0,q_accel = 0.005)
     weight = 10.0
-    MPC = MPC_F(q_lane_error = weight,q_obstacle_error =1.0/weight*10,q_lateral_velocity=0.00,q_steering_effort=0.0,q_accel = 0.005,predictionmethod='CV')
+    MPC = MPC_F(q_lane_error = weight,q_obstacle_error =100.0/weight*10,q_lateral_velocity=1.0,q_steering_effort=1.0,q_accel = 0.005,predictionmethod='CV')
 
     actual_steervec = zeros(len(t))
     command_steervec = zeros(len(t))
@@ -468,11 +483,25 @@ def demo_CVdeer():
                 # J = MPC.ObjectiveFn(steervector,car,deer,yroad=0)
                 if ((t[k]- last_steer_t) >= MPC.dtp):
                     opt_steer = MPC.calcOptimal(carnow = car,deernow = deer, yroad = 0)
+                    print opt_steer
                     last_steer_t = t[k]
+            
+            #if((deer.x_Deer<car.x[2])):
+
+#                yr = 0
+ #               steer_gain = 0.01
+  #              L = 20
+   #             yc = car.x[0]
+    #            fi = car.x[4]
+     #           ep = yc + L*sin(fi)
+      #          opt_steer = steer_gain*(yr-ep)
+        
             else:
                 opt_steer = 0
 
-            carx[k,:],carxdot[k,:],actual_steervec[k] = car.heuns_update(steer = opt_steer, setspeed = 25.0)
+
+            print opt_steer
+            carx[k,:],carxdot[k,:],actual_steervec[k] = car.rk_update(steer = opt_steer, setspeed = 25.0)
             cafvec[k] = car.Caf
             carvec[k] = car.Car
             #deerx[k,:] = array([deer.Speed_Deer, deer.Psi_Deer, deer.x_Deer, deer.y_Deer])#updateDeer(car.x[2])

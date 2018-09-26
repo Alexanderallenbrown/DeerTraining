@@ -62,7 +62,7 @@ class BicycleModel:
         # Steering actuator dynamics
         self.steering_actuator = steering_actuator
         self.z = 0.9
-        self.w = 20
+        self.w = 15
         self.delta_r = 0
         self.delta_rdot = 0
         self.delta_rold = 0
@@ -267,6 +267,40 @@ class BicycleModel:
 
         return self.x,xdot,steer
 
+    def rk_update(self,brake=0,gas=0,steer=0,cruise = 'on',setspeed=20.0,autopilot='off',mpc='off',patherror=0):
+       
+        # Update steering actuator
+        if self.steering_actuator == 'on':
+            steer = self.steering_update(steer)
+
+        Fxf,Fxr,steer = self.calc_inputs(brake,gas,steer)
+        if cruise=='on': #TODO make this better. Hardcoded and awful for now...
+            gas = self.cruise(setspeed)
+            Fxf,Fxr,steer = self.calc_inputs(brake,gas,steer)
+        if autopilot=='on':
+            steer = self.autopilot_gain*patherror #VERY simple autopilot. Path error can be previewed, or can be angle, or whatever.
+            if abs(steer)>self.steer_limit:
+                steer = sign(steer)*self.steer_limit
+            #print steer
+            Fxf,Fxr,steer = self.calc_inputs(brake,gas,steer)
+
+        #this should have taken case of all contingencies and got us the correct inputs for the car.
+        k1x = self.state_eq(self.x,0,Fxf,Fxr,steer) # Calvulate k1
+        xhat1 = self.x + self.dT*k1x/2 # Find x_hat1
+        k2x = self.state_eq(xhat1,0,Fxf,Fxr,steer) # Calcaulte k2 using x_hat1
+        xhat2 = self.x + self.dT*k2x/2 # Find x_hat2
+        k3x = self.state_eq(xhat2,0,Fxf,Fxr,steer) # Calcaulte k3 using x_hat2
+        xhat3 = self.x + self.dT*k3x # Find x_hat3
+        k4x = self.state_eq(xhat3,0,Fxf,Fxr,steer) # Calcaulte k4 using x_hat3
+
+        # Calculate xdot
+        xdot = (k1x+2*k2x+2*k3x+k4x)/6 # Find xdot by averaging k1 and k2
+
+        self.x = self.x + xdot*self.dT
+        self.U = self.x[3]
+
+        return self.x,xdot,steer
+
 
     def euler_predict(self,x,brake=0,gas=0,steer=0,dT=0.1):
         Fxf,Fxr,steer = self.calc_inputs(brake,gas,steer)
@@ -295,6 +329,13 @@ class BicycleModel:
         #now compute the final update
         self.delta = self.delta + self.dT / 2 * (xdot1[0] + xdot2[0]);
         self.deltadot = self.deltadot + self.dT / 2 * (xdot1[1] + xdot2[1]);
+
+        if (self.delta > self.steer_limit):
+            self.delta = self.steer_limit
+
+        if (self.delta < -self.steer_limit):
+            self.delta = -self.steer_limit
+
         return self.delta;
 
     # def minError(self,uvec,roadvec,speedvec,xv,Rsteer,Rgas,Rbrake,Qroad,Qspeed,dT):

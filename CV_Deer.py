@@ -121,9 +121,13 @@ def TestDeer_MPC_CV(agent):
 
     print agent
 
-    for speed in range(5,19):
+    for speed_ind in range(3,9):
 
-        for angle in range(-90,91):
+        speed = 2*speed_ind
+
+        for angle_ind in range(-18,18):
+
+            angle = 5*angle_ind
 
             MPCDistance = 50.0
             setSpeed = 25.0
@@ -156,71 +160,96 @@ def TestDeer_MPC_CV(agent):
             distancevec = zeros(len(t))
 
             if agent == "F":
+
                 weight = 10.0
-                MPC = MPC_F(q_lane_error = weight,q_obstacle_error =1.0/weight*2,q_lateral_velocity=0.00,q_steering_effort=0.0,q_accel = 0.005,predictionmethod='CV')
-      
+                MPC = MPC_F(q_lane_error = weight,q_obstacle_error =100.0/weight*10,q_lateral_velocity=1.0,q_steering_effort=1.0,q_accel = 0.005,predictionmethod='CV')
+
+                opt_steer = 0
+                last_steer_t = 0
+                swerveDistance = 50.0
+
                 for k in range(1,len(t)):
 
-                    if ((deer.x_Deer - car.x[2]) < MPCDistance): 
-                        opt_steer = MPC.calcOptimal(carnow = car,deernow = deer, yroad = 0)
+                    if ((deer.x_Deer - car.x[2]) < swerveDistance): 
+                        if ((t[k]- last_steer_t) >= MPC.dtp):
+                            opt_steer = MPC.calcOptimal(carnow = car,deernow = deer, yroad = 0)
+                            last_steer_t = t[k]
+                    
+             
                     else:
                         opt_steer = 0
 
-                    carx[k,:],junk = car.heuns_update(steer = opt_steer, setspeed = 25.0)
+
+                    carx[k,:],junk1,junk2 = car.rk_update(steer = opt_steer, setspeed = 25.0)
                     deerx[k,:] = deer.updateDeer(car.x[2])
                     distancevec[k] = sqrt((deer.x_Deer - car.x[2])**2+(deer.y_Deer - car.x[0])**2)
 
                 distancevec = distancevec[1:len(distancevec)]
-                #min_distance[speed-5,angle+90] = min(distancevec)
 
                 print str(speed) + ' ' + str(angle) + ' ' + str(min(distancevec))
 
 
             if agent == "G":
-                MPC = MPC_G(q_obstacle_error = 1000000000.0,q_x_accel=0.0,q_cruise_speed=0.01,brake_max = 0.5,predictionmethod='CV')
-            
+
+                MPC = MPC_G(q_obstacle_error = 1000000000.0,q_x_accel=0.0,q_cruise_speed=0.01,brake_max = 1.0,predictionmethod='CV')
+                x_acceldistance = 50.0
+
                 for k in range(1,len(t)):
 
                     opt_steer = 0
                     gas,brake = MPC.calcOptimal(carnow = car, deernow = deer, setSpeed = setSpeed)
 
-                    if ((sqrt((deer.x_Deer - car.x[2])**2+(deer.y_Deer - car.x[0])**2) < MPCDistance) and (deer.x_Deer>car.x[2])):
+                    if ((sqrt((deer.x_Deer - car.x[2])**2+(deer.y_Deer - car.x[0])**2) < x_acceldistance) and (deer.x_Deer>car.x[2])):
 
-                        carx[k,:],junk = car.heuns_update(gas = gas, brake = brake, steer = 0, cruise = 'off')
+                        carx[k,:],junk,steer = car.rk_update(gas = gas, brake = brake, steer = 0, cruise = 'off')
                         deerx[k,:] = deer.updateDeer(car.x[2])
 
                     else:
-                        carx[k,:],junk = car.heuns_update(steer = 0, setspeed = setSpeed,)
+                        carx[k,:],junk,steer = car.rk_update(steer = 0, setspeed = setSpeed,)
                         deerx[k,:] = deer.updateDeer(car.x[2])
 
                     distancevec[k] = sqrt((deer.x_Deer - car.x[2])**2+(deer.y_Deer - car.x[0])**2)
 
                 distancevec = distancevec[1:len(distancevec)]
-                #min_distance[speed-5,angle+90] = min(distancevec)
-
                 print str(speed) + ' ' + str(angle) + ' ' + str(min(distancevec))
 
             if agent == "H":
-                MPC = MPC_H(q_lane_error = 10.0,q_obstacle_error_F = .05,q_lateral_velocity = 0.00,q_steering_effort = 0.0,q_lat_accel = 0.005,q_obstacle_error_G = 1000000000.0, q_x_accel = 0.0, q_cruise_speed = 25.0, gas_max = 0.25, brake_max = 0.25, predictionmethod = 'CV')
-        
+
+                MPC = MPC_H(q_lane_error = 10.0,q_obstacle_error_F = 100.0,q_lateral_velocity = 0.10,q_steering_effort = .10,q_lat_accel = 0.005,q_obstacle_error_G = 1000000000.0, q_x_accel = 0.0, q_cruise_speed = 25.0, gas_max = 0.25, brake_max = 0.5, predictionmethod = 'CV')
+
+                last_command_t = -0.1
+                steer = 0
+                x_acceldistance = 50.0
+
                 for k in range(1,len(t)):
-                    
-                    gas,brake,steer = MPC.calcOptimal(carnow = car, deernow = deer, setSpeed = setSpeed)
+                    opt_steer = 0
 
-                    if ((deer.x_Deer - car.x[2]) < MPCDistance):
+                    if ((t[k]- last_command_t) >= 0.1):
+                        if ((deer.x_Deer - car.x[2]) > x_acceldistance):
+                            steer = 0
+                            gas = 0
+                            brake = 0
 
-                        carx[k,:],junk = car.heuns_update(gas = gas, brake = brake, steer = steer, cruise = 'off')
+                        else:
+                            gas,brake,steer = MPC.calcOptimal(carnow = car, deernow = deer, setSpeed = setSpeed)
+                            last_command_t = t[k]
+
+                    else:
+                        pass
+
+                    if ((deer.x_Deer - car.x[2]) < x_acceldistance):
+
+                        carx[k,:],carxdot[k,:],actual_steervec[k] = car.rk_update(gas = gas, brake = brake, steer = steer, cruise = 'off')
                         deerx[k,:] = deer.updateDeer(car.x[2])
 
 
                     else:
-                        carx[k,:],junk = car.heuns_update(steer = steer, setspeed = setSpeed,)
+                        carx[k,:],carxdot[k,:], actual_steervec[k] = car.rk_update(steer = steer, setspeed = setSpeed,)
                         deerx[k,:] = deer.updateDeer(car.x[2])
 
                     distancevec[k] = sqrt((deer.x_Deer - car.x[2])**2+(deer.y_Deer - car.x[0])**2)
 
                 distancevec = distancevec[1:len(distancevec)]
-                #min_distance[speed-5,angle+90] = min(distancevec)
 
                 print str(speed) + ' ' + str(angle) + ' ' + str(min(distancevec))
 
