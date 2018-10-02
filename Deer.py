@@ -71,9 +71,9 @@ class Deer:
 if __name__=='__main__':
 
     #set up our deer
-    deer = Deer(Psi0_Deer = 0.00000001, Sigma_Psi = 0.000000001, tturn_Deer = 0.0000001, Vmax_Deer = 10, Tau_Deer = 0.000000001)
-    deer.x_Deer = 80
-    deer.y_Deer = -2
+    deer = Deer()
+    deer.x_Deer = 80.0
+    deer.y_Deer = -2.0
 
     simtime = 10
     dt = deer.dT
@@ -104,9 +104,9 @@ if __name__=='__main__':
         carx_now = carx[k-1,:]
         print carx_now
 
-        drive[:] = driver.driving(carx = carx_now, deer_x = deerx[k-1,2], setSpeed = 20, brake = 'on', yr = -3.5)
+        drive[:] = driver.driving(carx = carx_now, deer_x = deerx[k-1,2], setSpeed = 20, brake = 'off', yr = 3.0)
 
-        carx[k,:],junk=car.heuns_update(brake = drive[1], gas = drive[0], steer = drive[2], cruise = 'off')
+        carx[k,:],junk1,junk2=car.rk_update(brake = drive[1], gas = drive[0], steer = drive[2], cruise = 'off')
         deerx[k,:] = deer.updateDeer(car.x[2])
 
     distance = sqrt((carx[:,2]-deerx[:,2])**2+(carx[:,0]-deerx[:,3])**2)
@@ -114,6 +114,8 @@ if __name__=='__main__':
     #now plot stuff
     figure()
     plot(carx[:,2],carx[:,0],'ko',deerx[:,2],deerx[:,3],'ro')
+    xlabel('x')
+    ylabel('y')
 
     figure()
     subplot(2,1,1)
@@ -140,6 +142,93 @@ if __name__=='__main__':
 
     figure()
     plot(t,distance)
+
+
+    ### CREATE ANIMATION
+    import matplotlib.pyplot as plt
+    import matplotlib.patches as patches
+    from matplotlib import animation
+
+    # Define parameters
+    deer_length = 1.5 # meters
+    deer_width = 0.5 # meters
+    car_length = 4.5 # meters
+    car_width = 2.0 # meters
+
+    # Create car vectors to be used
+    car_x = carx[:,2]
+    car_y = carx[:,0]
+    car_yaw = carx[:,4]
+
+    # Create deer vectors to be used
+    deer_x = deerx[:,2]
+    deer_y = deerx[:,3]
+    deer_yaw = deerx[:,1]
+    deer_vel = deerx[:,0]
+
+    # Create figure
+    fig = plt.figure()
+    ax = fig.add_subplot(212)
+    #plt.axis('equal')
+    #ax.set_ylim(-25, 25)
+    ax.set_xlim([0.0, 120.0])
+    ax.set_ylim([-20.0,20.0])
+    ax.set_aspect('equal')
+
+    vel_plot = fig.add_subplot(211)
+    vel_plot.plot(t,deer_vel)
+    #vel_plot.set_xlim([0.0, 100.0])
+    #vel_plot.set_ylim([-20.0,20.0])
+    #vel_plot.set_aspect('equal')
+
+
+
+    # Initialize rectangles
+    car_plot = patches.Rectangle((0, 0), 0, 0,angle = 0.0, fc='b', alpha = 0.5)
+    deer_plot = patches.Rectangle((0, 0), 0, 0,angle = 0.0, fc='r', alpha = 0.5)
+    background = patches.Rectangle((-100,-100),400,400,fc='k')
+    center_line_1 = patches.Rectangle((-10,(1.75+0.025)),200,0.1,fc='y')
+    center_line_2 = patches.Rectangle((-10,(1.75-0.1-0.025)),200,0.1,fc='y')
+    right_line = patches.Rectangle((-10,-1.75),200,0.1,fc='w')
+    left_line = patches.Rectangle((-10,4.75),200,0.1,fc='w')
+    #vel_circle = patches.Circle((0,0),radius=0.1, fc='r')
+    particle, = vel_plot.plot([], [], 'ro', ms=10)
+
+
+    def init():
+        ax.add_patch(car_plot)
+        ax.add_patch(deer_plot)
+        ax.add_patch(background)
+        ax.add_patch(left_line)
+        ax.add_patch(right_line)
+        ax.add_patch(center_line_1)
+        ax.add_patch(center_line_2)
+        particle.set_data([], [])
+        return car_plot,deer_plot,particle,
+
+
+    # Set animation
+    def animate(i):
+        car_plot.set_width(car_length)
+        car_plot.set_height(car_width)
+        car_plot.set_xy([car_x[i]-(car_length/2), car_y[i]-(car_width/2)])
+        car_plot.angle = car_yaw[i]*180/3.14
+
+        deer_plot.set_width(deer_length)
+        deer_plot.set_height(deer_width)
+        deer_plot.set_xy([deer_x[i]-(deer_length/2*sin(deer_yaw[i])), deer_y[i]]-(deer_width/2*cos(deer_yaw[i])))
+        deer_plot.angle = 90-deer_yaw[i]*180/3.14
+
+        particle.set_data(t[i], deer_vel[i])
+
+        return car_plot,deer_plot,particle,
+
+
+
+    # Run anumation
+    anim = animation.FuncAnimation(fig, animate,init_func=init,frames=len(car_x),interval=10,blit=True)
+
+    ### ANIMATION END
 
 
     show()
