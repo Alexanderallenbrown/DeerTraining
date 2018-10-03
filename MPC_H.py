@@ -73,7 +73,7 @@ def demo_GAdeer():
     #fill in initial conditions because they're nonzero
     deerx[0,:] = array([deer.Speed_Deer,deer.Psi_Deer,deer.x_Deer,deer.y_Deer])
 
-    MPC = MPC_H(q_lane_error = 10.0,q_obstacle_error_F = .5,q_lateral_velocity = 1.00,q_steering_effort = 1.0,q_lat_accel = 0.005,q_obstacle_error_G = 1000000000.0, q_x_accel = 0.0, q_cruise_speed = 25.0, gas_max = 0.25, brake_max = 0.25, predictionmethod = 'CV')
+    MPC = MPC_H(q_lane_error = 10.0,q_obstacle_error_F = .5,q_lateral_velocity = 1.00,q_steering_effort = 1.0,q_lat_accel = 0.005,q_obstacle_error_G = 1000000000.0, q_x_accel = 0.0, q_cruise_speed = 25.0, gas_max = 0.25, brake_max = 0.75, predictionmethod = 'CV')
 
     actual_steervec = zeros(len(t))
     command_steervec = zeros(len(t))
@@ -241,11 +241,11 @@ def demo_GAdeer():
 
 def demo_CVdeer():
 
-    x_acceldistance = 50.0
+    x_acceldistance = 80.0
     setSpeed = 25.0
 
-    angle = -85
-    speed = 8
+    angle = -84
+    speed = 15
     # Initiate process
     deer = CV_Deer()
     deer.x_Deer = 80

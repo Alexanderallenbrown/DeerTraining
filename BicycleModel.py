@@ -174,7 +174,7 @@ class BicycleModel:
         if Engine_Force<0:
             Engine_Force = 0
 
-
+            ############## ABS GOES HERE ###############
         #now calculate the brake forces accepting an input from 0 to 1
         total_brake_force = brake * self.mu*(self.m*9.81) #max brakes out. TODO model brake fade and speed dependence
         front_brake_force = total_brake_force*(1-self.bias)#so the brake bias of 1 means all rear brakes
