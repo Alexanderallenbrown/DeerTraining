@@ -57,7 +57,7 @@ class Driver:
 
     def driving(self,carx, deer_x, setSpeed, brake = 'off', yr = 0, brakeTime = 3, brakeDistance = 20, swerveDistance = 50): 
 
-        brakePower = 500
+        brakePower = 1
 
         if ((deer_x - carx[2]) > swerveDistance): 
 

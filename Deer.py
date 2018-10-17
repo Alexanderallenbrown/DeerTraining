@@ -71,11 +71,12 @@ class Deer:
 if __name__=='__main__':
 
     #set up our deer
-    deer = Deer()
+
+    deer = Deer(Psi0_Deer = 0, Sigma_Psi = .35, tturn_Deer = 1.0, Vmax_Deer = 10.5, Tau_Deer = 1.0)
     deer.x_Deer = 80.0
     deer.y_Deer = -2.0
 
-    simtime = 10
+    simtime = 6
     dt = deer.dT
     t = arange(0,simtime,dt) #takes min, max, and timestep
 
@@ -104,7 +105,7 @@ if __name__=='__main__':
         carx_now = carx[k-1,:]
         print carx_now
 
-        drive[:] = driver.driving(carx = carx_now, deer_x = deerx[k-1,2], setSpeed = 20, brake = 'off', yr = 3.0)
+        drive[:] = driver.driving(carx = carx_now, deer_x = deerx[k-1,2], setSpeed = 20, brake = 'on', yr = 0.0)
 
         carx[k,:],junk1,junk2=car.rk_update(brake = drive[1], gas = drive[0], steer = drive[2], cruise = 'off')
         deerx[k,:] = deer.updateDeer(car.x[2])
@@ -167,32 +168,39 @@ if __name__=='__main__':
     deer_vel = deerx[:,0]
 
     # Create figure
-    fig = plt.figure()
-    ax = fig.add_subplot(212)
+    fig = plt.figure(facecolor = 'black')
+    ax = fig.add_subplot(111, facecolor = 'black')
     #plt.axis('equal')
     #ax.set_ylim(-25, 25)
-    ax.set_xlim([0.0, 120.0])
+    ax.set_xlim([10.0, 110.0])
     ax.set_ylim([-20.0,20.0])
     ax.set_aspect('equal')
 
-    vel_plot = fig.add_subplot(211)
-    vel_plot.plot(t,deer_vel)
-    #vel_plot.set_xlim([0.0, 100.0])
-    #vel_plot.set_ylim([-20.0,20.0])
-    #vel_plot.set_aspect('equal')
+    # vel_plot = fig.add_subplot(211, facecolor = 'black')
+    # vel_plot.plot(t,deer_vel, linewidth = 3)
+    # vel_plot.spines['left'].set_color('white')
+    # vel_plot.spines['bottom'].set_color('white')
+    # vel_plot.tick_params(axis='x', colors='white', size=10)
+    # vel_plot.tick_params(axis='y', colors='white', size=10)
+    # xlabel('Time (s)',fontsize=20)
+    # ylabel('Velocity (m/s)',fontsize=20)
+    # vel_plot.yaxis.label.set_color('white')
+    # vel_plot.yaxis.label.set_size(20)
+    # vel_plot.xaxis.label.set_color('white')
+    # vel_plot.yaxis.label.set_size(20)
 
 
 
     # Initialize rectangles
-    car_plot = patches.Rectangle((0, 0), 0, 0,angle = 0.0, fc='b', alpha = 0.5)
-    deer_plot = patches.Rectangle((0, 0), 0, 0,angle = 0.0, fc='r', alpha = 0.5)
+    car_plot = patches.Rectangle((0, 0), 0, 0,angle = 0.0, fc='b', alpha = 1)
+    deer_plot = patches.Rectangle((0, 0), 0, 0,angle = 0.0, fc='r', alpha = 1)
     background = patches.Rectangle((-100,-100),400,400,fc='k')
     center_line_1 = patches.Rectangle((-10,(1.75+0.025)),200,0.1,fc='y')
     center_line_2 = patches.Rectangle((-10,(1.75-0.1-0.025)),200,0.1,fc='y')
     right_line = patches.Rectangle((-10,-1.75),200,0.1,fc='w')
     left_line = patches.Rectangle((-10,4.75),200,0.1,fc='w')
     #vel_circle = patches.Circle((0,0),radius=0.1, fc='r')
-    particle, = vel_plot.plot([], [], 'ro', ms=10)
+    #particle, = vel_plot.plot([], [], 'ro', ms=10)
 
 
     def init():
@@ -203,8 +211,8 @@ if __name__=='__main__':
         ax.add_patch(right_line)
         ax.add_patch(center_line_1)
         ax.add_patch(center_line_2)
-        particle.set_data([], [])
-        return car_plot,deer_plot,particle,
+        #particle.set_data([], [])
+        return car_plot,deer_plot,#particle,
 
 
     # Set animation
@@ -219,14 +227,17 @@ if __name__=='__main__':
         deer_plot.set_xy([deer_x[i]-(deer_length/2*sin(deer_yaw[i])), deer_y[i]]-(deer_width/2*cos(deer_yaw[i])))
         deer_plot.angle = 90-deer_yaw[i]*180/3.14
 
-        particle.set_data(t[i], deer_vel[i])
+        #particle.set_data(t[i], deer_vel[i])
 
-        return car_plot,deer_plot,particle,
+        return car_plot,deer_plot,#particle,
 
 
 
     # Run anumation
     anim = animation.FuncAnimation(fig, animate,init_func=init,frames=len(car_x),interval=10,blit=True)
+    Writer = animation.writers['imagemagick']
+    writer = Writer(fps=15, metadata=dict(artist='Me'),bitrate=1800)
+    #anim.save('deer.gif',writer=writer)
 
     ### ANIMATION END
 
