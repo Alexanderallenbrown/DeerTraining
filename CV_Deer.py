@@ -166,7 +166,7 @@ def TestDeer_MPC_CV(agent):
 
                 opt_steer = 0
                 last_steer_t = 0
-                swerveDistance = 50.0
+                swerveDistance = 80.0
 
                 for k in range(1,len(t)):
 
@@ -192,7 +192,7 @@ def TestDeer_MPC_CV(agent):
             if agent == "G":
 
                 MPC = MPC_G(q_obstacle_error = 1000000000.0,q_x_accel=0.0,q_cruise_speed=0.01,brake_max = 1.0,predictionmethod='CV')
-                x_acceldistance = 50.0
+                x_acceldistance = 80.0
 
                 for k in range(1,len(t)):
 
@@ -219,7 +219,7 @@ def TestDeer_MPC_CV(agent):
 
                 last_command_t = -0.1
                 steer = 0
-                x_acceldistance = 50.0
+                x_acceldistance = 80.0
 
                 for k in range(1,len(t)):
                     opt_steer = 0
