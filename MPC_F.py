@@ -421,7 +421,7 @@ def demo_CVdeer():
     swerveDistance = 80.0
     setSpeed = 25.0
 
-    angle = -84
+    angle = -87
     speed = 15
     # Initiate process
     deer = CV_Deer()
@@ -439,7 +439,7 @@ def demo_CVdeer():
     t = arange(0,simtime,dt) #takes min, max, and timestep\
 
 
-    car = BicycleModel(dT = dt, U = 25.0,tiretype='pacejka', steering_actuator = 'on')
+    car = BicycleModel(dT = dt, U = 25.0,tiretype='linear', steering_actuator = 'off')
 
 
      #car state vector #print array([[Ydot],[vdot],[Xdot],[Udot],[Psidot],[rdot]])

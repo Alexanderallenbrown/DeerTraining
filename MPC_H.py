@@ -244,7 +244,7 @@ def demo_CVdeer():
     x_acceldistance = 80.0
     setSpeed = 25.0
 
-    angle = -84
+    angle = -85
     speed = 15
     # Initiate process
     deer = CV_Deer()
