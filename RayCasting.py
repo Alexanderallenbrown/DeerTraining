@@ -1,36 +1,64 @@
 import sys
 from numpy import *
-from sympy import *
-
+from matplotlib.pyplot import *
 
 def distanceray(pos):
     
+    # Points of array (Begin and end with the same point)
+    P = array([[-1,1],[1,1],[1,-1],[-1,-1],[-1,1]])
 
-    P = [-1,1][1,1][1,-1][-1,-1]
+    dist_angle = zeros(359)
 
-    angle = 3.1416/2
+    for angle_deg in range(0,359):
 
-    x = Symbol('x')
+        angle = angle_deg/180.0*3.1416
 
-    seg = 1
+        dist_vec = zeros(len(P)-1)
 
-    yseg = (P[seg,1]-P[seg-1,1])/(P[seg,0]-P[seg-1,0])*(x-P[seg-1,0])+P[seg-1,1]
-    yray = tan(angle)*(x-pos[1])+pos[2]
+        for seg in range(1,len(P)):
 
-    xint = solve(yseg==yray)
+            # If segment is perpendicular:
+            if (P[seg,0]==P[seg-1,0]):
 
-    print xint
+                xint = P[seg,0]
 
-    yint = (P[seg,1]-P[seg-1,1])/(P[seg,0]-P[seg-1,0])*(xint-P[seg-1,0])+P[seg-1,1]
+                yint = tan(angle)*(xint-pos[0])+pos[1]
 
-    if ((xint > P[seg-1,0]) and (xint < P[seg,0])):
+            # If segment is not perpendicular:
+            else:
 
-        dist = sqrt((yint-pos[1])^2+(xint-pos[0])^2)
+                dydx_seg = (P[seg,1]-P[seg-1,1])/(P[seg,0]-P[seg-1,0])
 
-    else:
+                xint = (dydx_seg*P[0,0]-P[0,1]-tan(angle)*pos[0]+pos[1])/(dydx_seg-tan(angle))
 
-        print "don't intersect"
+                yint = (P[seg,1]-P[seg-1,1])/(P[seg,0]-P[seg-1,0])*(xint-P[seg-1,0])+P[seg-1,1]
+
+
+            # Check that the ray intercepts the segment
+            if ((xint >= P[seg-1,0]) and (xint <= P[seg,0])):
+                dist_vec[seg-1] = sqrt((yint-pos[1])**2+(xint-pos[0])**2)
+
+            else:
+                dist_vec[seg-1] = NaN
+
+            # Check that the interception is for positive ray
+            if (angle_deg>90 and angle_deg<270):
+                if (xint>pos[0]):
+                    dist_vec[seg-1] = NaN
+
+            else:
+                if (xint<pos[0]):
+                    dist_vec[seg-1] = NaN
+
+        dist_angle[angle_deg] = nanmin(dist_vec)
+
+    #print dist_angle
+
+    angle_plot = linspace(0,359,359)
+
+    figure()
+    plot(angle_plot,dist_angle)
 
 if __name__=='__main__':
 
-    distanceray()
+    distanceray([0,0.75])
