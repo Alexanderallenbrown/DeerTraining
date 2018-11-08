@@ -25,12 +25,15 @@ from scipy.signal import medfilt
 
 class Map():
 
-	def __init__(self,type='csv',filename='map/lidar-map-smooth.csv',height_ref='WGS'):
+	def __init__(self,type='csv',array = None,filename='map/lidar-map-smooth.csv',height_ref='WGS', ireflat = None, ireflon = None, irefelev = None):
 		""" Initializes map class. You may choose map type csv, or... height_ref determines whether to subtract ellipsoid height (33.8m at test track). Currently does nothing, TODO!!"""
 		cwd = os.getcwd()+'/maptools_folder/'
 		print cwd
 		if type=='csv':
-			self.loadCSVLLAMap(cwd+filename)
+			self.loadCSVLLAMap(cwd+filename, ireflat, ireflon, irefelev)
+		elif type == 'array':
+			self.loadCSVLLAMap_array(array, ireflat, ireflon, irefelev)			
+
 		elif type=='xyz':
 			self.loadCSVXYZMap(cwd+filename)
 		else:
@@ -43,8 +46,71 @@ class Map():
 			self.roadyaw=[]
 			
 
+	def loadCSVLLAMap_array(self,array,ireflat=None,ireflon=None,irefelev=None):
+		""" This function loads the CSV map of lat,lon,elev points, and returns the array of xyz points"""
+		map_reader = array
+		firstline = 1 #set this flag to show we are at the first position
+		#need an old position so we can calculate station, yaw and pitch angle of road. roll assumbed 0 for now.
+		xgps_old = 0
+		ygps_old = 0
+		zgps_old = 0
+		station=0
+		for row in map_reader:
+			mapline = row
+			#if we have a real line...
+			if len(mapline)>2:
+				#now turn these into floats
+				lat = float(mapline[0])
+				lon = float(mapline[1])
+				elev = float(mapline[2])
+				#print lat,lon,elev
+				if firstline==1:
+					if ireflat==None:
+						reflat = lat
+						reflon = lon
+						refalt = elev
+					
+					else:
+						reflat = ireflat
+						reflon = ireflon
+						refalt = irefelev
 
-	def loadCSVLLAMap(self,filename):
+					self.origin_x=reflat
+					self.origin_y=reflon
+					self.origin_z=refalt#-33.842#FIX THIS WHEN NMEA IS FIXED!!!    
+						
+				#now we will publish a marker for the current point. should automatically go to zero for the first point (origin)   
+				xgps,ygps,zgps = self.wgslla2enu(lat,lon,elev,reflat,reflon,refalt)#-33.842
+				#now the marker message is taken care of, and we need station, pitch, and yaw from this point and its predecessor
+				roadyaw = atan2(ygps-ygps_old,xgps-xgps_old) #easy peasy.
+				#roadyaw = atan2(xgps-xgps_old,ygps-ygps_old)
+				delta_station = ((xgps-xgps_old)**2+(ygps-ygps_old)**2+(zgps-zgps_old)**2)**.5 #get the actual distance between the map points
+				station=station+delta_station#get the new station value 
+				roadpitch = atan2(zgps_old-zgps,delta_station)#pitch is positive when the road is DOWNHILL by ENU convention
+				if firstline==1:
+					self.X=xgps
+					self.Y=ygps
+					self.Z=zgps
+					self.S = station
+					self.roadpitch = roadpitch
+					self.roadyaw = roadyaw
+					firstline=0
+				else:
+					self.X = append(self.X,xgps)
+					self.Y = append(self.Y,ygps)
+					self.Z = append(self.Z,zgps)
+					self.S = append(self.S,station)
+					self.roadpitch = append(self.roadpitch,roadpitch)
+					self.roadyaw = append(self.roadyaw,roadyaw)
+				xgps_old=xgps
+				ygps_old=ygps
+				zgps_old=zgps
+		self.roadpitch[0]=self.roadpitch[1]
+		self.roadyaw[0] = self.roadyaw[1]
+		self.calcCurvature()
+
+
+	def loadCSVLLAMap(self,filename,ireflat=None,ireflon=None,irefelev=None):
 		""" This function loads the CSV map of lat,lon,elev points, and returns the array of xyz points"""
 		map_reader = csv.reader(open(filename,'rb'))
 		firstline = 1 #set this flag to show we are at the first position
@@ -63,13 +129,20 @@ class Map():
 				elev = float(mapline[2])
 				#print lat,lon,elev
 				if firstline==1:
-					reflat = lat
-					reflon = lon
-					refalt = elev
+					if ireflat==None:
+						reflat = lat
+						reflon = lon
+						refalt = elev
+					
+					else:
+						reflat = ireflat
+						reflon = ireflon
+						refalt = irefelev
+
 					self.origin_x=reflat
 					self.origin_y=reflon
 					self.origin_z=refalt#-33.842#FIX THIS WHEN NMEA IS FIXED!!!    
-					
+						
 				#now we will publish a marker for the current point. should automatically go to zero for the first point (origin)   
 				xgps,ygps,zgps = self.wgslla2enu(lat,lon,elev,reflat,reflon,refalt)#-33.842
 				#now the marker message is taken care of, and we need station, pitch, and yaw from this point and its predecessor
@@ -172,8 +245,6 @@ class Map():
 				zgps_old=zgps
 		self.roadpitch[0]=self.roadpitch[1]
 		self.roadyaw[0] = self.roadyaw[1]
-
-		return self.X,self.Y,self.Z
 
 	def rot(self,angle, axis):
 		""" General rotation function for RPY-style rotations"""
