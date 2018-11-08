@@ -159,22 +159,23 @@ def MapRaycasting(pos):
     xlabel('Angle (deg)')
     ylabel('Minimum Distance (m)')
 
-    figure()
+    figure(facecolor='w')
+    subplot(111,facecolor='w')
     seg = zeros((2,2))
     print seg
-    for ind in range(0,len(Trees)):
-        plot(Trees[ind][0],Trees[ind][1])
     for ind in range(0,360):
         seg[0][0] = pos[0]
         seg[0][1] = pos[0]+MinDist_Vec[ind]*cos(ind*3.1416/180)
         seg[1][0] = pos[1]
         seg[1][1] = pos[1]+MinDist_Vec[ind]*sin(ind*3.1416/180)
         plot(seg[0][:],seg[1][:],'k')
+    for ind in range(0,len(Trees)):
+        plot(Trees[ind][0],Trees[ind][1],'g',linewidth = 1)
+        fill(Trees[ind][0],Trees[ind][1],'g') 
     plot(pos[0],pos[1],'ro')
     axis('equal')
-    xlabel('X (m)')
-    ylabel('Y (m)')
-
+    xlabel('X (m)', color='k')
+    ylabel('Y (m)', color='k')
 
     show()
 
@@ -182,4 +183,4 @@ def MapRaycasting(pos):
 
 if __name__=='__main__':
 
-    MapRaycasting([100.0,0.0])
+    MapRaycasting([150.0,0.0])
