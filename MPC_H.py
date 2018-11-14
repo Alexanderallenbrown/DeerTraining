@@ -61,7 +61,7 @@ def demo_GAdeer():
     t = arange(0,simtime,dt) #takes min, max, and timestep\
 
 
-    car = BicycleModel(dT = dt, U = 25.0,tiretype='pacejka')
+    car = BicycleModel(dT = dt, U = 15.0,tiretype='pacejka',steering_actuator = 'on')
     carx = zeros((len(t),len(car.x)))
     carxdot = zeros((len(t),len(car.x)))
     car.x[3] = setSpeed
@@ -244,7 +244,7 @@ def demo_CVdeer():
     x_acceldistance = 80.0
     setSpeed = 25.0
 
-    angle = -85
+    angle = -83
     speed = 15
     # Initiate process
     deer = CV_Deer()

@@ -170,7 +170,7 @@ def MapRaycasting(pos):
         seg[1][1] = pos[1]+MinDist_Vec[ind]*sin(ind*3.1416/180)
         plot(seg[0][:],seg[1][:],'k')
     for ind in range(0,len(Trees)):
-        plot(Trees[ind][0],Trees[ind][1],'g',linewidth = 1)
+        plot(Trees[ind][0],Trees[ind][1],'g',linewidth = 2)
         fill(Trees[ind][0],Trees[ind][1],'g') 
     plot(pos[0],pos[1],'ro')
     axis('equal')
@@ -183,4 +183,4 @@ def MapRaycasting(pos):
 
 if __name__=='__main__':
 
-    MapRaycasting([150.0,0.0])
+    MapRaycasting([50.0,50.0])
