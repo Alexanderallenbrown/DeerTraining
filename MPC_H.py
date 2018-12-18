@@ -34,6 +34,7 @@ class MPC_H:
     def calcOptimal(self,carnow,deernow,setSpeed = 25.0,yroad = 0.0):    
         opt_steer = self.MPCF.calcOptimal(carnow, deernow, yroad)
         opt_gas,opt_brake = self.MPCG.calcOptimal(carnow, deernow, setSpeed)
+        
         return opt_gas,opt_brake,opt_steer
 
 def demo_GAdeer():
@@ -104,6 +105,9 @@ def demo_GAdeer():
                 cafvec[k] = car.Caf
                 carvec[k] = car.Car
                 command_steervec[k] = steer
+
+
+
                 print "mpc active"
 
             else:

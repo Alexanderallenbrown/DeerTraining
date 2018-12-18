@@ -87,11 +87,11 @@ def distanceray(pos, array):
 
 def ProbDist(pos, psi1, q_dist = 1.0,q_dangle = 1/1000.0):
 
-    distAngle=distanceray(pos)
+    distAngle=MapRaycasting(pos)
 
     distAngle_inv = 1/distAngle
 
-    distAngle_inv = distAngle_inv - min(distAngle_inv)
+    distAngle_inv = 1000.0*distAngle_inv - min(distAngle_inv)
 
     Prob1 = (distAngle_inv)/sum(distAngle_inv)
 
@@ -116,7 +116,7 @@ def ProbDist(pos, psi1, q_dist = 1.0,q_dangle = 1/1000.0):
     xlabel('Angle (deg)')
     ylabel('Probability')  
 
-    #show() 
+    show() 
 
     return Prob1
 
@@ -179,8 +179,15 @@ def MapRaycasting(pos):
 
     show()
 
+    return MinDist_Vec
+
 
 
 if __name__=='__main__':
 
-    MapRaycasting([50.0,50.0])
+    #min_dist = MapRaycasting([200.0,0.0])
+
+    ProbDist([200.0,0.0],0.0,100.0)
+
+    print min_dist
+

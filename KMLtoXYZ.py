@@ -121,14 +121,14 @@ def KMLtoXYZ(file):
         # Append to list
         TreesXYZ.append(XYZ)
 
-    # Plot
-    # figure()
-    # plot(Road[0],Road[1])
-    # for ind in range(0,segments):
-    #     plot(TreesXYZ[ind][0],TreesXYZ[ind][1])
-    # axis('equal')
+     #Plot
+    figure()
+    plot(Road[0],Road[1])
+    for ind in range(0,segments):
+        plot(TreesXYZ[ind][0],TreesXYZ[ind][1])
+    axis('equal')
 
-    #show()
+    show()
 
     return TreesXYZ
 

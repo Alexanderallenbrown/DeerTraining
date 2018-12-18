@@ -21,7 +21,7 @@ from matplotlib.pyplot import *
 
 class BicycleModel:
 
-    def __init__(self,a = 0.8,b = 1.5,m = 1000.0,I=2000.0,U=20.0,Cf=100000.0,Cr=100000.0,mu=1.0,dT=0.01,tiretype='pacejka',drive='rear',bias=0.2,autopilot_gain = 1, xinit = 0, yinit = 0, zinit = 0,steering_actuator = 'on'):
+    def __init__(self,a = 0.8,b = 1.5,m = 1000.0,I=2000.0,U=20.0,Cf=100000.0,Cr=100000.0,mu=1.0,dT=0.01,tiretype='pacejka',drive='rear',bias=0.3,autopilot_gain = 1, xinit = 0, yinit = 0, zinit = 0,steering_actuator = 'on'):
         """ 
         BicycleModel(a = 1.2,b = 1.0,m = 1000.0,I=2000.0,U=20.0,Cf=-100000.0,Cr=-100000.0,mu=1.0,dT=0.01,tiretype='dugoff',coords='local'))
         This is a bicycle model. It can use a dugoff tire model or a linear tire model.
@@ -81,6 +81,7 @@ class BicycleModel:
 
         #state order is y,v,x,u,psi,r
         self.x = array([yinit,0,xinit,0,0,0])
+        self.xdot = zeros(6)
 
     def dugoffFy(self,alpha,Fz,mu=1.5,Fx=0,Ca=100000):
         if abs(alpha)>0:
@@ -176,9 +177,16 @@ class BicycleModel:
 
             ############## ABS GOES HERE ###############
         #now calculate the brake forces accepting an input from 0 to 1
-        total_brake_force = brake * self.mu*(self.m*9.81) #max brakes out. TODO model brake fade and speed dependence
+        total_brake_force = brake * (self.m*9.81) #max brakes out. TODO model brake fade and speed dependence
         front_brake_force = total_brake_force*(1-self.bias)#so the brake bias of 1 means all rear brakes
         rear_brake_force = total_brake_force*self.bias
+
+        if front_brake_force > (self.m*9.81*self.mu*self.b/(self.a+self.b)):
+            front_brake_force = self.m*9.81*self.mu*self.b/(self.a+self.b)
+
+        if rear_brake_force > (self.m*9.81*self.mu*self.a/(self.a+self.b)):
+            rear_brake_force = self.m*9.81*self.mu*self.a/(self.a+self.b)
+
         if self.U>0:
             if self.drive=='rear':
                 Fxf = -front_brake_force
@@ -233,11 +241,11 @@ class BicycleModel:
         
 
         #this should have taken casre of all contingencies and got us the correct inputs for the car.
-        xdot = self.state_eq(self.x,0,Fxf,Fxr,steer)
-        self.x = self.x+self.dT*xdot #this should update the states
+        self.xdot = self.state_eq(self.x,0,Fxf,Fxr,steer)
+        self.x = self.x+self.dT*self.xdot #this should update the states
         self.U = self.x[3]
         #print("actual inputs passed:     "+str(Fxf)+","+str(Fxr)+","+str(steer))
-        return self.x,xdot
+        return self.x,self.xdot
 
     def heuns_update(self,brake=0,gas=0,steer=0,cruise = 'on',setspeed=20.0,autopilot='off',mpc='off',patherror=0):
        
@@ -260,12 +268,12 @@ class BicycleModel:
         k1x = self.state_eq(self.x,0,Fxf,Fxr,steer) # Calvulate k1
         xhat = self.x + self.dT*k1x # Find x_hat
         k2x = self.state_eq(xhat,0,Fxf,Fxr,steer) # Calcaulte k2 using x_hat
-        xdot = (k1x+k2x)/2 # Find xdot by averaging k1 and k2
+        self.xdot = (k1x+k2x)/2 # Find xdot by averaging k1 and k2
 
-        self.x = self.x + xdot*self.dT
+        self.x = self.x + self.xdot*self.dT
         self.U = self.x[3]
 
-        return self.x,xdot,steer
+        return self.x,self.xdot,steer
 
     def rk_update(self,brake=0,gas=0,steer=0,cruise = 'on',setspeed=20.0,autopilot='off',mpc='off',patherror=0):
        
@@ -294,19 +302,19 @@ class BicycleModel:
         k4x = self.state_eq(xhat3,0,Fxf,Fxr,steer) # Calcaulte k4 using x_hat3
 
         # Calculate xdot
-        xdot = (k1x+2*k2x+2*k3x+k4x)/6 # Find xdot by averaging k1 and k2
+        self.xdot = (k1x+2*k2x+2*k3x+k4x)/6 # Find xdot by averaging k1 and k2
 
-        self.x = self.x + xdot*self.dT
+        self.x = self.x + self.xdot*self.dT
         self.U = self.x[3]
 
-        return self.x,xdot,steer
+        return self.x,self.xdot,steer
 
 
     def euler_predict(self,x,brake=0,gas=0,steer=0,dT=0.1):
         Fxf,Fxr,steer = self.calc_inputs(brake,gas,steer)
-        xdot = self.state_eq(x,0,Fxf,Fxr,steer)
-        x = x+self.dT*xdot #this should update the states
-        return x,xdot
+        self.xdot = self.state_eq(x,0,Fxf,Fxr,steer)
+        x = x+self.dT*self.xdot #this should update the states
+        return x,self.xdot
 
 
     def steering_statederivs(self, delta, deltadot, delta_r, delta_rdot):
