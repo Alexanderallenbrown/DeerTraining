@@ -146,7 +146,7 @@ def animate(i):
 
     #steering wheel plot
     R = .15#meters, steering wheel radius
-    ratio = 20.0#ratio of road wheel angle to steering wheel angle
+    ratio = 10.0#ratio of road wheel angle to steering wheel angle
     xb = R*cos(theta)
     yb = R*sin(theta)
     L1x = R*cos(pi/2+actual_steervec[i*3]*ratio)
