@@ -22,6 +22,8 @@ class MPC_F:
         self.downsample_horizon = downsample_horizon
         self.predictionmethod = predictionmethod
         self.car_y_accel_pred = zeros(Np)
+        self.XYPrediction = zeros(2*Np)
+        self.XYDeerPrediction = zeros(2*Np)
 
     def predictDeer_static(self,deernow,carnow):
         predictDeer = copy.deepcopy(deernow)
@@ -78,6 +80,8 @@ class MPC_F:
             xdeer_pred_downsampled = zeros((self.Np,4))
             for k in range(0,4):
                 xdeer_pred_downsampled[:,k] = interp(self.t_horizon,tvec,xdeer_pred[:,k])
+        self.XYDeerPrediction = hstack((xdeer_pred_downsampled[:,2],xdeer_pred_downsampled[:,3]))
+        #print self.XYDeerPrediction
         return xdeer_pred_downsampled
 
     def predictCar(self,carnow,steervector):
@@ -112,6 +116,7 @@ class MPC_F:
                 xcar_pred_downsampled[:,k] = interp(self.t_horizon,tvec,xcar_pred[:,k])
                 xdotcar_pred_downsampled[:,k] = interp(self.t_horizon,tvec,xdotcar_pred[:,k])
             #print xdotcar_pred_downsampled.shape,xcar_pred_downsampled.shape
+        self.XYPrediction = hstack((xcar_pred_downsampled[2,:],xcar_pred_downsampled[0,:]))
         return xcar_pred_downsampled,xdotcar_pred_downsampled
 
     def ObjectiveFn(self,steervector,carnow,deernow,yroad):
@@ -492,6 +497,14 @@ def demo_CVdeer():
     gas = 0
     brake = 0
 
+    TestNumber = 1
+    FileName ='Test/Test' + str(TestNumber) + '.txt';
+    predFileName = 'Test/pred.txt'
+
+    newFile = open(FileName,'w+');
+    newFile.close();
+    newFile = open(FileName, 'a');
+    predF = open(predFileName,'a')
 
     #now simulate!!
     for k in range(1,len(t)):
@@ -532,7 +545,7 @@ def demo_CVdeer():
                 brake = 0
 
 
-            print opt_steer
+            #print opt_steer
             carx[k,:],carxdot[k,:],actual_steervec[k] = car.rk_update(gas = gas, brake = brake, steer = opt_steer, cruise = 'off')
             cafvec[k] = car.Caf
             carvec[k] = car.Car
@@ -546,24 +559,25 @@ def demo_CVdeer():
 
             print round(t[k],2),round(opt_steer,2),round(deer.y_Deer,2)
 
+            #print(t[k])
+            newFile.write(str(t[k])+'\t')
+            newFile.write(str(command_steervec[k])+'\t')
+            newFile.write(str(actual_steervec[k])+'\t')
+            for ind2 in range(0,6):
+                newFile.write(str(carx[k,ind2]) + ' \t');
+            for ind2 in range(0,6):
+                newFile.write(str(carxdot[k,ind2]) + ' \t');
+            for ind2 in range(0,4):
+                    newFile.write(str(deerx[k,ind2]) + '\t');
+            newFile.write('\n')
 
-    ## SAVE xcar and xdeer
+            predF.write(str(t[k])+'\t')
+            for ind2 in range(0,len(MPC.XYPrediction)):  
+                predF.write(str(MPC.XYPrediction[ind2])+'\t')
+            for ind2 in range(0,len(MPC.XYDeerPrediction)):
+                predF.write(str(MPC.XYDeerPrediction[ind2])+'\t')
+            predF.write('\n')
 
-    TestNumber = 1
-    FileName ='Test/Test' + str(TestNumber) + '.csv';
-
-    newFile = open(FileName,'w+');
-    newFile.close();
-    newFile = open(FileName, 'a');
-
-    for ind2 in range(0,6):
-        for ind1 in range(0, len(carx)):
-            newFile.write(str(carx[ind1,ind2]) + ' ');
-        newFile.write('\n')
-    for ind2 in range(0,4):
-        for ind1 in range(0, len(deerx)):
-            newFile.write(str(deerx[ind1,ind2]) + ' ');
-        newFile.write('\n')
 
     ## SAVE end
 
