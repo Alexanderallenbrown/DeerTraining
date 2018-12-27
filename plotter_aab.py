@@ -88,14 +88,14 @@ ax = fig.add_subplot(211)
 fcax = fig.add_subplot(223)
 wax = fig.add_subplot(224)
 #plt.axis('equal')
-ax.set_xlim(0, 100)
-ax.set_ylim(-25, 25)
+ax.set_xlim(0, 80)
+ax.set_ylim(-20, 20)
 
 # Initialize rectangles
-thic = 1.0
-car_plot = patches.Rectangle((0, 0), 0, 0,angle = 0.0, fc='b', alpha = 1.0)
-deer_plot = patches.Rectangle((0, 0), 0, 0,angle = 0.0, fc='r', alpha = 1.0)
-background = patches.Rectangle((-100,-100),200,200,fc='k')
+thic = 0.25
+car_plot = patches.Rectangle((0, 0), 0, 0,angle = 0.0, fc='b', alpha = 0.9)
+deer_plot = patches.Rectangle((0, 0), 0, 0,angle = 0.0, fc='r', alpha = 0.9)
+background = patches.Rectangle((-100,-100),200,200,fc=(.85,.85,.85))
 center_line_1 = patches.Rectangle((-10,(1.75+0.025)),200.0,thic,fc='y')
 center_line_2 = patches.Rectangle((-10,(1.75-0.1-0.025)),200.0,thic,fc='y')
 right_line = patches.Rectangle((-10,-1.75),200,thic,fc='w')
