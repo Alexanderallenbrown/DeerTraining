@@ -1,13 +1,14 @@
 from numpy import *
 from matplotlib.pyplot import *
-from BicycleModel import *
+from CBicycleModel import *
 from scipy.optimize import minimize
 from BinaryConversion import *
 from CV_Deer import *
 import copy
 
+
 class MPC_F:
-    def __init__(self, Np=10, dtp=.1,q_lane_error = 1.0,q_obstacle_error = 1.0,q_steering_effort=1.0,q_accel = 1.0,q_lateral_velocity=1.0,steering_angle_max=.25, epsilon = 0.00001,downsample_horizon = 'false',predictionmethod = 'static'):
+    def __init__(self, Np=5, dtp=.1,q_lane_error = 1.0,q_obstacle_error = 1.0,q_steering_effort=1.0,q_accel = 1.0,q_lateral_velocity=1.0,steering_angle_max=.25, epsilon = 0.00001,downsample_horizon = 'false',predictionmethod = 'static'):
         self.Np = Np
         self.dtp = dtp
         self.q_lane_error = q_lane_error
@@ -24,6 +25,7 @@ class MPC_F:
         self.car_y_accel_pred = zeros(Np)
         self.XYPrediction = zeros(2*Np)
         self.XYDeerPrediction = zeros(2*Np)
+        self.steervector = 0.1*random.randn(self.Np)
 
     def predictDeer_static(self,deernow,carnow):
         predictDeer = copy.deepcopy(deernow)
@@ -196,7 +198,7 @@ class MPC_F:
 
 
     def calcOptimal(self,carnow, deernow,yroad):
-        steervector = 0.1*random.randn(self.Np)
+        # steervector = 0.1*random.randn(self.Np)
 
         bounds = [(-self.steering_angle_max,self.steering_angle_max)]
         for ind in range(1,self.Np):
@@ -204,7 +206,7 @@ class MPC_F:
 
         cons = ({'type': 'ineq','fun':self.calcDist, 'args':(carnow,deernow)},{'type': 'ineq','fun':self.stayInRoadRight, 'args':(carnow,)},{'type': 'ineq','fun':self.stayInRoadLeft, 'args':(carnow,)})
 
-        umpc = minimize(self.ObjectiveFn,steervector,args = (carnow,deernow,yroad),bounds = bounds, method = 'SLSQP',constraints=cons, options ={'maxiter': 100})
+        umpc = minimize(self.ObjectiveFn,self.steervector,args = (carnow,deernow,yroad),bounds = bounds, method = 'SLSQP',constraints=cons, options ={'maxiter': 10})
 
         opt_steering = umpc.x[0]
 
@@ -213,14 +215,14 @@ class MPC_F:
             # Eliminate collision constraint
             cons = ({'type': 'ineq','fun':self.stayInRoadRight, 'args':(carnow,)},{'type': 'ineq','fun':self.stayInRoadLeft, 'args':(carnow,)})
             # Re-do minimization
-            umpc = minimize(self.ObjectiveFn,steervector,args = (carnow,deernow,yroad),bounds = bounds, method = 'SLSQP', constraints=cons, options ={'maxiter': 100})
+            umpc = minimize(self.ObjectiveFn,self.steervector,args = (carnow,deernow,yroad),bounds = bounds, method = 'SLSQP', constraints=cons, options ={'maxiter': 10})
             # Recalculate opt_steering
             opt_steering = umpc.x[0]
             
             if (isnan(umpc.x[0])==True):
                 print "Impossible to stay in lane: Eliminate lane constraint"
                 # Re-do minimization
-                umpc = minimize(self.ObjectiveFn,steervector,args = (carnow,deernow,yroad),bounds = bounds, method = 'SLSQP', options ={'maxiter': 100})
+                umpc = minimize(self.ObjectiveFn,self.steervector,args = (carnow,deernow,yroad),bounds = bounds, method = 'SLSQP', options ={'maxiter': 10})
                 # Recalculate opt_steering
                 opt_steering = umpc.x[0]
         # umpc = minimize(self.ObjectiveFn,steervector,args = (carnow,deernow,yroad),bounds = bounds, method='BFGS',options={'xtol': 1e-12, 'disp': False,'eps':.0001,'gtol':.0001})
