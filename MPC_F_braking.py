@@ -521,7 +521,7 @@ def demo_CVdeer():
                 # opt_steer = 0
                 # #steervector,carnow,deernow,yroad
                 # J = MPC.ObjectiveFn(steervector,car,deer,yroad=0)
-                if ((t[k]- last_steer_t) >= 0.01): #MPC.dtp):
+                if ((t[k]- last_steer_t) >= MPC.dtp):
                     opt_steer = MPC.calcOptimal(carnow = car,deernow = deer, yroad = 0)
                     brake = MPC.calcBraking(carnow = car)
                     gas = 0
