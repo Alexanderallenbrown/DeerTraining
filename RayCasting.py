@@ -110,11 +110,11 @@ def ProbDist(pos, psi1, mapa, q_dist = 1.0,q_dangle = 1/1000.0):
     angle_plot = linspace(0,360,360)
 
 
-    figure()
-    plot(angle_plot,Prob1)
-    title('Probability Distribution')
-    xlabel('Angle (deg)')
-    ylabel('Probability')  
+    # figure()
+    # plot(angle_plot,Prob1)
+    # title('Probability Distribution')
+    # xlabel('Angle (deg)')
+    # ylabel('Probability')  
 
     #show() 
 
@@ -152,7 +152,7 @@ def MapRaycasting(pos, mapa):
 
 
     angle_plot = linspace(0,360,360)
-
+    #hello
     # figure()
     # plot(angle_plot,MinDist_Vec)
     # title('Ray Casting')
