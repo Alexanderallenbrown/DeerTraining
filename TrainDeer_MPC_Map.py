@@ -393,7 +393,7 @@ def FirstGen():
             print "THIS IS THE DEER WE ARE CURRENTLY TRAINING"
             print(Deer1)
 
-            Distance1 = TestDeer_MPC(deer_ind=Deer1, n=1, agent = agent)
+            Distance1 = TestDeer_MPC(deer_ind=Deer1, n=8, agent = agent)
 
             print "MINIMUM DISTANCE"
             print(Distance1)
