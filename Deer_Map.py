@@ -96,7 +96,7 @@ class Deer_Map:
 
         self.xdeer = array([self.Speed_Deer, self.Psi_Deer, self.x_Deer, self.y_Deer])
         
-        print self.xdeer
+        #print self.xdeer
         return self.xdeer
 
 
