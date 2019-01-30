@@ -153,29 +153,29 @@ def MapRaycasting(pos, mapa):
 
     angle_plot = linspace(0,360,360)
 
-    figure()
-    plot(angle_plot,MinDist_Vec)
-    title('Ray Casting')
-    xlabel('Angle (deg)')
-    ylabel('Minimum Distance (m)')
+    # figure()
+    # plot(angle_plot,MinDist_Vec)
+    # title('Ray Casting')
+    # xlabel('Angle (deg)')
+    # ylabel('Minimum Distance (m)')
 
-    figure(facecolor='w')
-    subplot(111,facecolor='w')
-    seg = zeros((2,2))
-    print seg
-    for ind in range(0,360):
-        seg[0][0] = pos[0]
-        seg[0][1] = pos[0]+MinDist_Vec[ind]*cos(ind*3.1416/180)
-        seg[1][0] = pos[1]
-        seg[1][1] = pos[1]+MinDist_Vec[ind]*sin(ind*3.1416/180)
-        plot(seg[0][:],seg[1][:],'k')
-    for ind in range(0,len(Trees)):
-        plot(Trees[ind][0],Trees[ind][1],'g',linewidth = 2)
-        fill(Trees[ind][0],Trees[ind][1],'g') 
-    plot(pos[0],pos[1],'ro')
-    axis('equal')
-    xlabel('X (m)', color='k')
-    ylabel('Y (m)', color='k')
+    # figure(facecolor='w')
+    # subplot(111,facecolor='w')
+    # seg = zeros((2,2))
+    # print seg
+    # for ind in range(0,360):
+    #     seg[0][0] = pos[0]
+    #     seg[0][1] = pos[0]+MinDist_Vec[ind]*cos(ind*3.1416/180)
+    #     seg[1][0] = pos[1]
+    #     seg[1][1] = pos[1]+MinDist_Vec[ind]*sin(ind*3.1416/180)
+    #     plot(seg[0][:],seg[1][:],'k')
+    # for ind in range(0,len(Trees)):
+    #     plot(Trees[ind][0],Trees[ind][1],'g',linewidth = 2)
+    #     fill(Trees[ind][0],Trees[ind][1],'g') 
+    # plot(pos[0],pos[1],'ro')
+    # axis('equal')
+    # xlabel('X (m)', color='k')
+    # ylabel('Y (m)', color='k')
 
     #show()
 
