@@ -6,7 +6,7 @@ from BinaryConversion import *
 from CV_Deer import *
 import copy
 
-class MPC_F:
+class MPC_Fb:
     def __init__(self, Np=10, dtp=.1,q_lane_error = 1.0,q_obstacle_error = 1.0,q_steering_effort=1.0,q_accel = 1.0,q_lateral_velocity=1.0,steering_angle_max=.25, epsilon = 0.00001,downsample_horizon = 'false',predictionmethod = 'static'):
         self.Np = Np
         self.dtp = dtp
@@ -282,7 +282,7 @@ def demo_GAdeer():
 
     #MPC = MPC_F(q_lane_error = 10.0,q_obstacle_error = 5000000.0,q_lateral_velocity=0.00,q_steering_effort=0.0,q_accel = 0.005)
     weight = 10.0
-    MPC = MPC_F(q_lane_error = weight,q_obstacle_error =10.0/weight*10,q_lateral_velocity=0.00,q_steering_effort=0.0,q_accel = 0.005,predictionmethod='CV')
+    MPC = MPC_Fb(q_lane_error = weight,q_obstacle_error =10.0/weight*10,q_lateral_velocity=0.00,q_steering_effort=0.0,q_accel = 0.005,predictionmethod='CV')
 
     actual_steervec = zeros(len(t))
     command_steervec = zeros(len(t))
@@ -322,7 +322,7 @@ def demo_GAdeer():
             command_steervec[k] = opt_steer
             distancevec[k] = sqrt((deer.x_Deer - car.x[2])**2+(deer.y_Deer - car.x[0])**2)
 
-            print round(t[k],2),round(opt_steer,2),round(deer.y_Deer,2)
+            #print round(t[k],2),round(opt_steer,2),round(deer.y_Deer,2)
 
 
     ## SAVE xcar and xdeer
@@ -483,7 +483,7 @@ def demo_CVdeer():
 
     #MPC = MPC_F(q_lane_error = 10.0,q_obstacle_error = 5000000.0,q_lateral_velocity=0.00,q_steering_effort=0.0,q_accel = 0.005)
     weight = 10.0
-    MPC = MPC_F(q_lane_error = weight,q_obstacle_error =200.0/weight*10,q_lateral_velocity=1.0,q_steering_effort=1.0,q_accel = 0.005,predictionmethod='CV')
+    MPC = MPC_Fb(q_lane_error = weight,q_obstacle_error =200.0/weight*10,q_lateral_velocity=1.0,q_steering_effort=1.0,q_accel = 0.005,predictionmethod='CV')
 
     actual_steervec = zeros(len(t))
     command_steervec = zeros(len(t))
@@ -557,7 +557,7 @@ def demo_CVdeer():
             ay[k] = carxdot[k,1]+carx[k,3]*carx[k,5]
             ax[k] = carxdot[k,3]-carx[k,1]*carx[k,5]
 
-            print round(t[k],2),round(opt_steer,2),round(deer.y_Deer,2)
+            #print round(t[k],2),round(opt_steer,2),round(deer.y_Deer,2)
 
             #print(t[k])
             newFile.write(str(t[k])+'\t')

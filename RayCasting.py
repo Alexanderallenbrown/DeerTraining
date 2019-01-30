@@ -7,7 +7,7 @@ def distanceray(pos, array):
     
     # Points of array (Begin and end with the same point)
 
-    print 'array', array
+    #print 'array', array
     P = double(array)
 
     dist_angle = zeros(360)
@@ -85,9 +85,9 @@ def distanceray(pos, array):
 
     return dist_angle
 
-def ProbDist(pos, psi1, q_dist = 1.0,q_dangle = 1/1000.0):
+def ProbDist(pos, psi1, mapa, q_dist = 1.0,q_dangle = 1/1000.0):
 
-    distAngle=MapRaycasting(pos)
+    distAngle=MapRaycasting(pos, mapa)
 
     distAngle_inv = 1/distAngle
 
@@ -116,15 +116,15 @@ def ProbDist(pos, psi1, q_dist = 1.0,q_dangle = 1/1000.0):
     xlabel('Angle (deg)')
     ylabel('Probability')  
 
-    show() 
+    #show() 
 
     return Prob1
 
-def MapRaycasting(pos):
+def MapRaycasting(pos, mapa):
 
     sight_dist = 60.0
 
-    f = 'Test2.kml'
+    f = mapa
 
     Trees = KMLtoXYZ(f)
 
@@ -177,7 +177,7 @@ def MapRaycasting(pos):
     xlabel('X (m)', color='k')
     ylabel('Y (m)', color='k')
 
-    show()
+    #show()
 
     return MinDist_Vec
 
@@ -187,7 +187,22 @@ if __name__=='__main__':
 
     #min_dist = MapRaycasting([200.0,0.0])
 
-    ProbDist([200.0,0.0],0.0,100.0)
+    dist = ProbDist([200.0,0.0],0.0, 'Test2.kml')
 
-    print min_dist
+    angles = linspace(0,360,360)
+
+    figure()
+    plot(angles,dist)
+
+    angle = zeros(10000)
+
+    for k in range(0,10000):
+        angle[k] = random.choice(len(dist),1,p =dist)
+
+    figure()
+    hist(angle, bins = 360)
+
+    show()
+
+    print dist
 

@@ -128,7 +128,7 @@ def KMLtoXYZ(file):
         plot(TreesXYZ[ind][0],TreesXYZ[ind][1])
     axis('equal')
 
-    show()
+    #show()
 
     return TreesXYZ
 
