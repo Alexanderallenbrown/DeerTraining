@@ -122,7 +122,7 @@ class MPC_PM:
         #optimizer variables
         K1 = .1*ones(self.Np)#weight on input
         K2 = 10*ones(self.Np)#weight on y vehicle
-        K3 = zeros(self.Np);K3[-1] = 1000#weight on terminal y-velocity. Only Penalize TERMINAL!!
+        K3 = zeros(self.Np);K3[-1] = 100#weight on terminal y-velocity. Only Penalize TERMINAL!!
         K4 = 100*ones(self.Np)#weight on distance from obstacle.
 
         for k in range(0,self.Np):
@@ -131,7 +131,7 @@ class MPC_PM:
             if(carnow.x[2]<deernow.x_Deer):
                 J = J + K1[k]*uvec[k]**2 + K2[k]*(xcar_pred[k,0]-yroad)**2+ K3[k]*xcar_pred[k,1]**2+K4[k] * distance**2
             else:
-                J = J + K1[k]*uvec[k]**2 + K2[k]*(xcar_pred[k,0]-yroad)**2+ K3[k]*xcar_pred[k,1]**2
+                J = J + K1[k]*uvec[k]**2 + 10*K2[k]*(xcar_pred[k,0]-yroad)**2+ K3[k]*xcar_pred[k,1]**2
           
         return J
 
@@ -243,7 +243,7 @@ def demo_CVdeer():
     t = arange(0,simtime,dt) #takes min, max, and timestep\
 
 
-    car = BicycleModel(dT = dt, U = 25.0,tiretype='linear', steering_actuator = 'on')
+    car = BicycleModel(dT = dt, U = 25.0,tiretype='pacejka', steering_actuator = 'on')
 
 
      #car state vector #print array([[Ydot],[vdot],[Xdot],[Udot],[Psidot],[rdot]])
