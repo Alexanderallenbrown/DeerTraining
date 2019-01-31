@@ -237,7 +237,7 @@ def demo():
             print Gfname
 
             intermediatePopulationSize = 10;
-            numberOfHumans = 1;
+            numberOfHumans = 8;
             populationSize = 15;
 
             n = populationSize
@@ -314,7 +314,7 @@ def demo():
             for index in range(0,m):
                 CurrentDeer = BinaryConversion(str(NewInterGenArray[index].traits))
                 print CurrentDeer
-                NewInterGenArray[index].result = TestDeer_MPC(CurrentDeer, n, agent)
+                NewInterGenArray[index].result = TestDeer_MPC(CurrentDeer, h, agent)
                 print NewInterGenArray[index].result
 
             for x in range(0, n):
