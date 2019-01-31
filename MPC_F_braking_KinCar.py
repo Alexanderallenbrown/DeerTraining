@@ -25,6 +25,7 @@ class MPC_Fb:
         self.car_y_accel_pred = zeros(Np)
         self.XYPrediction = zeros(2*Np)
         self.XYDeerPrediction = zeros(2*Np)
+        self.steervector = 0.1*random.randn(self.Np)
 
 
 
@@ -194,8 +195,8 @@ class MPC_Fb:
 
 
     def calcOptimal(self,carnow, deernow,yroad):
-        steervector = 0.1*random.randn(self.Np)
-
+        
+        steervector = self.steervector
         bounds = [(-self.steering_angle_max,self.steering_angle_max)]
         for ind in range(1,self.Np):
             bounds.insert(0,(-self.steering_angle_max,self.steering_angle_max))
@@ -203,7 +204,7 @@ class MPC_Fb:
         cons = ({'type': 'ineq','fun':self.calcDist, 'args':(carnow,deernow)},{'type': 'ineq','fun':self.stayInRoadRight, 'args':(carnow,)},{'type': 'ineq','fun':self.stayInRoadLeft, 'args':(carnow,)})
 
         umpc = minimize(self.ObjectiveFn,steervector,args = (carnow,deernow,yroad),bounds = bounds, method = 'SLSQP',constraints=cons, options ={'maxiter': 100})
-
+        self.steervector = umpc.x
         opt_steering = umpc.x[0]
 
         if (isnan(umpc.x[0])==True):
@@ -525,6 +526,7 @@ def demo_CVdeer():
                     gas = 0
 
                     last_steer_t = t[k]
+                    print t[k]
 
             
             #if((deer.x_Deer<car.x[2])):
