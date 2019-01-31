@@ -230,7 +230,7 @@ class MPC_Fb:
     def calcBraking(self,carnow):
         ay_g = self.car_y_accel_pred[0]/9.8
 
-        print ay_g
+        #print ay_g
 
         if (0.5**2-ay_g**2)>0:
             braking = sqrt(0.5**2-ay_g**2)
