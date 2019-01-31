@@ -26,6 +26,11 @@ class MPC_Fb:
         self.XYPrediction = zeros(2*Np)
         self.XYDeerPrediction = zeros(2*Np)
         self.steervector = 0.1*random.randn(self.Np)
+        self.xdeer_pred_downsampled = zeros((self.Np,4))
+        #initialize the downsampled vector we will return
+        self.xcar_pred_downsampled = zeros((self.Np,6))
+        self.xdotcar_pred_downsampled = zeros((self.Np,6))
+
 
 
 
@@ -57,50 +62,47 @@ class MPC_Fb:
         predictDeer = copy.deepcopy(deernow)
         if(self.downsample_horizon=='false'):
             predictDeer.dT = self.dtp
-            xdeer_pred_downsampled = zeros((self.Np,4))
+            
             #note: the deer's global coordinate system is rotated by 90 degrees compared to car.... :(  >:(
             xvel = predictDeer.xdeer[0]*sin(predictDeer.xdeer[1])
             yvel = predictDeer.xdeer[0]*cos(predictDeer.xdeer[1])
             for k in range(0,self.Np):
                 #eventually, the deer will need to also have a model of how the CAR moves...
-                xdeer_pred_downsampled[k,:] = predictDeer.xdeer#array([predictDeer.Speed_Deer,predictDeer.Psi_Deer,predictDeer.x_Deer,predictDeer.y_Deer])
-                xdeer_pred_downsampled[k,2] += xvel*k*self.dtp
-                xdeer_pred_downsampled[k,3] += yvel*k*self.dtp
+                self.xdeer_pred_downsampled[k,:] = predictDeer.xdeer#array([predictDeer.Speed_Deer,predictDeer.Psi_Deer,predictDeer.x_Deer,predictDeer.y_Deer])
+                self.xdeer_pred_downsampled[k,2] += xvel*k*self.dtp
+                self.xdeer_pred_downsampled[k,3] += yvel*k*self.dtp
         else:
             
             #make a time vector for prediction using 'fine' timestep of deer
             tvec = arange(0,self.prediction_time+predictDeer.dT,predictDeer.dT)
             #initialize the 'fine' predicted state vector
-            xdeer_pred = zeros((len(tvec),4))
+            self.xdeer_pred = zeros((len(tvec),4))
             xvel = predictDeer.xdeer[0]*sin(predictDeer.xdeer[1])
             yvel = predictDeer.xdeer[0]*cos(predictDeer.xdeer[1])
             for k in range(0,len(tvec)):
                 #eventually, the deer will need to also have a model of how the CAR moves...
-                xdeer_pred[k,:] = predictDeer.xdeer#array([predictDeer.Speed_Deer,predictDeer.Psi_Deer,predictDeer.x_Deer,predictDeer.y_Deer])
-                xdeer_pred_downsampled[k,2] += xvel*k*predictDeer.dT
-                xdeer_pred_downsampled[k,3] += yvel*k*predictDeer.dT
+                self.xdeer_pred[k,:] = predictDeer.xdeer#array([predictDeer.Speed_Deer,predictDeer.Psi_Deer,predictDeer.x_Deer,predictDeer.y_Deer])
+                self.xdeer_pred_downsampled[k,2] += xvel*k*predictDeer.dT
+                self.xdeer_pred_downsampled[k,3] += yvel*k*predictDeer.dT
             #now downsample the prediction so that the horizon matches MPC rather than the deer
             #this way, the MPC will only look at and attempt to optimize a few points, but the prediction will be high-fi
             xdeer_pred_downsampled = zeros((self.Np,4))
             for k in range(0,4):
-                xdeer_pred_downsampled[:,k] = interp(self.t_horizon,tvec,xdeer_pred[:,k])
-        self.XYDeerPrediction = hstack((xdeer_pred_downsampled[:,2],xdeer_pred_downsampled[:,3]))
+                self.xdeer_pred_downsampled[:,k] = interp(self.t_horizon,tvec,self.xdeer_pred[:,k])
+        self.XYDeerPrediction = hstack((self.xdeer_pred_downsampled[:,2],self.xdeer_pred_downsampled[:,3]))
         #print self.XYDeerPrediction
-        return xdeer_pred_downsampled
+        return self.xdeer_pred_downsampled
 
     def predictCar(self,carnow,steervector):
         predictCar = KinCar(self.dtp,carnow.a,carnow.b,carnow.x[0],carnow.x[1],carnow.x[2],carnow.x[3],carnow.x[4],carnow.x[5])
         if(self.downsample_horizon=='false'):
-            xcar_pred_downsampled = zeros((self.Np,6))
-            xdotcar_pred_downsampled  = zeros((self.Np,6))
+            
             for k in range(0,self.Np):
-                xcar_pred_downsampled[k,:],xdotcar_pred_downsampled[k,:],steer = predictCar.euler_update(steer = steervector[k])
+                self.xcar_pred_downsampled[k,:],self.xdotcar_pred_downsampled[k,:],steer = predictCar.euler_update(steer = steervector[k])
         else:
             #compute a time vector for predicting
             tvec = arange(0,self.prediction_time+predictCar.dT,predictCar.dT)
-            #initialize the downsampled vector we will return
-            xcar_pred_downsampled = zeros((self.Np,6))
-            xdotcar_pred_downsampled = zeros((self.Np,6))
+            
             #initialize the 'fine' vector we will fill while predicting 
             xcar_pred = zeros((len(tvec),6))
             xdotcar_pred  = zeros((len(tvec),6))
@@ -112,11 +114,11 @@ class MPC_Fb:
                 xcar_pred[k,:],xdotcar_pred[k,:],steer = predictCar.euler_update(steer = steervector_upsampled[k])
             #now downsample the prediction so it is only MPC.Np points long
             for k in range(0,6):
-                xcar_pred_downsampled[:,k] = interp(self.t_horizon,tvec,xcar_pred[:,k])
-                xdotcar_pred_downsampled[:,k] = interp(self.t_horizon,tvec,xdotcar_pred[:,k])
+                self.xcar_pred_downsampled[:,k] = interp(self.t_horizon,tvec,xcar_pred[:,k])
+                self.xdotcar_pred_downsampled[:,k] = interp(self.t_horizon,tvec,xdotcar_pred[:,k])
             #print xdotcar_pred_downsampled.shape,xcar_pred_downsampled.shape
-        self.XYPrediction = hstack((xcar_pred_downsampled[2,:],xcar_pred_downsampled[0,:]))
-        return xcar_pred_downsampled,xdotcar_pred_downsampled
+        self.XYPrediction = hstack((self.xcar_pred_downsampled[2,:],self.xcar_pred_downsampled[0,:]))
+        return self.xcar_pred_downsampled,self.xdotcar_pred_downsampled
 
     def ObjectiveFn(self,steervector,carnow,deernow,yroad):
         J=0
@@ -152,16 +154,16 @@ class MPC_Fb:
 
     def calcDist(self,steervector,carnow,deernow):
         # Predict the future location of the car
-        xcar_pred,junk = self.predictCar(carnow,steervector)
-        if (self.predictionmethod == 'static'):
-            xdeer_pred = self.predictDeer_static(deernow,carnow)
-        else:
-            xdeer_pred = self.predictDeer_CV(deernow,carnow)
+        #xcar_pred,junk = self.predictCar(carnow,steervector)
+        #if (self.predictionmethod == 'static'):
+        #    xdeer_pred = self.predictDeer_static(deernow,carnow)
+        #else:
+        #    xdeer_pred = self.predictDeer_CV(deernow,carnow)
         #Np rows by 5 columns, one for x and y of deer
         distance=zeros(self.Np)
         for k in range(0,self.Np):
             #print k
-            distance[k] = sqrt((xcar_pred[k,0] - xdeer_pred[k,3])**2 + (xcar_pred[k,2] - xdeer_pred[k,2])**2)
+            distance[k] = sqrt((self.xcar_pred_downsampled[k,0] - self.xdeer_pred_downsampled[k,3])**2 + (self.xcar_pred_downsampled[k,2] - self.xdeer_pred_downsampled[k,2])**2)
             #print distance[k]
 
         #print min(distance)
@@ -171,10 +173,10 @@ class MPC_Fb:
 
     def stayInRoadRight(self,steervector,carnow):
         # Predict the future location of the car
-        xcar_pred,junk = self.predictCar(carnow,steervector)
+        #xcar_pred,junk = self.predictCar(carnow,steervector)
 
         # Find the minimum and maximum values for the predicted y-position
-        min_y = min(xcar_pred[:,0])
+        min_y = min(self.xcar_pred_downsampled[:,0])
 
         # Determine the min and max allowable y-positions
         min_allow_y = -1.75-4
@@ -183,10 +185,10 @@ class MPC_Fb:
 
     def stayInRoadLeft(self,steervector,carnow):
         # Predict the future location of the car
-        xcar_pred,junk = self.predictCar(carnow,steervector)
+        #xcar_pred,junk = self.predictCar(carnow,steervector)
 
         # Find the minimum and maximum values for the predicted y-position
-        max_y = max(xcar_pred[:,0])
+        max_y = max(self.xcar_pred_downsampled[:,0])
 
         # Determine the min and max allowable y-positions
         max_allow_y = 1.75+3.5+1.5
