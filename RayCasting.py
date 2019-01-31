@@ -148,7 +148,7 @@ def MapRaycasting(pos, mapa):
         if MinDist_Vec[ind]>sight_dist:
             MinDist_Vec[ind] = sight_dist
 
-    print MinDist_Vec
+    #print MinDist_Vec
 
 
     angle_plot = linspace(0,360,360)
