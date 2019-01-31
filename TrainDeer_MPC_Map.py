@@ -237,7 +237,7 @@ def demo():
             print Gfname
 
             intermediatePopulationSize = 10;
-            numberOfHumans = 8;
+            numberOfHumans = 1;
             populationSize = 15;
 
             n = populationSize
@@ -403,5 +403,5 @@ def FirstGen():
 
 if __name__=='__main__':
 
-    FirstGen()
+    demo()
 

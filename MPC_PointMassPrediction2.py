@@ -30,7 +30,7 @@ class PointMassVehicle:
         return array([self.y,self.ydot,self.x,self.xdot])
 
 class MPC_PM:
-    def __init__(self, Np=10, dtp=.1,q_lane_error = 1.0,q_obstacle_error = 1.0,q_steering_effort=1.0,q_accel = 1.0,q_lateral_velocity=1.0,q_x_accel = 1.0,q_cruise_speed = 1.0,uv_max=.25, epsilon = 0.00001,downsample_horizon = 'false',predictionmethod = 'static'):
+    def __init__(self, Np=10, dtp=.1,q_lane_error = 1.0,q_obstacle_error = 1.0,q_steering_effort=1.0,q_accel = 1.0,q_lateral_velocity=1.0,q_x_accel = 1.0,q_cruise_speed = 1.0,uv_max=0.6*9.81, epsilon = 0.00001,downsample_horizon = 'false',predictionmethod = 'static'):
         self.Np = Np
         self.dtp = dtp
         self.q_lane_error = q_lane_error
@@ -212,7 +212,7 @@ class MPC_PM:
         # umpc = minimize(self.ObjectiveFn,steervector,args = (carnow,deernow,yroad),bounds = bounds, method='BFGS',options={'xtol': 1e-12, 'disp': False,'eps':.0001,'gtol':.0001})
         #method='BFGS',options={'xtol': 1e-12, 'disp': False,'eps':.0001,'gtol':.0001}
 
-        opt_steering = (opt_u + carnow.x[1]*carnow.x[5]*carnow.x[4])*2.3/((carnow.x[3])**2)
+        opt_steering = opt_u*2.3/(carnow.x[3]**2) #(opt_u + carnow.x[1]*carnow.x[5]*carnow.x[4])*2.3/((carnow.x[3])**2)
 
         print "opt steering"
         print opt_steering
@@ -453,7 +453,40 @@ def demo_CVdeer():
 
     show()
 
+def demo_CVdeer_PM():
 
+    #gravitational constant
+    g = 9.81 #m/s/s
+
+    #vehicle parameters
+    uvmax = 0.6*g #the maximum lateral acceleration for the vehicle.
+    xdotv = 10 #m/s
+    xv0 = 0#initial x-position of vehicle
+    yv0=0 #initial y position of vehicle
+    ydotv0 = 0# initial y velocity of vehicle
+    u0 = 0#initial value of vehicle y-acceleration
+
+    #obstacle variables
+    xo = 10 #meters, ahead
+    yo = 0#put the obstacle right in the road center
+
+    #environment variables
+    ylane_right = -2 #meters
+    ylane_left = 2 #meters, left lane boundary
+    W = ylane_left-ylane_right
+
+    #prediction variables
+    Np = 100#predict 10 steps into the future
+    dtP = 0.01#predict in 0.1 second increments.
+
+    opt_u = umpc.x
+
+    vehiclesimulate = PointMassVehicle(xv0,yv0,xdotv,ydotv0,dtP,uvmax)
+    xvehicle_store = array([xv0,xdotv,yv0,ydotv0])
+    t = linspace(0,(Np-1)*dtP,Np)
+    for ind in range(1,len(t)):
+        xvehicle = vehiclesimulate.updateStates(opt_u)
+        xvehicle_store = vstack((xvehicle_store,xvehicle))
 
 if __name__ == '__main__':
     demo_CVdeer()
