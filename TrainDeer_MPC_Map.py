@@ -12,7 +12,7 @@ import copy
 from MPC_F import *
 from MPC_G import *
 from MPC_H import *
-from MPC_F_braking import *
+from MPC_F_braking_KinCar import *
 from Deer_Map import *
 
 def BinaryConversion(ind):
@@ -187,6 +187,10 @@ def TestDeer_MPC(deer_ind, n, agent):
             distancevec = distancevec[1:len(distancevec)]
             min_distance[k_1] = min(distancevec)
 
+
+
+
+
     # Calculate IQM
 
     # Sort values from smallest to largest
@@ -201,7 +205,7 @@ def TestDeer_MPC(deer_ind, n, agent):
 
 def demo():
 
-    for generation_number in range(1,100):
+    for generation_number in range(2,100):
 
         for driver_type in range(4,5):
 
@@ -216,6 +220,10 @@ def demo():
 
             if driver_type == 4:
                 agent_type = "Fb"
+
+            if driver_type == 5:
+                agent_type = "Fb_kin"
+
 
             print "New generation"
 
@@ -362,6 +370,10 @@ def demo():
             newGenFile = open(G2fname, 'a');
             for x in range(0, len(NewBaseGenArray)):
                 newGenFile.write(str(NewBaseGenArray[x].traits) + ' ' + str(NewBaseGenArray[x].result) + '\n');
+
+            newGenFile.close()
+
+            time.sleep(5)
 
 def FirstGen():
 

@@ -95,6 +95,7 @@ class MPC_Fb:
 
     def predictCar(self,carnow,steervector):
         predictCar = KinCar(self.dtp,carnow.a,carnow.b,carnow.x[0],carnow.x[1],carnow.x[2],carnow.x[3],carnow.x[4],carnow.x[5])
+
         if(self.downsample_horizon=='false'):
             
             for k in range(0,self.Np):
