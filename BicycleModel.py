@@ -4,10 +4,10 @@ import sys
 # sys.path.append( '/home/brownlab/Desktop/blender-2.73-linux-glibc211-x86_64/2.73/scripts/freestyle/modules')
 # sys.path.append( '/home/brownlab/Desktop/blender-2.73-linux-glibc211-x86_64/2.73/scripts/addons/modules')
 # sys.path.append( '/home/brownlab/.config/blender/2.73/scripts/addons/modules')
-sys.path.append('/home/brownlab/Desktop/blender-2.79b-linux-glibc219-x86_64/2.79/python/lib/python3.4/site-packages')
-sys.path.append('/usr/lib/python3/dist-packages')
-print("PATH")
-print(sys.path)
+# sys.path.append('/home/brownlab/Desktop/blender-2.79b-linux-glibc219-x86_64/2.79/python/lib/python3.4/site-packages')
+# sys.path.append('/usr/lib/python3/dist-packages')
+# print("PATH")
+# print(sys.path)
 
 #sys.path.append("/usr/local/lib/python3.4/dist-packages/")
 #sys.path.append("/usr/lib/python3/dist-packages/")
@@ -429,7 +429,7 @@ class BicycleModel:
 if __name__=='__main__':
     """ This is the demo for the Dugoff bicycle model car"""
     
-    opt = 3 #change this (1 or 2) to look at open-loop vs. closed-loop stuff. 1 is open loop, 2 is closed loop
+    opt = 1 #change this (1 or 2) to look at open-loop vs. closed-loop stuff. 1 is open loop, 2 is closed loop
 
     if opt==3:
         car = BicycleModel(autopilot_gain=.02,dT=0.01)
