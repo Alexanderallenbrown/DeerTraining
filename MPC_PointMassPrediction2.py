@@ -121,9 +121,9 @@ class MPC_PM:
 
         #optimizer variables
         K1 = .1*ones(self.Np)#weight on input
-        K2 = 1*ones(self.Np)#weight on y vehicle
+        K2 = 10*ones(self.Np)#weight on y vehicle
         K3 = zeros(self.Np);K3[-1] = 1000#weight on terminal y-velocity. Only Penalize TERMINAL!!
-        K4 = 1*ones(self.Np)#weight on distance from obstacle.
+        K4 = 100*ones(self.Np)#weight on distance from obstacle.
 
         for k in range(0,self.Np):
             distance = 1.0/(sqrt((xcar_pred[k,0] - xdeer_pred[k,3])**2)+self.epsilon)#+ (xcar_pred[k,2] - xdeer_pred[k,2])**2+self.epsilon)
