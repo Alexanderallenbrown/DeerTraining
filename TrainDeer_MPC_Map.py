@@ -66,7 +66,7 @@ def TestDeer_MPC(deer_ind, n, agent):
     for k_1 in range(0,n):
 
         MPCDistance = 50.0
-        setSpeed = 25.0
+        setSpeed = 23.0
 
         # Where n is the number of drivers we are goin to test each deer against
 
@@ -84,7 +84,7 @@ def TestDeer_MPC(deer_ind, n, agent):
         car = BicycleModel(dT=dt,U=20)
         
         carx = zeros((len(t),len(car.x)))
-        car.x[3] = 25.0
+        car.x[3] = 23.0
         carx[0,:] = car.x
 
         #initialize for deer as well
@@ -162,6 +162,8 @@ def TestDeer_MPC(deer_ind, n, agent):
             last_steer_t = 0
             MPC = MPC_Fb(q_lane_error = weight,q_obstacle_error =200.0/weight*10,q_lateral_velocity=1.0,q_steering_effort=1.0,q_accel = 0.005,predictionmethod='CV')
 
+
+
             for k in range(1,len(t)):
 
                 if ((deer.x_Deer - car.x[2]) < swerveDistance): 
@@ -205,7 +207,7 @@ def TestDeer_MPC(deer_ind, n, agent):
 
 def demo():
 
-    for generation_number in range(9,100):
+    for generation_number in range(1,100):
 
         for driver_type in range(4,5):
 
