@@ -105,7 +105,7 @@ if __name__=='__main__':
 
     #set up our deer
 
-    deer = Deer(mapa = 'Test2.kml', Psi0_Deer = 0, Sigma_Psi = .35, tturn_Deer = 1.0, Vmax_Deer = 10.5, Tau_Deer = 1.0)
+    deer = Deer_Map(mapa = 'Test2.kml', Psi0_Deer = 0, Sigma_Psi = .35, tturn_Deer = 1.0, Vmax_Deer = 10.5, Tau_Deer = 1.0)
     deer.x_Deer = 80.0
     deer.y_Deer = -2.0
 
