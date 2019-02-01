@@ -39,10 +39,10 @@ for i, filename in enumerate(sorted(os.listdir(xdir))):
 
     xlim([0,20])
     xlabel('Generation Number')
-    ylabel('Mean IQM minimum distance (m)')
+    ylabel('Average minimum distance (m)')
 
-    savefig('Fb_mapdeer_generation_distance.pdf')
-    savefig('Fb_mapdeer_generation_distance.png')
+savefig('Fb_mapdeer_generation_distance.pdf')
+savefig('Fb_mapdeer_generation_distance.png')
 
 ax.plot([-1,21],[2,2],'r--')
 
