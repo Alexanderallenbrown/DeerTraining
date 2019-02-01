@@ -41,12 +41,12 @@ for i, filename in enumerate(sorted(os.listdir(xdir))):
     xlabel('Generation Number')
     ylabel('Average minimum distance (m)')
 
-savefig('Fb_mapdeer_generation_distance.pdf')
-savefig('Fb_mapdeer_generation_distance.png')
-
 ax.plot([-1,21],[2,2],'r--')
 
 legendstr.append('Collision threshold')
 legend(legendstr)
+
+savefig('Fb_mapdeer_generation_distance.pdf')
+savefig('Fb_mapdeer_generation_distance.png')
 
 show()
