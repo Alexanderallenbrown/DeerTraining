@@ -6,6 +6,7 @@ from Driver import *
 from MPC_F import *
 from MPC_G import *
 from MPC_H import *
+from MPC_F_braking_KinCar import *
 
 class CV_Deer:
 
@@ -251,13 +252,43 @@ def TestDeer_MPC_CV(agent):
 
                 distancevec = distancevec[1:len(distancevec)]
 
+            if agent == "Fb":
+                weight = 10.0
+                swerveDistance = 80.0
+                last_steer_t = 0
+                MPC = MPC_Fb(q_lane_error = weight,q_obstacle_error =200.0/weight*10,q_lateral_velocity=1.0,q_steering_effort=1.0,q_accel = 0.005,predictionmethod='CV')
+
+
+
+                for k in range(1,len(t)):
+
+                    if ((deer.x_Deer - car.x[2]) < swerveDistance): 
+
+                        if ((t[k]- last_steer_t) >= MPC.dtp):
+                            opt_steer = MPC.calcOptimal(carnow = car,deernow = deer, yroad = 0)
+                            brake = MPC.calcBraking(carnow = car)
+                            gas = 0
+                            last_steer_t = t[k]
+            
+                    else:
+                        opt_steer = 0
+                        gas = 0
+                        brake = 0
+
+                    carx[k,:],junk1,junk2 = car.rk_update(gas = gas, brake = brake, steer = opt_steer, cruise = 'off')
+                    deerx[k,:] = deer.updateDeer(car.x[2])
+                    distancevec[k] = sqrt((deer.x_Deer - car.x[2])**2+(deer.y_Deer - car.x[0])**2)
+
+                distancevec = distancevec[1:len(distancevec)]
+
+
                 print str(speed) + ' ' + str(angle) + ' ' + str(min(distancevec))
 
     return()
 
 if __name__=='__main__':
 
-    for agent_ind in range(1,4):    
+    for agent_ind in range(4,5):    
 
         if agent_ind == 1:
             agent = 'F'
@@ -267,6 +298,9 @@ if __name__=='__main__':
 
         if agent_ind == 3:
             agent = 'H'
+
+        if agent_ind == 4:
+            agent = 'Fb'
 
         print agent
 

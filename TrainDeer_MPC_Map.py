@@ -173,9 +173,6 @@ def TestDeer_MPC(deer_ind, n, agent):
                         brake = MPC.calcBraking(carnow = car)
                         gas = 0
                         last_steer_t = t[k]
-
-
-
         
                 else:
                     opt_steer = 0
