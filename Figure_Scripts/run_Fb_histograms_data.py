@@ -156,7 +156,7 @@ deermap = 'Test2.kml'#MUST specify this. Will become important.
 genome = '1100101100110111011110101'
 
 #where are the outputs going?
-outputdir=basedir+'/'+'controllertype'+'_'+str(int(qle))+'_'+str(int(qoe))+'_'+str(int(qlv))+'_'+str(int(qse))+'_'+str(int(qa))+'_'+str(predm)+'_sight_'+str(int(sightDistance))+'_swerve_'+str(int(swerveDistance))+'/'+deertype+'/'+deermap[-4:]+'/'+'S'+str(int(car_x_offset))+'/'+'speed'+str(int(setSpeed))+'/'+genome+'/'
+outputdir=basedir+'/'+controllertype+'_'+str(int(qle))+'_'+str(int(qoe))+'_'+str(int(qlv))+'_'+str(int(qse))+'_'+str(int(qa))+'_'+str(predm)+'_sight_'+str(int(sightDistance))+'_swerve_'+str(int(swerveDistance))+'/'+deertype+'/'+deermap[0:-4]+'/'+'S'+str(int(car_x_offset))+'/'+'speed'+str(int(setSpeed))+'/'+genome+'/'
 #if the proper place for these data doesn't exist, create it.
 if not os.path.isdir(outputdir):
     os.makedirs(outputdir)
@@ -169,7 +169,7 @@ distF = open(distfilename,'wb')
 for k in range(0,len(distances)):
     print k
     distances[k] = runSim(k)
-    distF.write(str(k)+'\t'+str(distances[k]))
+    distF.write(str(k)+'\t'+str(distances[k])+'\r\n')
 
 distF.close()
 
