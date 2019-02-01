@@ -132,7 +132,7 @@ dt = 0.01
 
 numtrials = 100 #how many times do you want to simulate this interaction?
 setSpeed = 25.0
-swerveDistance = 50.0
+swerveDistance = 80.0
 sightDistance = 80.0
 car_x_offset = 0 #where are we on the map
 

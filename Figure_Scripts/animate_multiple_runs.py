@@ -7,14 +7,14 @@ import matplotlib.patches as patches
 from matplotlib import animation
 sys.path.append('../')
 
-
+import cv2
 
 #what is the collision threshold?
 collision_thresh=1.0
 
 #numbers to identify what sims we're looking at
 setSpeed = 25.0
-swerveDistance = 50.0
+swerveDistance = 80.0
 sightDistance = 80.0
 car_x_offset = 0 #where are we on the map
 
@@ -44,6 +44,8 @@ outputdir=basedir+'/'+controllertype+'_'+str(int(qle))+'_'+str(int(qoe))+'_'+str
 # Set up formatting for the movie files
 Writer = animation.writers['ffmpeg']
 writer = Writer(fps=20, metadata=dict(artist='Me'), bitrate=1800)
+# fourcc = cv2.VideoWriter_fourcc('m','p','4','v')
+# out = cv2.VideoWriter(outputdir+'!!all_runs_under_'+str(int(collision_thresh))+'.mp4',fourcc, 30, (640,480), 1)
 
 def init():
     ax.add_patch(background)
@@ -68,16 +70,19 @@ def animate(i):
     #friction circle plot
     fcax.clear()
     theta = arange(0,2*3.1415,0.01)
-    x = 0.5*cos(theta)
-    y = 0.5*sin(theta)
+    x = 1.*cos(theta)
+    y = 1.*sin(theta)
     fcax.set_xlabel('ay (g)')
     fcax.set_ylabel('ax (g)')
     fcax.set_title('Acceleration')
+    # fcax.plot(ayg,axg,'r--')
+    fcax.plot(ayg[3*i],axg[3*i],'ro',ms=15)
     fcax.plot(x,y,'r--')
-    fcax.plot(ayg[i],axg[i],'ro',ms=15)
+    
 
     #axis('equal')
     #car plot
+    ax.set_title('Run '+str(filename[7:-4])+' min distance: '+str(min(distance))+'m')
     car_plot.set_width(car_length)
     car_plot.set_height(car_width)
     car_plot.set_xy([car_x[i*3]-(car_length/2), car_y[i*3]-(car_width/2)])
@@ -139,6 +144,9 @@ for i, filename in enumerate(sort(os.listdir(outputdir))):
             carxdot = cardata[:,9:15]
             ayg = (carxdot[:,1]+carx[:,5]*carx[:,3])/9.81
             axg = (carxdot[:,3]+carx[:,5]*carx[:,1])/9.81
+            # figure()
+            # plot(t,axg,'ko')
+            # show()
             # Define parameters
             deer_length = 1.5 # meters
             deer_width = 0.5 # meters
@@ -158,7 +166,7 @@ for i, filename in enumerate(sort(os.listdir(outputdir))):
             #plt.axis('equal')
             ax.set_xlim(0, 120)
             ax.set_ylim(-20, 20)
-            ax.set_title('Run '+str(filename[7:-4])+' min distance: '+str(min(distance))+'m')
+            
 
             # Initialize rectangles
             thic = 0.25
@@ -172,8 +180,18 @@ for i, filename in enumerate(sort(os.listdir(outputdir))):
             # Run anumation
             downsample = 3
             anim = animation.FuncAnimation(fig, animate,init_func=init,frames=len(car_x)/downsample,interval=1,blit=False)
-            anim.save(outputdir+'!_run'+filename[7:-4]+'.mp4', writer=writer)
+            vfname = outputdir+'!_run'+filename[7:-4]+'.mp4'
+            anim.save(vfname, writer=writer)
             print("wrote video: "+str(filename[0:-4]))
+            # print("adding to overall video...")
+            # cap = cv2.VideoCapture(vfname)
+            # while(cap.isOpened()):
+            #     ret, frame = cap.read()
+            #     if frame is None:
+            #         print "done."
+            #         cap.release()
+            #     out.write(frame)
+out.release()
 
 
 

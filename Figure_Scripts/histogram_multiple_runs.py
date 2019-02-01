@@ -14,7 +14,7 @@ nruns = 10
 
 #numbers to identify what sims we're looking at
 setSpeed = 25.0
-swerveDistance = 50.0
+swerveDistance = 80.0
 sightDistance = 80.0
 car_x_offset = 0 #where are we on the map
 
