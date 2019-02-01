@@ -4,6 +4,7 @@ from BicycleModel import *
 from scipy.optimize import minimize
 from BinaryConversion import *
 from CV_Deer import *
+from Deer_Map import *
 import copy
 from KinCar import KinCar
 
@@ -251,11 +252,11 @@ def demo_GAdeer():
     swerveDistance = 50.0
     setSpeed = 25.0
 
-    deer_ind = '110111111001110010001001'
+    deer_ind = '1100101100110111011110101'
 
     deer_ind = BinaryConversion(deer_ind)
 
-    deer = Deer(Psi0_Deer = deer_ind[0], Sigma_Psi = deer_ind[1], tturn_Deer = deer_ind[2], Vmax_Deer = deer_ind[3], Tau_Deer = deer_ind[4])
+    deer = Deer_Map(Psi0_Deer = deer_ind[0], Sigma_Psi = deer_ind[1], tturn_Deer = deer_ind[2], Vmax_Deer = deer_ind[3], Tau_Deer = deer_ind[4])
 
     # Indicate deer initial position
     deer.x_Deer = 80
@@ -284,15 +285,28 @@ def demo_GAdeer():
 
     #MPC = MPC_F(q_lane_error = 10.0,q_obstacle_error = 5000000.0,q_lateral_velocity=0.00,q_steering_effort=0.0,q_accel = 0.005)
     weight = 10.0
-    MPC = MPC_Fb(q_lane_error = weight,q_obstacle_error =10.0/weight*10,q_lateral_velocity=0.00,q_steering_effort=0.0,q_accel = 0.005,predictionmethod='CV')
+    MPC = MPC_Fb(q_lane_error = weight,q_obstacle_error =200.0/weight*10,q_lateral_velocity=1.0,q_steering_effort=1.0,q_accel = 0.005,predictionmethod='CV')
 
     actual_steervec = zeros(len(t))
     command_steervec = zeros(len(t))
     cafvec = zeros(len(t))
     carvec = zeros(len(t))
     distancevec = zeros(len(t))
-    last_steer_t = 0
     opt_steer = 0
+    last_steer_t = 0
+    ax = zeros(len(t))
+    ay = zeros(len(t))
+    gas = 0
+    brake = 0
+
+    TestNumber = 1
+    FileName ='Test/Test' + str(TestNumber) + '.txt';
+    predFileName = 'Test/pred.txt'
+
+    newFile = open(FileName,'w+');
+    newFile.close();
+    newFile = open(FileName, 'a');
+    predF = open(predFileName,'a')
 
     #now simulate!!
     for k in range(1,len(t)):
@@ -309,14 +323,33 @@ def demo_GAdeer():
                 # opt_steer = 0
                 # #steervector,carnow,deernow,yroad
                 # J = MPC.ObjectiveFn(steervector,car,deer,yroad=0)
-
                 if ((t[k]- last_steer_t) >= MPC.dtp):
                     opt_steer = MPC.calcOptimal(carnow = car,deernow = deer, yroad = 0)
+                    brake = MPC.calcBraking(carnow = car)
+                    gas = 0
+
                     last_steer_t = t[k]
+                    print t[k]
+
+            
+            #if((deer.x_Deer<car.x[2])):
+
+#                yr = 0
+ #               steer_gain = 0.01
+  #              L = 20
+   #             yc = car.x[0]
+    #            fi = car.x[4]
+     #           ep = yc + L*sin(fi)
+      #          opt_steer = steer_gain*(yr-ep)
+        
             else:
                 opt_steer = 0
+                gas = 0
+                brake = 0
 
-            carx[k,:],carxdot[k,:],actual_steervec[k] = car.rk_update(steer = opt_steer, setspeed = 25.0)
+
+            #print opt_steer
+            carx[k,:],carxdot[k,:],actual_steervec[k] = car.rk_update(gas = gas, brake = brake, steer = opt_steer, cruise = 'off')
             cafvec[k] = car.Caf
             carvec[k] = car.Car
             #deerx[k,:] = array([deer.Speed_Deer, deer.Psi_Deer, deer.x_Deer, deer.y_Deer])#updateDeer(car.x[2])
@@ -324,33 +357,37 @@ def demo_GAdeer():
             command_steervec[k] = opt_steer
             distancevec[k] = sqrt((deer.x_Deer - car.x[2])**2+(deer.y_Deer - car.x[0])**2)
 
+            ay[k] = carxdot[k,1]+carx[k,3]*carx[k,5]
+            ax[k] = carxdot[k,3]-carx[k,1]*carx[k,5]
+
             #print round(t[k],2),round(opt_steer,2),round(deer.y_Deer,2)
 
+            #print(t[k])
+            newFile.write(str(t[k])+'\t')
+            newFile.write(str(command_steervec[k])+'\t')
+            newFile.write(str(actual_steervec[k])+'\t')
+            for ind2 in range(0,6):
+                newFile.write(str(carx[k,ind2]) + ' \t');
+            for ind2 in range(0,6):
+                newFile.write(str(carxdot[k,ind2]) + ' \t');
+            for ind2 in range(0,4):
+                    newFile.write(str(deerx[k,ind2]) + '\t');
+            newFile.write('\n')
 
-    ## SAVE xcar and xdeer
+            predF.write(str(t[k])+'\t')
+            for ind2 in range(0,len(MPC.XYPrediction)):  
+                predF.write(str(MPC.XYPrediction[ind2])+'\t')
+            for ind2 in range(0,len(MPC.XYDeerPrediction)):
+                predF.write(str(MPC.XYDeerPrediction[ind2])+'\t')
+            predF.write('\n')
 
-    TestNumber = 1
-    FileName ='Test/Test' + str(TestNumber) + '.csv';
-
-    newFile = open(FileName,'w+');
-    newFile.close();
-    newFile = open(FileName, 'a');
-
-    for ind2 in range(0,6):
-        for ind1 in range(0, len(carx)):
-            newFile.write(str(carx[ind1,ind2]) + ' ');
-        newFile.write('\n')
-    for ind2 in range(0,4):
-        for ind1 in range(0, len(deerx)):
-            newFile.write(str(deerx[ind1,ind2]) + ' ');
-        newFile.write('\n')
 
     ## SAVE end
 
 
     ayg = (carxdot[:,1]+carx[:,5]*carx[:,3])/9.81
     figure()
-    plot(t,steervec,'k')
+    plot(t,actual_steervec,'k',t,command_steervec,'r')
     xlabel('Time (s)')
     ylabel('steer angle (rad)')
     figure()
@@ -376,6 +413,18 @@ def demo_GAdeer():
     plot(t,distancevec)
     xlabel('time (s)')
     ylabel('Distance(m)')
+    figure()
+    plot(ay,ax,'ko-')
+    xlabel('ay')
+    ylabel('ax')
+    axis('equal')
+    theta = arange(0,2*3.1415,0.01)
+    x = 0.5*9.8*cos(theta)
+    y = 0.5*9.8*sin(theta)
+    plot(x,y,'r--')
+
+    print ax,ay
+
 
     ### CREATE ANIMATION
     import matplotlib.pyplot as plt
@@ -402,8 +451,8 @@ def demo_GAdeer():
     fig = plt.figure()
     ax = fig.add_subplot(111)
     plt.axis('equal')
-    ax.set_xlim(0, 150)
-    #ax.set_ylim(-25, 25)
+    ax.set_xlim(0, 100)
+    ax.set_ylim(-25, 25)
 
     # Initialize rectangles
     car_plot = patches.Rectangle((0, 0), 0, 0,angle = 0.0, fc='b', alpha = 0.5)
@@ -697,7 +746,7 @@ def demo_CVdeer():
 
 
 if __name__ == '__main__':
-    demo_CVdeer()
+    demo_GAdeer()
 
 
 
