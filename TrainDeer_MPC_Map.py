@@ -65,8 +65,8 @@ def TestDeer_MPC(deer_ind, n, agent):
 
     for k_1 in range(0,n):
 
-        MPCDistance = 50.0
-        setSpeed = 23.0
+        MPCDistance = 80.0
+        setSpeed = 25.0
 
         # Where n is the number of drivers we are goin to test each deer against
 
@@ -173,9 +173,6 @@ def TestDeer_MPC(deer_ind, n, agent):
                         brake = MPC.calcBraking(carnow = car)
                         gas = 0
                         last_steer_t = t[k]
-
-
-
         
                 else:
                     opt_steer = 0
@@ -207,7 +204,7 @@ def TestDeer_MPC(deer_ind, n, agent):
 
 def demo():
 
-    for generation_number in range(1,100):
+    for generation_number in range(2,100):
 
         for driver_type in range(4,5):
 

@@ -499,8 +499,8 @@ def demo_CVdeer():
     swerveDistance = 80.0
     setSpeed = 25.0
 
-    angle = -87
-    speed = 15
+    angle = -85
+    speed = 6
     # Initiate process
     deer = CV_Deer()
     deer.x_Deer = 80.0
@@ -746,7 +746,7 @@ def demo_CVdeer():
 
 
 if __name__ == '__main__':
-    demo_GAdeer()
+    demo_CVdeer()
 
 
 
