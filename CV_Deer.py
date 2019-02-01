@@ -277,7 +277,8 @@ def TestDeer_MPC_CV(agent):
 
                     carx[k,:],junk1,junk2 = car.rk_update(gas = gas, brake = brake, steer = opt_steer, cruise = 'off')
                     deerx[k,:] = deer.updateDeer(car.x[2])
-                    distancevec[k] = sqrt((deerx[k,2] - carx[k,2])**2+(deerx[k,3] - carx[k,0])**2)
+                    distancevec[k] = sqrt((deer.x_Deer - car.x[2])**2+(deer.y_Deer - car.x[0])**2)
+
 
                 distancevec = distancevec[1:len(distancevec)]
 
