@@ -24,7 +24,7 @@ def KMLtoXYZ(file):
         if 'LineString' in dir(e):
             segments= segments+1
 
-    print 'There are', segments, 'trees in this map.'
+    # print 'There are', segments, 'trees in this map.'
 
     Trees = []
 
@@ -39,7 +39,7 @@ def KMLtoXYZ(file):
 
             if strname == 'RoadStart':
                 RoadStart = str(e.Point.coordinates)
-                print RoadStart
+                # print RoadStart
 
             if strname == 'RoadEnd':
                 RoadEnd = str(e.Point.coordinates)

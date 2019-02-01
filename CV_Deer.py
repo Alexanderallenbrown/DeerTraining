@@ -130,7 +130,7 @@ def TestDeer_MPC_CV(agent):
 
             angle = 5*angle_ind
 
-            MPCDistance = 50.0
+            MPCDistance = 80.0
             setSpeed = 25.0
 
             # Where n is the number of drivers we are goin to test each deer against
@@ -139,7 +139,7 @@ def TestDeer_MPC_CV(agent):
             deer = CV_Deer()
             deer.x_Deer = 80
             deer.y_Deer = -2
-            deer.Psi0_Deer = angle*3.1415/180
+            deer.Psi_Deer = angle*3.1415/180
             deer.Speed_Deer = speed
      
             # Define simulation time and dt
@@ -157,7 +157,7 @@ def TestDeer_MPC_CV(agent):
             #initialize for deer as well
             deerx = zeros((len(t),4))
             #fill in initial conditions because they're nonzero
-            deerx[0,:] = array([deer.Speed_Deer,deer.Psi0_Deer,deer.x_Deer,deer.y_Deer])
+            deerx[0,:] = array([deer.Speed_Deer,deer.Psi_Deer,deer.x_Deer,deer.y_Deer])
             distancevec = zeros(len(t))
 
             if agent == "F":
@@ -279,10 +279,14 @@ def TestDeer_MPC_CV(agent):
                     deerx[k,:] = deer.updateDeer(car.x[2])
                     distancevec[k] = sqrt((deer.x_Deer - car.x[2])**2+(deer.y_Deer - car.x[0])**2)
 
+                    #print carx[k,:]
+                    #print deerx[k,:]
+                    #print distancevec[k]
 
-                distancevec = distancevec[1:len(distancevec)]
 
-                print distancevec
+                #distancevec = distancevec[1:len(distancevec)]
+
+                #print distancevec
 
 
                 print str(speed) + ' ' + str(angle) + ' ' + str(min(distancevec))
