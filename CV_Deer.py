@@ -281,10 +281,10 @@ def TestDeer_MPC_CV(agent):
 
                     #print carx[k,:]
                     #print deerx[k,:]
-                    #print distancevec[k]
+                    print distancevec[k]
 
 
-                #distancevec = distancevec[1:len(distancevec)]
+                distancevec = distancevec[1:len(distancevec)]
 
                 #print distancevec
 
