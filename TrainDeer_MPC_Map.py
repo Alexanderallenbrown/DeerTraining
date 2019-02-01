@@ -204,7 +204,7 @@ def TestDeer_MPC(deer_ind, n, agent):
 
 def demo():
 
-    for generation_number in range(2,100):
+    for generation_number in range(6,100):
 
         for driver_type in range(4,5):
 
