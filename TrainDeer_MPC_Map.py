@@ -422,5 +422,5 @@ def FirstGen():
 
 if __name__=='__main__':
 
-    FirstGen()
+    demo()
 
