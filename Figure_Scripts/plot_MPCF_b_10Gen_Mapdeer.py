@@ -7,18 +7,18 @@ legendstr = []
 
 xdir = '../GenerationFiles/FbData/x0_0'
 
-
-for i, filename in enumerate(sorted(os.listdir(xdir))):
+markers = ['ko-','ks-','k*-']
+for expi, filename in enumerate(sorted(os.listdir(xdir))):
 
     dirname = '../GenerationFiles/FbData/x0_0/' + filename
 
-    legendstr.append('v = ' + filename[-2:] + ' m/s')
+    legendstr.append('Vehicle Speed = ' + filename[-2:] + ' m/s')
 
     gennums = []
     mindists = []
 
-    for i, filename in enumerate(sorted(os.listdir(dirname))):
-        print i,filename
+    for geni, filename in enumerate(sorted(os.listdir(dirname))):
+        print geni,filename
         sgennum = filename[10:-4]
         gennum = int(sgennum)
         thisgen = loadtxt(dirname+'/'+filename)
@@ -34,12 +34,12 @@ for i, filename in enumerate(sorted(os.listdir(xdir))):
     mindists = mindists[inds]
 
     ax = subplot(111)
-    ax.plot(gennums,mindists,'-o')
+    ax.plot(gennums,mindists,markers[expi],fillstyle='none',markersize=10)
 
 
-    xlim([0,20])
-    xlabel('Generation Number')
-    ylabel('Average minimum distance (m)')
+    xlim([0,10])
+    xlabel('Deer Model Genetic Algorithm Generation')
+    ylabel('Average minimum distance per interaction (m)')
 
 ax.plot([-1,21],[2,2],'r--')
 
