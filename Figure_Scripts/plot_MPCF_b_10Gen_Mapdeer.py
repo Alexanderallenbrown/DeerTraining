@@ -7,7 +7,7 @@ legendstr = []
 
 xdir = '../GenerationFiles/FbData/x0_0'
 
-markers = ['ko-','ks-','k*-', 'k*-']
+markers = ['ko-','ks-','k*-']
 for expi, filename in enumerate(sorted(os.listdir(xdir))):
 
     dirname = '../GenerationFiles/FbData/x0_0/' + filename
@@ -37,7 +37,7 @@ for expi, filename in enumerate(sorted(os.listdir(xdir))):
     ax.plot(gennums,mindists,markers[expi],fillstyle='none',markersize=10)
 
 
-    xlim([0,10])
+    xlim([0,19])
     xlabel('Deer Model Genetic Algorithm Generation')
     ylabel('Average minimum distance per interaction (m)')
 

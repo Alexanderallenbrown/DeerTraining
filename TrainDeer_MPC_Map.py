@@ -66,7 +66,9 @@ def TestDeer_MPC(deer_ind, n, agent):
     for k_1 in range(0,n):
 
         MPCDistance = 80.0
-        setSpeed = 21.0
+        setSpeed = 25.0
+        x_deer = 100.0
+        x_car = 20.0
 
         print("Run " + str(k_1+1) + " of " + str(n))
         print("The current car speed is " + str(setSpeed) + " m/s")
@@ -77,7 +79,7 @@ def TestDeer_MPC(deer_ind, n, agent):
         deer = Deer_Map(mapa = 'Test2.kml', Psi0_Deer = deer_ind[0], Sigma_Psi = deer_ind[1], tturn_Deer = deer_ind[2], Vmax_Deer = deer_ind[3], Tau_Deer = deer_ind[4])
 
         # Indicate deer initial position
-        deer.x_Deer = 80
+        deer.x_Deer = x_deer
         deer.y_Deer = -2
         # Define simulation time and dt
         simtime = 10
@@ -89,6 +91,7 @@ def TestDeer_MPC(deer_ind, n, agent):
         
         carx = zeros((len(t),len(car.x)))
         car.x[3] = setSpeed
+        car.x[2] = x_car
         carx[0,:] = car.x
 
         #initialize for deer as well
@@ -422,5 +425,5 @@ def FirstGen():
 
 if __name__=='__main__':
 
-    demo()
+    FirstGen()
 

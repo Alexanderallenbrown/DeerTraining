@@ -251,6 +251,8 @@ def demo_GAdeer():
 
     swerveDistance = 50.0
     setSpeed = 25.0
+    x_car = 20.0
+    x_deer = 100.0
 
     deer_ind = '1100101100110111011110101'
 
@@ -259,7 +261,7 @@ def demo_GAdeer():
     deer = Deer_Map(Psi0_Deer = deer_ind[0], Sigma_Psi = deer_ind[1], tturn_Deer = deer_ind[2], Vmax_Deer = deer_ind[3], Tau_Deer = deer_ind[4])
 
     # Indicate deer initial position
-    deer.x_Deer = 80
+    deer.x_Deer = x_deer
     deer.y_Deer = -2.0#PUTrsion(deer_ind)
         
     # Define simulation time and dt
@@ -276,6 +278,7 @@ def demo_GAdeer():
     carxdot = zeros((len(t),len(car.x)))
     car.x[3] = setSpeed
     car.x[0] = -0.0 #let the vehicle start away from lane.
+    car.x[2] = x_car
     carx[0,:] = car.x
 
     #initialize for deer as well
@@ -498,12 +501,14 @@ def demo_CVdeer():
 
     swerveDistance = 80.0
     setSpeed = 25.0
+    deer_x = 100.0
+    car_x = 20.0
 
     angle = -85
     speed = 6
     # Initiate process
     deer = CV_Deer()
-    deer.x_Deer = 80.0
+    deer.x_Deer = deer_x
     deer.y_Deer = -2.0
     deer.Psi_Deer = angle*3.1415/180
     deer.Speed_Deer = speed
@@ -525,6 +530,7 @@ def demo_CVdeer():
     carxdot = zeros((len(t),len(car.x)))
     car.x[3] = setSpeed
     car.x[0] = -0.0 #let the vehicle start away from lane.
+    car.x[2] = car_x
     carx[0,:] = car.x
 
     #initialize for deer as well
