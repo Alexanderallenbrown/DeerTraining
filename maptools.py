@@ -28,7 +28,7 @@ class Map():
 	def __init__(self,type='csv',array = None,filename='map/lidar-map-smooth.csv',height_ref='WGS', ireflat = None, ireflon = None, irefelev = None):
 		""" Initializes map class. You may choose map type csv, or... height_ref determines whether to subtract ellipsoid height (33.8m at test track). Currently does nothing, TODO!!"""
 		cwd = os.getcwd()+'/maptools_folder/'
-		print cwd
+		#print cwd
 		if type=='csv':
 			self.loadCSVLLAMap(cwd+filename, ireflat, ireflon, irefelev)
 		elif type == 'array':

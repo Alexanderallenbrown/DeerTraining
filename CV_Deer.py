@@ -122,13 +122,13 @@ def TestDeer_MPC_CV(agent):
 
     print agent
 
-    for speed_ind in range(3,9):
+    for speed_ind in range(6,18):
 
-        speed = 2*speed_ind
+        speed = 1.0*speed_ind
 
-        for angle_ind in range(-18,18):
+        for angle_ind in range(-90,90):
 
-            angle = 5*angle_ind
+            angle = 1.0*angle_ind
 
             MPCDistance = 80.0
             setSpeed = 25.0

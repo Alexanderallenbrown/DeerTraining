@@ -68,7 +68,9 @@ def TestDeer_MPC(deer_ind, n, agent):
         MPCDistance = 80.0
         setSpeed = 21.0
 
+        print("Run " + str(k_1+1) + " of " + str(n))
         print("The current car speed is " + str(setSpeed) + " m/s")
+
 
         # Where n is the number of drivers we are goin to test each deer against
 
@@ -399,17 +401,20 @@ def FirstGen():
         for ind in range(0,len(Deer10)):
 
             Deer1 = Deer10[(ind)]
+            Deer1_bin = Deer1
 
+            print "THIS IS THE DEER WE ARE CURRENTLY TRAINING"
             print str(Deer1)
 
             Deer1 = BinaryConversion(Deer1)
 
-            print "THIS IS THE DEER WE ARE CURRENTLY TRAINING"
             print(Deer1)
 
             Distance1 = TestDeer_MPC(deer_ind=Deer1, n=8, agent = agent)
 
+
             print "MINIMUM DISTANCE"
+            print str(Deer1_bin)
             print(Distance1)
 
 

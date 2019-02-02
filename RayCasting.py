@@ -64,6 +64,7 @@ def distanceray(pos, array):
 
             #print dist_vec
 
+        dist_vec = [100000 if isnan(x) else x for x in dist_vec]
         dist_angle[angle_deg] = nanmin(dist_vec)
 
 

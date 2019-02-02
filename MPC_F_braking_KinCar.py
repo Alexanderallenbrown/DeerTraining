@@ -212,7 +212,7 @@ class MPC_Fb:
         opt_steering = umpc.x[0]
 
         if (isnan(umpc.x[0])==True):
-            print "Collision unavoidable: Eliminate collision constraint"
+            #print "Collision unavoidable: Eliminate collision constraint"
             # Eliminate collision constraint
             cons = ({'type': 'ineq','fun':self.stayInRoadRight, 'args':(carnow,)},{'type': 'ineq','fun':self.stayInRoadLeft, 'args':(carnow,)})
             # Re-do minimization
@@ -221,7 +221,7 @@ class MPC_Fb:
             opt_steering = umpc.x[0]
             
             if (isnan(umpc.x[0])==True):
-                print "Impossible to stay in lane: Eliminate lane constraint"
+                #print "Impossible to stay in lane: Eliminate lane constraint"
                 # Re-do minimization
                 umpc = minimize(self.ObjectiveFn,steervector,args = (carnow,deernow,yroad),bounds = bounds, method = 'SLSQP', options ={'maxiter': 100})
                 # Recalculate opt_steering
