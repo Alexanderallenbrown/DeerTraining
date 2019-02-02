@@ -66,7 +66,9 @@ def TestDeer_MPC(deer_ind, n, agent):
     for k_1 in range(0,n):
 
         MPCDistance = 80.0
-        setSpeed = 25.0
+        setSpeed = 21.0
+
+        print("The current car speed is " + str(setSpeed) + " m/s")
 
         # Where n is the number of drivers we are goin to test each deer against
 
@@ -84,7 +86,7 @@ def TestDeer_MPC(deer_ind, n, agent):
         car = BicycleModel(dT=dt,U=20)
         
         carx = zeros((len(t),len(car.x)))
-        car.x[3] = 23.0
+        car.x[3] = setSpeed
         carx[0,:] = car.x
 
         #initialize for deer as well
@@ -204,7 +206,7 @@ def TestDeer_MPC(deer_ind, n, agent):
 
 def demo():
 
-    for generation_number in range(6,100):
+    for generation_number in range(1,100):
 
         for driver_type in range(4,5):
 
@@ -319,6 +321,7 @@ def demo():
 
             #Test deer in intermediate generation
             for index in range(0,m):
+                print "Training deer " + str(index + 1) + " out of " + str(m)
                 CurrentDeer = BinaryConversion(str(NewInterGenArray[index].traits))
                 print CurrentDeer
                 NewInterGenArray[index].result = TestDeer_MPC(CurrentDeer, h, agent)
