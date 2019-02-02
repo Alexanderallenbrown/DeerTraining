@@ -7,7 +7,7 @@ legendstr = []
 
 xdir = '../GenerationFiles/FbData/x0_0'
 
-markers = ['ko-','ks-','k*-']
+markers = ['ko-','ks-','k*-', 'k*-']
 for expi, filename in enumerate(sorted(os.listdir(xdir))):
 
     dirname = '../GenerationFiles/FbData/x0_0/' + filename
