@@ -5,7 +5,7 @@ import os
 figure()
 legendstr = []
 
-xdir = '../GenerationFiles/FbData/x0_0'
+xdir = '../GenerationFiles/FbData/x0_20'
 
 markers = ['ko-','ks-','k*-']
 for expi, filename in enumerate(sorted(os.listdir(xdir))):
