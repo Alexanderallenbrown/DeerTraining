@@ -66,9 +66,9 @@ def TestDeer_MPC(deer_ind, n, agent):
     for k_1 in range(0,n):
 
         MPCDistance = 80.0
-        setSpeed = 23.0
-        x_deer = 100.0
-        x_car = 20.0
+        setSpeed = 25.0
+        x_deer = 80.0
+        x_car = 0.0
 
         print("Run " + str(k_1+1) + " of " + str(n))
         print("The current car speed is " + str(setSpeed) + " m/s")
@@ -167,7 +167,7 @@ def TestDeer_MPC(deer_ind, n, agent):
             weight = 10.0
             swerveDistance = 80.0
             last_steer_t = 0
-            MPC = MPC_Fb(q_lane_error = weight,q_obstacle_error =200.0/weight*10,q_lateral_velocity=1.0,q_steering_effort=1.0,q_accel = 0.005,predictionmethod='CV')
+            MPC = MPC_Fb(q_lane_error = weight,q_obstacle_error =0.0/weight*10,q_lateral_velocity=1.0,q_steering_effort=1.0,q_accel = 0.005,predictionmethod='CV')
 
 
 
@@ -425,5 +425,5 @@ def FirstGen():
 
 if __name__=='__main__':
 
-    demo()
+    FirstGen()
 
