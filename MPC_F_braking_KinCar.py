@@ -522,8 +522,8 @@ def demo_CVdeer():
     deer_x = 80.0
     car_x = 0.0
 
-    angle = -86
-    speed = 12
+    angle = -90
+    speed = 6
     # Initiate process
     deer = CV_Deer()
     deer.x_Deer = deer_x
@@ -532,7 +532,7 @@ def demo_CVdeer():
     deer.Speed_Deer = speed
         
     # Define simulation time and dt
-    simtime = 5
+    simtime = 10
     dt = 1/100.0    
     last_command_t = -0.1
 

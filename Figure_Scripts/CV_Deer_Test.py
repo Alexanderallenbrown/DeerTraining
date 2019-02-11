@@ -76,7 +76,7 @@ def runSim(speed, angle):
                     gas = 0
 
                     last_steer_t = t[k]
-                    print t[k]
+                    #print t[k]
             else:
                 opt_steer = 0
                 gas = 0
@@ -91,6 +91,7 @@ def runSim(speed, angle):
             deerx[k,:] = deer.updateDeer(car.x[2])
             command_steervec[k] = opt_steer
             distancevec[k] = sqrt((deer.x_Deer - car.x[2])**2+(deer.y_Deer - car.x[0])**2)
+
 
             ay[k] = carxdot[k,1]+carx[k,3]*carx[k,5]
             ax[k] = carxdot[k,3]-carx[k,1]*carx[k,5]
@@ -115,15 +116,16 @@ def runSim(speed, angle):
             for ind2 in range(0,len(MPC.XYDeerPrediction)):
                 predF.write(str(MPC.XYDeerPrediction[ind2])+'\t')
             predF.write('\n')
+
     newFile.close()
     predF.close()
-    return min(distancevec)
-
-
+    #print distancevec[1:]
+    return min(distancevec[1:])
 
 
 for speed in range(6,19):
     for angle in range(-90,91):
+        angle_rad = angle*3.1415/180.0
         #basic simulation parameters
         simtime = 10
         dt = 0.01
@@ -150,20 +152,17 @@ for speed in range(6,19):
         deertype = 'CV_Deer'
 
         #where are the outputs going?
-        outputdir=basedir+'/'+controllertype+'_'+str(int(qle))+'_'+str(int(qoe))+'_'+str(int(qlv))+'_'+str(int(qse))+'_'+str(int(qa))+'_'+str(predm)+'_sight_'+str(int(sightDistance))+'_swerve_'+str(int(swerveDistance))+'/'+'speed_'+str(speed)+'/'+'angle_'+str(angle)
+        outputdir=basedir+'/'+controllertype+'_'+str(int(qle))+'_'+str(int(qoe))+'_'+str(int(qlv))+'_'+str(int(qse))+'_'+str(int(qa))+'_'+str(predm)+'_sight_'+str(int(sightDistance))+'_swerve_'+str(int(swerveDistance))+'/'+'speed_'+str(speed)+'/'+'angle_'+str(angle)+'/' 
         #if the proper place for these data doesn't exist, create it.
         if not os.path.isdir(outputdir):
             os.makedirs(outputdir)
 
-        distances = zeros(numtrials)
+        distfilename = basedir+'/'+controllertype+'_'+str(int(qle))+'_'+str(int(qoe))+'_'+str(int(qlv))+'_'+str(int(qse))+'_'+str(int(qa))+'_'+str(predm)+'_sight_'+str(int(sightDistance))+'_swerve_'+'distances.txt'
+        
+        distance = runSim(speed = speed, angle = angle_rad)
+        print  str(speed)+ ' \t' + str(angle) + ' \t' + str(distance)
 
-        distfilename = outputdir+'distances.txt'
-        distF = open(distfilename,'wb')
-
-        for k in range(0,len(distances)):
-            print k
-            distances[k] = runSim(speed = speed, angle = angle)
-            distF.write(str(k)+'\t'+str(distances[k])+'\r\n')
-
+        distF = open(distfilename,'a')
+        distF.write(str(speed)+ ' \t' + str(angle) + ' \t' + str(distance) + '\r\n')
         distF.close()
 
