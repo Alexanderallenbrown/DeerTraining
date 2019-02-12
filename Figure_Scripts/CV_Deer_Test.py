@@ -122,47 +122,48 @@ def runSim(speed, angle):
     #print distancevec[1:]
     return min(distancevec[1:])
 
+for trial in range(1,101):
+    print trial
+    for speed in range(6,19):
+        for angle in range(-90,-85):
+            angle_rad = angle*3.1415/180.0
+            #basic simulation parameters
+            simtime = 10
+            dt = 0.01
 
-for speed in range(6,19):
-    for angle in range(-90,91):
-        angle_rad = angle*3.1415/180.0
-        #basic simulation parameters
-        simtime = 10
-        dt = 0.01
-
-        numtrials = 1 #how many times do you want to simulate this interaction?
-        setSpeed = 25.0
-        swerveDistance = 80.0
-        sightDistance = 80.0
-        car_x_offset = 0 #where are we on the map
-
-
-        #set up the parameters for the MPC
-        qle,qoe,qlv,qse,qa,predm = 10,0,1,1,.005,'CV'
+            numtrials = 100 #how many times do you want to simulate this interaction?
+            setSpeed = 25.0
+            swerveDistance = 80.0
+            sightDistance = 80.0
+            car_x_offset = 0 #where are we on the map
 
 
-        #where are these runs going to be stored?
-        basedir = 'CV_Deer'
+            #set up the parameters for the MPC
+            qle,qoe,qlv,qse,qa,predm = 10,0,1,1,.005,'CV'
 
 
-        #what kind of driver is this?
-        controllertype = 'MPC_F_braking_KinCar'
+            #where are these runs going to be stored?
+            basedir = 'CV_Deer'
 
-        #is this sam's deer, or the map deer?
-        deertype = 'CV_Deer'
 
-        #where are the outputs going?
-        outputdir=basedir+'/'+controllertype+'_'+str(int(qle))+'_'+str(int(qoe))+'_'+str(int(qlv))+'_'+str(int(qse))+'_'+str(int(qa))+'_'+str(predm)+'_sight_'+str(int(sightDistance))+'_swerve_'+str(int(swerveDistance))+'/'+'speed_'+str(speed)+'/'+'angle_'+str(angle)+'/' 
-        #if the proper place for these data doesn't exist, create it.
-        if not os.path.isdir(outputdir):
-            os.makedirs(outputdir)
+            #what kind of driver is this?
+            controllertype = 'MPC_F_braking_KinCar'
 
-        distfilename = basedir+'/'+controllertype+'_'+str(int(qle))+'_'+str(int(qoe))+'_'+str(int(qlv))+'_'+str(int(qse))+'_'+str(int(qa))+'_'+str(predm)+'_sight_'+str(int(sightDistance))+'_swerve_'+'distances.txt'
-        
-        distance = runSim(speed = speed, angle = angle_rad)
-        print  str(speed)+ ' \t' + str(angle) + ' \t' + str(distance)
+            #is this sam's deer, or the map deer?
+            deertype = 'CV_Deer'
 
-        distF = open(distfilename,'a')
-        distF.write(str(speed)+ ' \t' + str(angle) + ' \t' + str(distance) + '\r\n')
-        distF.close()
+            #where are the outputs going?
+            outputdir=basedir+'/'+controllertype+'_'+str(int(qle))+'_'+str(int(qoe))+'_'+str(int(qlv))+'_'+str(int(qse))+'_'+str(int(qa))+'_'+str(predm)+'_sight_'+str(int(sightDistance))+'_swerve_'+str(int(swerveDistance))+'/'+'speed_'+str(speed)+'/'+'angle_'+str(angle)+'/'+'trial_'+str(trial) 
+            #if the proper place for these data doesn't exist, create it.
+            if not os.path.isdir(outputdir):
+                os.makedirs(outputdir)
+
+            distfilename = basedir+'/'+controllertype+'_'+str(int(qle))+'_'+str(int(qoe))+'_'+str(int(qlv))+'_'+str(int(qse))+'_'+str(int(qa))+'_'+str(predm)+'_sight_'+str(int(sightDistance))+'_swerve_'+'distances.txt'
+            
+            distance = runSim(speed = speed, angle = angle_rad)
+            print  str(speed)+ ' \t' + str(angle) + ' \t' + str(distance)
+
+            distF = open(distfilename,'a')
+            distF.write(str(speed)+ ' \t' + str(angle) + ' \t' + str(distance) + '\r\n')
+            distF.close()
 
