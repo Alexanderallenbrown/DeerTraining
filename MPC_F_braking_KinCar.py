@@ -272,7 +272,7 @@ def demo_GAdeer():
     x_car = 0.0
     x_deer = 80.0
 
-    deer_ind = '0101010000110111101100000'
+    deer_ind = '0000100000011111111100000'
 
     deer_ind = BinaryConversion(deer_ind)
 
@@ -780,7 +780,7 @@ def demo_CVdeer():
 
 
 if __name__ == '__main__':
-    demo_CVdeer()
+    demo_GAdeer()
 
 
 
