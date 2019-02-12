@@ -65,7 +65,7 @@ def TestDeer_MPC(deer_ind, n, agent):
 
     for k_1 in range(0,n):
 
-        MPCDistance = 80.0
+        MPCDistance = 50.0
         setSpeed = 25.0
         x_deer = 80.0
         x_car = 0.0
@@ -429,5 +429,5 @@ def FirstGen():
 
 if __name__=='__main__':
 
-    FirstGen()
+    demo()
 
