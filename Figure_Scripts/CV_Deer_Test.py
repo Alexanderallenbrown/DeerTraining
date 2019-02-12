@@ -16,7 +16,7 @@ def runSim(speed, angle):
     deer = CV_Deer(Speed_Deer = speed, Psi_Deer = angle)
 
     # Indicate deer initial position
-    deer.x_Deer = 80.0 #sightDistance+car_x_offset
+    deer.x_Deer = 50.0 #sightDistance+car_x_offset
 
     deer.y_Deer = -2.0#PUTrsion(deer_ind)
         
@@ -122,10 +122,10 @@ def runSim(speed, angle):
     #print distancevec[1:]
     return min(distancevec[1:])
 
-for trial in range(1,101):
+for trial in range(1,2):
     print trial
     for speed in range(6,19):
-        for angle in range(-90,-85):
+        for angle in range(-90,91):
             angle_rad = angle*3.1415/180.0
             #basic simulation parameters
             simtime = 10
