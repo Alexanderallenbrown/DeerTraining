@@ -267,12 +267,12 @@ class MPC_Fb:
 
 def demo_GAdeer():
 
-    swerveDistance = 50.0
+    swerveDistance = 80.0
     setSpeed = 25.0
     x_car = 0.0
     x_deer = 80.0
 
-    deer_ind = '0000100000011111111100000'
+    deer_ind = '0101010000111111101100000'
 
     deer_ind = BinaryConversion(deer_ind)
 
@@ -517,12 +517,12 @@ def demo_GAdeer():
 
 def demo_CVdeer():
 
-    swerveDistance = 80.0
+    swerveDistance = 50.0
     setSpeed = 25.0
     deer_x = 80.0
     car_x = 0.0
 
-    angle = -88
+    angle = -86
     speed = 10
     # Initiate process
     deer = CV_Deer()
@@ -780,7 +780,7 @@ def demo_CVdeer():
 
 
 if __name__ == '__main__':
-    demo_GAdeer()
+    demo_CVdeer()
 
 
 
