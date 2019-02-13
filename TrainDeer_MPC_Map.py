@@ -69,6 +69,8 @@ def TestDeer_MPC(deer_ind, n, agent):
         setSpeed = 25.0
         x_deer = 80.0
         x_car = 0.0
+        KML = False
+        fake_map = 'nothing'
 
         print("Run " + str(k_1+1) + " of " + str(n))
         print("The current car speed is " + str(setSpeed) + " m/s")
@@ -76,7 +78,7 @@ def TestDeer_MPC(deer_ind, n, agent):
 
         # Where n is the number of drivers we are goin to test each deer against
 
-        deer = Deer_Map(mapa = 'Test2.kml', Psi0_Deer = deer_ind[0], Sigma_Psi = deer_ind[1], tturn_Deer = deer_ind[2], Vmax_Deer = deer_ind[3], Tau_Deer = deer_ind[4])
+        deer = Deer_Map(mapa = 'Test2.kml', KML = KML, fake = fake_map, Psi0_Deer = deer_ind[0], Sigma_Psi = deer_ind[1], tturn_Deer = deer_ind[2], Vmax_Deer = deer_ind[3], Tau_Deer = deer_ind[4])
 
         # Indicate deer initial position
         deer.x_Deer = x_deer
@@ -429,5 +431,5 @@ def FirstGen():
 
 if __name__=='__main__':
 
-    demo()
+    FirstGen()
 

@@ -780,7 +780,7 @@ def demo_CVdeer():
 
 
 if __name__ == '__main__':
-    demo_CVdeer()
+    demo_GAdeer()
 
 
 

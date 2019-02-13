@@ -86,15 +86,31 @@ def distanceray(pos, array):
 
     return dist_angle
 
-def ProbDist(pos, psi1, mapa, q_dist = 1.0,q_dangle = 1/1000.0):
+def ProbDist(pos, psi1, mapa, KML = True, fake = 'nothing',q_dist = 1.0,q_dangle = 1/1000.0):
 
-    distAngle=MapRaycasting(pos, mapa)
+    distAngle=MapRaycasting(pos, mapa, KML, fake)
 
     distAngle_inv = 1/distAngle
 
     distAngle_inv = 1000.0*distAngle_inv - min(distAngle_inv)
 
-    Prob1 = (distAngle_inv)/sum(distAngle_inv)
+    Prob_map = (distAngle_inv)/sum(distAngle_inv)
+
+    deg = linspace(0,359,360)
+    sd = 15.
+
+    prob_escape1 = 1/(sqrt(2*3.1416*sd**2))*exp(-(deg-45)**2/(2*sd**2))
+    prob_escape2 = 1/(sqrt(2*3.1416*sd**2))*exp(-(deg-315)**2/(2*sd**2))
+    probtot_escape = prob_escape1+prob_escape2
+    probtot_escape = probtot_escape/sum(probtot_escape)
+
+    #print sum(Prob_map)
+    #print sum(probtot_escape)
+    Prob1 = 3*Prob_map+probtot_escape
+    Prob1 = Prob1/sum(Prob1)
+    #print sum(Prob1)
+
+
 
     # deltaPsi = zeros(360)
 
@@ -113,21 +129,32 @@ def ProbDist(pos, psi1, mapa, q_dist = 1.0,q_dangle = 1/1000.0):
 
     # figure()
     # plot(angle_plot,Prob1)
+    # plot(angle_plot,Prob_map)
     # title('Probability Distribution')
     # xlabel('Angle (deg)')
     # ylabel('Probability')  
 
-    #show() 
+    # show() 
 
     return Prob1
 
-def MapRaycasting(pos, mapa):
+def MapRaycasting(pos, mapa, KML=True, fake = 'nothing'):
+
+    # print KML
 
     sight_dist = 60.0
 
     f = mapa
 
-    Trees = KMLtoXYZ(f)
+    if KML == False:
+        if fake == 'nothing':
+            Trees = [(array([-1000,1000,1000,-1000]),array([1000,1000,-1000,-1000]),array([0,0,0,0]))]
+        if fake == 'single_tree_60':
+            Trees = [(array([58,62,62,58]),array([12,12,8,8]),array([0,0,0,0]))]
+    else:
+        Trees = KMLtoXYZ(f)
+    
+    # print len(Trees)
 
     MinDist = []
 
@@ -154,15 +181,15 @@ def MapRaycasting(pos, mapa):
 
     angle_plot = linspace(0,360,360)
     #hello
-    # figure()
-    # plot(angle_plot,MinDist_Vec)
-    # title('Ray Casting')
-    # xlabel('Angle (deg)')
-    # ylabel('Minimum Distance (m)')
+    figure()
+    plot(angle_plot,MinDist_Vec)
+    title('Ray Casting')
+    xlabel('Angle (deg)')
+    ylabel('Minimum Distance (m)')
 
-    # figure(facecolor='w')
-    # subplot(111,facecolor='w')
-    # seg = zeros((2,2))
+    figure(facecolor='w')
+    subplot(111,facecolor='w')
+    seg = zeros((2,2))
     # print seg
     # for ind in range(0,360):
     #     seg[0][0] = pos[0]
@@ -178,7 +205,7 @@ def MapRaycasting(pos, mapa):
     # xlabel('X (m)', color='k')
     # ylabel('Y (m)', color='k')
 
-    #show()
+    # show()
 
     return MinDist_Vec
 
@@ -188,7 +215,7 @@ if __name__=='__main__':
 
     #min_dist = MapRaycasting([200.0,0.0])
 
-    dist = ProbDist([200.0,0.0],0.0, 'Test2.kml')
+    dist = ProbDist([80.0,0.0],0.0, 'Test2.kml', KML=False, fake = 'single_tree_60')
 
     angles = linspace(0,360,360)
 
@@ -206,4 +233,6 @@ if __name__=='__main__':
     show()
 
     print dist
+
+
 

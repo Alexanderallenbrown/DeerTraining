@@ -7,7 +7,7 @@ from RayCasting import *
 
 class Deer_Map:
 
-    def __init__(self, mapa = 'Test2.kml', Psi0_Deer = -.307, Sigma_Psi = 0.131, tturn_Deer = 0.594, Vmax_Deer = 13.5, Tau_Deer = 2.203, dT = 1./60, x_Deer = 80, y_Deer = -2):
+    def __init__(self, mapa = 'Test2.kml', KML = True, fake = 'nothing', Psi0_Deer = -.307, Sigma_Psi = 0.131, tturn_Deer = 0.594, Vmax_Deer = 13.5, Tau_Deer = 2.203, dT = 1./60, x_Deer = 80, y_Deer = -2):
        
         self.Tau_Deer = Tau_Deer  
         self.Vmax_Deer = Vmax_Deer 
@@ -43,7 +43,7 @@ class Deer_Map:
         #print self.x_Deer
         #print self.y_Deer
 
-        prob = ProbDist([self.x_Deer,self.y_Deer],self.Psi1_Deer, self.mapa)
+        prob = ProbDist([self.x_Deer,self.y_Deer],self.Psi1_Deer, self.mapa, KML = KML, fake = fake)
         angle = random.choice(len(prob),1,p = prob)
         self.Psi2_Deer = angle*3.1415/360.0
 
@@ -105,7 +105,7 @@ if __name__=='__main__':
 
     #set up our deer
 
-    deer = Deer_Map(mapa = 'Test2.kml', Psi0_Deer = 0, Sigma_Psi = .35, tturn_Deer = 1.0, Vmax_Deer = 10.5, Tau_Deer = 1.0)
+    deer = Deer_Map(mapa = 'Test2.kml', KML = True, fake = 'nothing', Psi0_Deer = 0, Sigma_Psi = .35, tturn_Deer = 1.0, Vmax_Deer = 10.5, Tau_Deer = 1.0)
     deer.x_Deer = 80.0
     deer.y_Deer = -2.0
 
