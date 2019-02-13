@@ -66,11 +66,11 @@ def TestDeer_MPC(deer_ind, n, agent):
     for k_1 in range(0,n):
 
         MPCDistance = 50.0
-        setSpeed = 25.0
+        setSpeed = 23.0
         x_deer = 80.0
         x_car = 0.0
         KML = False
-        fake_map = 'single_tree_60'
+        fake_map = 'nothing'
 
         print("Run " + str(k_1+1) + " of " + str(n))
         print("The current car speed is " + str(setSpeed) + " m/s")
@@ -407,7 +407,7 @@ def FirstGen():
 
         print agent
 
-        for ind in range(12,len(Deer10)):
+        for ind in range(0,len(Deer10)):
 
             Deer1 = Deer10[(ind)]
             Deer1_bin = Deer1
