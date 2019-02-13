@@ -181,15 +181,15 @@ def MapRaycasting(pos, mapa, KML=True, fake = 'nothing'):
 
     angle_plot = linspace(0,360,360)
     #hello
-    figure()
-    plot(angle_plot,MinDist_Vec)
-    title('Ray Casting')
-    xlabel('Angle (deg)')
-    ylabel('Minimum Distance (m)')
+    # figure()
+    # plot(angle_plot,MinDist_Vec)
+    # title('Ray Casting')
+    # xlabel('Angle (deg)')
+    # ylabel('Minimum Distance (m)')
 
-    figure(facecolor='w')
-    subplot(111,facecolor='w')
-    seg = zeros((2,2))
+    # figure(facecolor='w')
+    # subplot(111,facecolor='w')
+    # seg = zeros((2,2))
     # print seg
     # for ind in range(0,360):
     #     seg[0][0] = pos[0]
