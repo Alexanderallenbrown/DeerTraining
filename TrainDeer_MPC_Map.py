@@ -70,7 +70,7 @@ def TestDeer_MPC(deer_ind, n, agent):
         x_deer = 80.0
         x_car = 0.0
         KML = False
-        fake_map = 'nothing'
+        fake_map = 'single_tree_60'
 
 
         print("Run " + str(k_1+1) + " of " + str(n))
@@ -433,5 +433,5 @@ def FirstGen():
 
 if __name__=='__main__':
 
-    FirstGen()
+    demo()
 
