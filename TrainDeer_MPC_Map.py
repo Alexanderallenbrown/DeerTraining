@@ -72,8 +72,10 @@ def TestDeer_MPC(deer_ind, n, agent):
         KML = False
         fake_map = 'nothing'
 
+
         print("Run " + str(k_1+1) + " of " + str(n))
         print("The current car speed is " + str(setSpeed) + " m/s")
+        print('KML = ' + str(KML) + ', map = ' + str(fake_map))
 
 
         # Where n is the number of drivers we are goin to test each deer against
