@@ -82,7 +82,7 @@ def distanceray(pos, array):
     # xlabel('Angle (deg)')
     # ylabel('Minimum Distance (m)')
 
-    #show()
+    # show()
 
     return dist_angle
 
@@ -127,14 +127,16 @@ def ProbDist(pos, psi1, mapa, KML = True, fake = 'nothing',q_dist = 1.0,q_dangle
     angle_plot = linspace(0,360,360)
 
 
-    # figure()
-    # plot(angle_plot,Prob1)
-    # plot(angle_plot,Prob_map)
-    # title('Probability Distribution')
-    # xlabel('Angle (deg)')
-    # ylabel('Probability')  
+    figure()
+    plot(angle_plot,Prob1)
+    plot(angle_plot,Prob_map)
+    plot(angle_plot,probtot_escape)
+    legend(['Final Probability Distribution','Attraction Probability Distribution','Repulsion Probability Distribution'])
+    title('Probability Distribution')
+    xlabel('Angle (deg)')
+    ylabel('Probability')  
 
-    # show() 
+    show() 
 
     return Prob1
 
@@ -215,7 +217,7 @@ if __name__=='__main__':
 
     #min_dist = MapRaycasting([200.0,0.0])
 
-    dist = ProbDist([80.0,0.0],0.0, 'Test2.kml', KML=False, fake = 'single_tree_60')
+    dist = ProbDist([200.0,0.0],0.0, 'Test2.kml', KML=True, fake = 'single_tree_60')
 
     angles = linspace(0,360,360)
 

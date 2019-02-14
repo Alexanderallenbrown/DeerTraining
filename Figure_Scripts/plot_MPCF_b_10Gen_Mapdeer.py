@@ -5,12 +5,13 @@ import os
 figure()
 legendstr = []
 
-xdir = '../GenerationFiles/FbData/x0_20'
+xdir = '../GenerationFiles/FbData/OpenField_x0'
 
 markers = ['ko-','ks-','k*-']
+
 for expi, filename in enumerate(sorted(os.listdir(xdir))):
 
-    dirname = '../GenerationFiles/FbData/x0_0/' + filename
+    dirname = '../GenerationFiles/FbData/OpenField_x0/' + filename
 
     legendstr.append('Vehicle Speed = ' + filename[-2:] + ' m/s')
 
