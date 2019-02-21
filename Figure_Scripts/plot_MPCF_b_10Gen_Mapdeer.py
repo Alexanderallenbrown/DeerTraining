@@ -11,7 +11,7 @@ markers = ['ko-','ks-','k*-']
 
 for expi, filename in enumerate(sorted(os.listdir(xdir))):
 
-    dirname = '../GenerationFiles/FbData/OpenField_x0/' + filename
+    dirname = xdir + '/' + filename
 
     legendstr.append('Vehicle Speed = ' + filename[-2:] + ' m/s')
 
@@ -38,7 +38,8 @@ for expi, filename in enumerate(sorted(os.listdir(xdir))):
     ax.plot(gennums,mindists,markers[expi],fillstyle='none',markersize=10)
 
 
-    xlim([0,19])
+    xlim([0,10])
+    ylim([0,12])
     xlabel('Deer Model Genetic Algorithm Generation')
     ylabel('Average minimum distance per interaction (m)')
 

@@ -267,12 +267,12 @@ class MPC_Fb:
 
 def demo_GAdeer():
 
-    swerveDistance = 80.0
+    swerveDistance = 50.0
     setSpeed = 25.0
     x_car = 0.0
     x_deer = 80.0
 
-    deer_ind = '0101010000111111101100000'
+    deer_ind = '1011111111111011001111111'
 
     deer_ind = BinaryConversion(deer_ind)
 
