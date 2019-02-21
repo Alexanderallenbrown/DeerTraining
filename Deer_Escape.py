@@ -25,6 +25,10 @@ class Deer_Escape:
         self.Amax_Deer = 0.632*Vmax_Deer/Tau_Deer
         self.tmove_Deer = 0.
         self.chPsi = True
+        self.turn = False
+        self.Vturn_Deer = 0.
+        self.Psi2_Deer = 0.
+
 
     
 
@@ -38,7 +42,7 @@ class Deer_Escape:
             if self.tmove_Deer < self.tturn_Deer:
                 self.Psi_Deer = self.Psi1_Deer
                 self.Speed_Deer += self.dT/(self.Tau_Deer)*(self.Vmax_Deer-self.Speed_Deer)
-                
+
                 # Vstop_Deer = self.Amax_Deer*(self.tturn_Deer-self.tmove_Deer)+self.Vturn_Deer
                 
 
@@ -52,8 +56,17 @@ class Deer_Escape:
                 if self.chPsi == True:
                     self.Psi2_Deer = self.choosePsi2(self.x_Deer,x_Car,y_Car)
                     self.chPsi = False
-                else:
-                    pass
+
+                if self.turn == False:
+                    if (self.Vmax_Deer*(1-exp(-self.tmove_Deer/self.Tau_Deer)) > self.Vturn_Deer):
+                        self.Speed_Deer = self.Speed_Deer - self.Amax_Deer*self.dT
+
+                    else:
+                        self.Psi_Deer = self.Psi2_Deer
+                        self.turn = True
+
+                if self.turn == True:
+                    self.Speed_Deer += self.dT/(self.Tau_Deer)*(self.Vmax_Deer-self.Speed_Deer)
 
                 self.Psi_Deer = self.Psi2_Deer
                 self.Speed_Deer += self.dT/(self.Tau_Deer)*(self.Vmax_Deer-self.Speed_Deer)
@@ -75,6 +88,10 @@ class Deer_Escape:
 
     def choosePsi2(self,x_Car,y_Car, mean = 135., std = 15.):
         sigmaPsi = random.normal(mean,std,1)
+
+        self.Psi2_Deer = sigmaPsi*3.1415/180.
+        self.Psidot_Deer = self.Psi1_Deer - self.Psi2_Deer
+        self.Vturn_Deer = abs(self.Amax_Deer/self.Psidot_Deer)
         print sigmaPsi
         return sigmaPsi
 
@@ -150,7 +167,7 @@ if __name__=='__main__':
     figure()
     plot(t, carx[:,3])
 
-    print(deer.Psi0_Deer,deer.Psi1_Deer,deer.Psi2_Deer)
+    print(deer.Psi1_Deer,deer.Psi2_Deer)
     print(deer.Vturn_Deer,deer.Vmax_Deer)
 
     figure()
