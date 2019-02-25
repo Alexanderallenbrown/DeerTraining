@@ -54,22 +54,22 @@ class Deer_Escape:
 
             else:
                 if self.chPsi == True:
+                    print "Choose Psi2"
                     self.Psi2_Deer = self.choosePsi2(self.x_Deer,x_Car,y_Car)
                     self.chPsi = False
 
                 if self.turn == False:
-                    if (self.Vmax_Deer*(1-exp(-self.tmove_Deer/self.Tau_Deer)) > self.Vturn_Deer):
+                    if (self.Speed_Deer > self.Vturn_Deer):
+                        print "STOOOOOP"
                         self.Speed_Deer = self.Speed_Deer - self.Amax_Deer*self.dT
 
                     else:
+                        print "TURN"
                         self.Psi_Deer = self.Psi2_Deer
                         self.turn = True
 
                 if self.turn == True:
                     self.Speed_Deer += self.dT/(self.Tau_Deer)*(self.Vmax_Deer-self.Speed_Deer)
-
-                self.Psi_Deer = self.Psi2_Deer
-                self.Speed_Deer += self.dT/(self.Tau_Deer)*(self.Vmax_Deer-self.Speed_Deer)
 
             self.tmove_Deer += self.dT
 
@@ -89,10 +89,26 @@ class Deer_Escape:
     def choosePsi2(self,x_Car,y_Car, mean = 135., std = 15.):
         sigmaPsi = random.normal(mean,std,1)
 
+        carAngle = arctan((self.y_Deer-y_Car)/(self.x_Deer-x_Car))
+        print "YYYYYYYYYYYYYYYY"
+        print (self.y_Deer-y_Car)
+        print "XXXXXXXXXXXXXXXXXXX"
+        print self.x_Deer
+        print x_Car
+        print (self.x_Deer-x_Car)
+        print carAngle
+
         self.Psi2_Deer = sigmaPsi*3.1415/180.
-        self.Psidot_Deer = self.Psi1_Deer - self.Psi2_Deer
+        self.Psi2_Deer = self.Psi2_Deer[0]
+        self.Psidot_Deer = abs(self.Psi1_Deer - self.Psi2_Deer)/(10*self.dT)
         self.Vturn_Deer = abs(self.Amax_Deer/self.Psidot_Deer)
-        print sigmaPsi
+
+        print "THIS IS THE DATA"
+        print self.Psi2_Deer
+        print self.Psi1_Deer
+        print self.Psidot_Deer
+        print self.Vturn_Deer
+
         return sigmaPsi
 
 
@@ -101,7 +117,7 @@ if __name__=='__main__':
 
     #set up our deer
 
-    deer = Deer_Escape(Psi1_Deer = 0, y_init = -2.0, tturn_Deer = 1.0, Vmax_Deer = 10.5, Tau_Deer = 1.0)
+    deer = Deer_Escape(Psi1_Deer = 0, y_init = -2.0, tturn_Deer = 2.0, Vmax_Deer = 6.5, Tau_Deer = 2.0)
     deer.x_Deer = 80.0
     deer.y_Deer = -2.0
 
@@ -138,6 +154,7 @@ if __name__=='__main__':
 
         carx[k,:],junk1,junk2=car.rk_update(brake = drive[1], gas = drive[0], steer = drive[2], cruise = 'off')
         deerx[k,:] = deer.updateDeer(car.x[2],car.x[0])
+
 
     distance = sqrt((carx[:,2]-deerx[:,2])**2+(carx[:,0]-deerx[:,3])**2)
 

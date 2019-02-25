@@ -127,16 +127,16 @@ def ProbDist(pos, psi1, mapa, KML = True, fake = 'nothing',q_dist = 1.0,q_dangle
     angle_plot = linspace(0,360,360)
 
 
-    figure()
-    plot(angle_plot,Prob1)
-    plot(angle_plot,Prob_map)
-    plot(angle_plot,probtot_escape)
-    legend(['Final Probability Distribution','Attraction Probability Distribution','Repulsion Probability Distribution'])
-    title('Probability Distribution')
-    xlabel('Angle (deg)')
-    ylabel('Probability')  
+    # figure()
+    # plot(angle_plot,Prob1)
+    # plot(angle_plot,Prob_map)
+    # plot(angle_plot,probtot_escape)
+    # legend(['Final Probability Distribution','Attraction Probability Distribution','Repulsion Probability Distribution'])
+    # title('Probability Distribution')
+    # xlabel('Angle (deg)')
+    # ylabel('Probability')  
 
-    show() 
+    #show() 
 
     return Prob1
 

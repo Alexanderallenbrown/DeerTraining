@@ -66,7 +66,7 @@ def TestDeer_MPC(deer_ind, n, agent):
     for k_1 in range(0,n):
 
         MPCDistance = 50.0
-        setSpeed = 23.0
+        setSpeed = 25.0
         x_deer = 80.0
         x_car = 0.0
         KML = False
@@ -218,7 +218,11 @@ def TestDeer_MPC(deer_ind, n, agent):
 
 def demo():
 
-    for generation_number in range(1,100):
+    generation_number = 1
+    meanRes = 10.
+
+    #for generation_number in range(1,100):
+    while meanRes > 2.0:
 
         for driver_type in range(4,5):
 
@@ -289,7 +293,8 @@ def demo():
             for x in range(0, len(CurrentGenarray)):
                 print CurrentGenarray[x].result
 
-            NewInterGenArray = [];
+            NewInterGenArray = []
+
 
             print "This is the CurrentGenarray again"
 
@@ -387,7 +392,16 @@ def demo():
 
             newGenFile.close()
 
+            sumRes = 0.
+            for x in range(0, len(NewBaseCurrentGenarray)):
+                sumRes = sumRes + NewBaseGenarray[x].result
+            meanRes = sumRes/len(NewBaseCurrentGenarray)
+
             time.sleep(5)
+
+            generation_number = generation_number + 1
+
+
 
 def FirstGen():
 
