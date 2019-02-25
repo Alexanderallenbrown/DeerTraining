@@ -55,12 +55,11 @@ class Deer_Escape:
             else:
                 if self.chPsi == True:
                     print "Choose Psi2"
-                    self.Psi2_Deer = self.choosePsi2(self.x_Deer,x_Car,y_Car)
+                    self.Psi2_Deer = self.choosePsi2(x_Car,y_Car)
                     self.chPsi = False
 
                 if self.turn == False:
                     if (self.Speed_Deer > self.Vturn_Deer):
-                        print "STOOOOOP"
                         self.Speed_Deer = self.Speed_Deer - self.Amax_Deer*self.dT
 
                     else:
@@ -88,15 +87,12 @@ class Deer_Escape:
 
     def choosePsi2(self,x_Car,y_Car, mean = 135., std = 15.):
         sigmaPsi = random.normal(mean,std,1)
+        sigmaPsi = sigmaPsi *3.1416/180.
 
         carAngle = arctan((self.y_Deer-y_Car)/(self.x_Deer-x_Car))
-        print "YYYYYYYYYYYYYYYY"
-        print (self.y_Deer-y_Car)
-        print "XXXXXXXXXXXXXXXXXXX"
-        print self.x_Deer
-        print x_Car
-        print (self.x_Deer-x_Car)
-        print carAngle
+
+        sigmaPsi = sigmaPsi + carAngle
+        sigmaPsi = (90*3.1416/180.) - sigmaPsi
 
         self.Psi2_Deer = sigmaPsi*3.1415/180.
         self.Psi2_Deer = self.Psi2_Deer[0]
@@ -117,7 +113,7 @@ if __name__=='__main__':
 
     #set up our deer
 
-    deer = Deer_Escape(Psi1_Deer = 0, y_init = -2.0, tturn_Deer = 2.0, Vmax_Deer = 6.5, Tau_Deer = 2.0)
+    deer = Deer_Escape(Psi1_Deer = 0., y_init = -2.0, tturn_Deer = 2.0, Vmax_Deer = 6.5, Tau_Deer = 2.0)
     deer.x_Deer = 80.0
     deer.y_Deer = -2.0
 
