@@ -70,7 +70,7 @@ def TestDeer_MPC(deer_ind, n, agent, xCar, setSpeed):
         x_car = xCar
         x_deer = xCar + 80.0
         KML = False
-        fake_map = 'single_tree_60'
+        fake_map = 'nothing'
 
 
         print("Run " + str(k_1+1) + " of " + str(n))
