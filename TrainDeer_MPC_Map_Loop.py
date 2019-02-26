@@ -219,7 +219,7 @@ def TestDeer_MPC(deer_ind, n, agent, xCar, setSpeed,fake_map):
 
 def demo():
 
-    mapa = 'nothing'
+    mapa = 'single_tree_60'
    
     xCar = 0
     setSpeed = 25
