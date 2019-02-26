@@ -14,6 +14,7 @@ from MPC_G import *
 from MPC_H import *
 from MPC_F_braking_KinCar import *
 from Deer_Map import *
+import os
 
 def BinaryConversion(ind):
 
@@ -418,7 +419,14 @@ def FirstGen(setSpeed, xCar,mapa):
 
     agent = 'Fb'
 
-    Gfname = 'GenerationFiles/generations' + str(agent) + '/map_' + str(mapa) + '/xCar' + str(xCar) + '/setSpeed' + str(setSpeed) + '/Generation1.txt';
+
+    directory = 'GenerationFiles/generations' + str(agent) + '/map_' + str(mapa) + '/xCar' + str(xCar) + '/setSpeed' + str(setSpeed) 
+
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+
+    Gfname = directory + '/Generation1.txt';
+
     newGenFile = open(Gfname,'w+');
     newGenFile.close();
  
