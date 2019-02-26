@@ -381,9 +381,9 @@ def demo():
             newGenFile.close()
 
             sumRes = 0.
-            for x in range(0, len(NewBaseCurrentGenarray)):
+            for x in range(0, len(NewBaseGenarray)):
                 sumRes = sumRes + NewBaseGenarray[x].result
-            meanRes = sumRes/len(NewBaseCurrentGenarray)
+            meanRes = sumRes/len(NewBaseGenarray)
 
             time.sleep(5)
 
