@@ -404,49 +404,37 @@ def demo():
 
 
 
-def FirstGen():
+def FirstGen(setSpeed, xCar):
 
     Deer10 = ['1011110011010101111100000','1000011110110111001101000','0011010011101011111001101','1011001010011011110100111','1110001110010110110101000','0101011010101111100110101','1001011110101011000101110','1110100000110001010111001','1011101101011011001011011','0010100010001101001001111','0101111110001101001100001','1001010110101111010110110','0010010000000111000101001','0001000001001100100110000','0101010000110001110001001']
     #Deer10 = ['0000100000011111111100000','0000000000110111001101000','0000000000001011111001101','0000000000011011110100111','0000100000010110110101000','0000100000101111100110101','0000100000101011000101110','0000100000110001010111001','1011101101011011001011011','0010100010001101001001111','0101111110001101001100001','1001010110101111010110110','0010010000000111000101001','0001000001001100100110000','0101010000110001110001001']
-    for agent_ind in range(4,5):    
+ 
 
-        if agent_ind == 1:
-            agent = 'F'
+    agent = 'Fb'
 
-        if agent_ind == 2:
-            agent = 'G'
+    for ind in range(0,len(Deer10)):
 
-        if agent_ind == 3:
-            agent = 'H'
+        Deer1 = Deer10[(ind)]
+        Deer1_bin = Deer1
 
-        if agent_ind == 4:
-            agent = 'Fb'
+        print "THIS IS THE DEER WE ARE CURRENTLY TRAINING"
+        print str(Deer1)
 
-        print agent
+        Deer1 = BinaryConversion(Deer1)
 
-        for ind in range(0,len(Deer10)):
+        print(Deer1)
 
-            Deer1 = Deer10[(ind)]
-            Deer1_bin = Deer1
-
-            print "THIS IS THE DEER WE ARE CURRENTLY TRAINING"
-            print str(Deer1)
-
-            Deer1 = BinaryConversion(Deer1)
-
-            print(Deer1)
-
-            Distance1 = TestDeer_MPC(deer_ind=Deer1, n=8, agent = agent, setSpeed = setSpeed, xCar = xCar)
+        Distance1 = TestDeer_MPC(deer_ind=Deer1, n=8, agent = agent, setSpeed = setSpeed, xCar = xCar)
 
 
-            print "MINIMUM DISTANCE"
-            print str(Deer1_bin)
-            print(Distance1)
+        print "MINIMUM DISTANCE"
+        print str(Deer1_bin)
+        print(Distance1)
 
 
 
 
 if __name__=='__main__':
 
-    demo()
+    FirstGen()
 
