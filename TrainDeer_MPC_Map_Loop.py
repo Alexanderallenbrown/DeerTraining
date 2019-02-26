@@ -59,7 +59,7 @@ def BinaryConversion(ind):
 
     return array([Psi0,SigmaPsi,tturn,Vmax,Tau])
 
-def TestDeer_MPC(deer_ind, n, agent, xCar, setSpeed):
+def TestDeer_MPC(deer_ind, n, agent, xCar, setSpeed,fake_map):
 
     min_distance = zeros(n)
 
@@ -70,7 +70,7 @@ def TestDeer_MPC(deer_ind, n, agent, xCar, setSpeed):
         x_car = xCar
         x_deer = xCar + 80.0
         KML = False
-        fake_map = 'single_tree_60'
+        fake_map = fake_map
 
 
         print("Run " + str(k_1+1) + " of " + str(n))
@@ -217,6 +217,8 @@ def TestDeer_MPC(deer_ind, n, agent, xCar, setSpeed):
     return(avg_min_distance)
 
 def demo():
+
+    mapa = 'nothing'
    
     xCar = 0
     setSpeed = 25
@@ -224,7 +226,10 @@ def demo():
     agent_type = "Fb"
 
     generation_number = 1
-    meanRes = 100.   
+    meanRes = 100. 
+
+    if generation_number == 1:
+        FirstGen(setSpeed,xCar,mapa)  
 
     while True:
 
@@ -245,7 +250,7 @@ def demo():
 
             print generation
 
-            Gfname = 'GenerationFiles/generations' + str(agent) + '/xCar' + str(xCar) + '/setSpeed' + str(setSpeed) + '/Generation' + str(generation) + '.txt';
+            Gfname = 'GenerationFiles/generations' + str(agent) + '/map_' + str(mapa) + '/xCar' + str(xCar) + '/setSpeed' + str(setSpeed) + '/Generation' + str(generation) + '.txt';
 
             print Gfname
 
@@ -329,7 +334,7 @@ def demo():
                 print "Training deer " + str(index + 1) + " out of " + str(m)
                 CurrentDeer = BinaryConversion(str(NewInterGenArray[index].traits))
                 print CurrentDeer
-                NewInterGenArray[index].result = TestDeer_MPC(CurrentDeer, h, agent, xCar, setSpeed)
+                NewInterGenArray[index].result = TestDeer_MPC(CurrentDeer, h, agent, xCar, setSpeed,mapa)
                 print NewInterGenArray[index].result
 
             for x in range(0, n):
@@ -370,7 +375,7 @@ def demo():
                 print str(NewBaseGenArray[x].traits) + ' ' + str(NewBaseGenArray[x].result);    
             print '';
 
-            G2fname = 'GenerationFiles/generations' + str(agent) + '/xCar' + str(xCar) + '/setSpeed' + str(setSpeed) + '/Generation' + str(generation+1) + '.txt';
+            G2fname = 'GenerationFiles/generations' + str(agent) + '/map_' + str(mapa)  + '/xCar' + str(xCar) + '/setSpeed' + str(setSpeed) + '/Generation' + str(generation+1) + '.txt';
 
             newGenFile = open(G2fname,'w+');
             newGenFile.close();
@@ -381,9 +386,9 @@ def demo():
             newGenFile.close()
 
             sumRes = 0.
-            for x in range(0, len(NewBaseGenarray)):
-                sumRes = sumRes + NewBaseGenarray[x].result
-            meanRes = sumRes/len(NewBaseGenarray)
+            for x in range(0, len(NewBaseGenArray)):
+                sumRes = sumRes + NewBaseGenArray[x].result
+            meanRes = sumRes/len(NewBaseGenArray)
 
             time.sleep(5)
 
@@ -393,24 +398,31 @@ def demo():
             setSpeed = setSpeed - 1
             meanRes = 1000.0
             generation_number = 1
+            FirstGen(setSpeed,xCar,mapa)
 
         if meanRes > 2.0:
             setSpeed = 25
             xCar = xCar + 20
             meanRes = 10.0
             generation_number = 1
+            FirstGen(setSpeed,xCar,mapa)
 
 
 
 
 
-def FirstGen(setSpeed, xCar):
+def FirstGen(setSpeed, xCar,mapa):
 
     Deer10 = ['1011110011010101111100000','1000011110110111001101000','0011010011101011111001101','1011001010011011110100111','1110001110010110110101000','0101011010101111100110101','1001011110101011000101110','1110100000110001010111001','1011101101011011001011011','0010100010001101001001111','0101111110001101001100001','1001010110101111010110110','0010010000000111000101001','0001000001001100100110000','0101010000110001110001001']
     #Deer10 = ['0000100000011111111100000','0000000000110111001101000','0000000000001011111001101','0000000000011011110100111','0000100000010110110101000','0000100000101111100110101','0000100000101011000101110','0000100000110001010111001','1011101101011011001011011','0010100010001101001001111','0101111110001101001100001','1001010110101111010110110','0010010000000111000101001','0001000001001100100110000','0101010000110001110001001']
- 
 
     agent = 'Fb'
+
+    Gfname = 'GenerationFiles/generations' + str(agent) + '/map_' + str(mapa) + '/xCar' + str(xCar) + '/setSpeed' + str(setSpeed) + '/Generation1.txt';
+    newGenFile = open(Gfname,'w+');
+    newGenFile.close();
+ 
+
 
     for ind in range(0,len(Deer10)):
 
@@ -424,7 +436,12 @@ def FirstGen(setSpeed, xCar):
 
         print(Deer1)
 
-        Distance1 = TestDeer_MPC(deer_ind=Deer1, n=8, agent = agent, setSpeed = setSpeed, xCar = xCar)
+        Distance1 = TestDeer_MPC(deer_ind=Deer1, n=8, agent = agent, setSpeed = setSpeed, xCar = xCar, fake_map = mapa)
+
+
+        newGenFile = open(Gfname, 'a');
+        newGenFile.write(str(Deer1_bin) + ' ' + str(Distance1) + '\n');
+        newGenFile.close()
 
 
         print "MINIMUM DISTANCE"
@@ -436,5 +453,5 @@ def FirstGen(setSpeed, xCar):
 
 if __name__=='__main__':
 
-    FirstGen()
+    demo()
 
