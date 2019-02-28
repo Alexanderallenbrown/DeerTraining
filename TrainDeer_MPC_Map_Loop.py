@@ -14,6 +14,7 @@ from MPC_G import *
 from MPC_H import *
 from MPC_F_braking_KinCar import *
 from Deer_Map import *
+from Crash_Test import CollisionCheck
 import os
 
 
@@ -64,8 +65,6 @@ def demo():
 
             print Gfname
 
-
-
             #should have an array of size m*h (of object values )
 
             #in some way, read in a text file to fill an array
@@ -74,8 +73,9 @@ def demo():
                 for line in ins:
                     values = line.split()
                     deer = TraitResult();
-                    minDistanceVec = values[2:]
-                    deer.assign(str(values[0]),float(values[1]),minDistanceVec);
+                    minDistanceVec = values[2:(2+h-1)]
+                    collisionVec = values[(2+h):]
+                    deer.assign(str(values[0]),float(values[1]),minDistanceVec,collisionVec);
                     CurrentGenarray.append(deer)
 
 
@@ -140,9 +140,10 @@ def demo():
                 print "Training deer " + str(index + 1) + " out of " + str(m)
                 CurrentDeer = BinaryConversion(str(NewInterGenArray[index].traits))
                 print CurrentDeer
-                NewInterGenArray[index].result,NewInterGenArray[index].minDistanceVec = TestDeer_MPC(CurrentDeer, h, agent, xCar, setSpeed,mapa)
+                NewInterGenArray[index].result,NewInterGenArray[index].minDistanceVec, NewInterGenArray[index].collisionVec = TestDeer_MPC(CurrentDeer, h, agent, xCar, setSpeed,mapa)
                 print NewInterGenArray[index].result
                 print NewInterGenArray[index].minDistanceVec
+                print NewInterGenArray[index].collisionVec
 
             for x in range(0, n):
                 NewInterGenArray.append(CurrentGenarray[x])
@@ -191,6 +192,8 @@ def demo():
                 newGenFile.write(str(NewBaseGenArray[x].traits) + ' ' + str(NewBaseGenArray[x].result))
                 for ind in range(0,h):
                     newGenFile.write(' ' + str(NewBaseGenArray[x].minDistanceVec[ind]))
+                for ind in range(0,h):
+                    newGenFile.write(' ' + str(NewBaseGenArray[x].collisionVec[ind]))
                 newGenFile.write('\n')
             newGenFile.close()
 
@@ -270,6 +273,7 @@ def BinaryConversion(ind):
 def TestDeer_MPC(deer_ind, n, agent, xCar, setSpeed,fake_map):
 
     min_distance = zeros(n)
+    Collision = zeros(n)
 
     for k_1 in range(0,n):
 
@@ -408,9 +412,16 @@ def TestDeer_MPC(deer_ind, n, agent, xCar, setSpeed,fake_map):
             distancevec = distancevec[1:len(distancevec)]
             min_distance[k_1] = min(distancevec)
 
+        Collision[k_1] = bool(0)
 
+        if min_distance[k_1] < 2.0:
 
-
+            check = CollisionCheck()
+            Collision[k_1] = check.collision(carx[:,2],carx[:,0],carx[:,4],deerx[:,2],deerx[:,3],deerx[:,1])
+            if Collision[k_1] == True:
+                Collision[k_1] = bool(1)
+            else:
+                Collision[k_1] = bool(0)
 
     # Calculate IQM
 
@@ -423,7 +434,7 @@ def TestDeer_MPC(deer_ind, n, agent, xCar, setSpeed,fake_map):
     avg_min_distance = mean(min_distance)
     # print(avg_min_distance)
 
-    return avg_min_distance, minDistanceVec
+    return avg_min_distance, minDistanceVec, Collision
 
 def FirstGen(setSpeed, xCar,mapa,h):
 
@@ -442,10 +453,9 @@ def FirstGen(setSpeed, xCar,mapa,h):
 
     newGenFile = open(Gfname,'w+');
     newGenFile.close();
- 
-
 
     for ind in range(0,len(Deer10)):
+
 
         Deer1 = Deer10[(ind)]
         Deer1_bin = Deer1
@@ -457,14 +467,17 @@ def FirstGen(setSpeed, xCar,mapa,h):
 
         print(Deer1)
 
-        Distance1, minDistanceVec = TestDeer_MPC(deer_ind=Deer1, n=h, agent = agent, setSpeed = setSpeed, xCar = xCar, fake_map = mapa)
+        Distance1, minDistanceVec,collision = TestDeer_MPC(deer_ind=Deer1, n=h, agent = agent, setSpeed = setSpeed, xCar = xCar, fake_map = mapa)
         print minDistanceVec
 
         newGenFile = open(Gfname, 'a');
         newGenFile.write(str(Deer1_bin) + ' ' + str(Distance1));
         for ind in range(0,h):
             newGenFile.write(' ' + str(minDistanceVec[ind]))
+        for ind in range(0,h):
+            newGenFile.write(' ' + str(collision[ind]))
         newGenFile.write('\n')
+
         newGenFile.close()
 
 
