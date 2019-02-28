@@ -75,7 +75,7 @@ def TestDeer_MPC(deer_ind, n, agent, xCar, setSpeed,fake_map):
 
 
         print("Run " + str(k_1+1) + " of " + str(n))
-        print("The current car speed is " + str(setSpeed) + " m/s")
+        print("The current car speed is " + str(setSpeed) + " m/s, and the starting x is " + str(xCar) + "m")
         print('KML = ' + str(KML) + ', map = ' + str(fake_map))
 
 
@@ -209,17 +209,18 @@ def TestDeer_MPC(deer_ind, n, agent, xCar, setSpeed,fake_map):
 
     # Sort values from smallest to largest
     min_distance = sorted(min_distance)
+    minDistanceVec = min_distance
     # Eliminate lower and upper quartiles
     min_distance = min_distance[int(round(n/4.0)):int(ceil(3.0*n/4.0))]
     # Calculate the IQM
     avg_min_distance = mean(min_distance)
     # print(avg_min_distance)
 
-    return(avg_min_distance)
+    return avg_min_distance, minDistanceVec
 
 def demo():
 
-    mapa = 'single_tree_60'
+    mapa = 'nothing'
    
     xCar = 0
     setSpeed = 25
@@ -229,12 +230,20 @@ def demo():
     generation_number = 1
     meanRes = 100. 
 
+    intermediatePopulationSize = 10;
+    numberOfHumans = 8
+    populationSize = 15;
+
+    n = populationSize
+    m = intermediatePopulationSize;
+    h = numberOfHumans;
+
     if generation_number == 1:
-        FirstGen(setSpeed,xCar,mapa)  
+        FirstGen(setSpeed,xCar,mapa,h)  
 
     while True:
 
-        while (meanRes > 2.0 and generation_number < 21):
+        while ((meanRes > 2.0) and (generation_number < 21)):
 
             print "New generation"
 
@@ -255,13 +264,7 @@ def demo():
 
             print Gfname
 
-            intermediatePopulationSize = 10;
-            numberOfHumans = 8;
-            populationSize = 15;
 
-            n = populationSize
-            m = intermediatePopulationSize;
-            h = numberOfHumans;
 
             #should have an array of size m*h (of object values )
 
@@ -271,8 +274,10 @@ def demo():
                 for line in ins:
                     values = line.split()
                     deer = TraitResult();
-                    deer.assign(str(values[0]),float(values[1]));
+                    minDistanceVec = values[2:]
+                    deer.assign(str(values[0]),float(values[1]),minDistanceVec);
                     CurrentGenarray.append(deer)
+
 
             # we now have an arrary of deer objects, paired values of attributes and the corresponding results
             CurrentGenarray.sort(key=operator.attrgetter("result"))
@@ -335,8 +340,9 @@ def demo():
                 print "Training deer " + str(index + 1) + " out of " + str(m)
                 CurrentDeer = BinaryConversion(str(NewInterGenArray[index].traits))
                 print CurrentDeer
-                NewInterGenArray[index].result = TestDeer_MPC(CurrentDeer, h, agent, xCar, setSpeed,mapa)
+                NewInterGenArray[index].result,NewInterGenArray[index].minDistanceVec = TestDeer_MPC(CurrentDeer, h, agent, xCar, setSpeed,mapa)
                 print NewInterGenArray[index].result
+                print NewInterGenArray[index].minDistanceVec
 
             for x in range(0, n):
                 NewInterGenArray.append(CurrentGenarray[x])
@@ -382,37 +388,45 @@ def demo():
             newGenFile.close();
             newGenFile = open(G2fname, 'a');
             for x in range(0, len(NewBaseGenArray)):
-                newGenFile.write(str(NewBaseGenArray[x].traits) + ' ' + str(NewBaseGenArray[x].result) + '\n');
-
+                newGenFile.write(str(NewBaseGenArray[x].traits) + ' ' + str(NewBaseGenArray[x].result))
+                for ind in range(0,h):
+                    newGenFile.write(' ' + str(NewBaseGenArray[x].minDistanceVec[ind]))
+                newGenFile.write('\n')
             newGenFile.close()
 
-            sumRes = 0.
-            for x in range(0, len(NewBaseGenArray)):
-                sumRes = sumRes + NewBaseGenArray[x].result
-            meanRes = sumRes/len(NewBaseGenArray)
+            # sumRes = 0.
+            # for x in range(0, len(NewBaseGenArray)):
+            #     sumRes = sumRes + NewBaseGenArray[x].result
+            # meanRes = sumRes/len(NewBaseGenArray)
+
+            meanRes = NewBaseGenArray[0].result
 
             time.sleep(5)
 
             generation_number = generation_number + 1
 
         if meanRes <= 2.0:
+            print "Crash reduce SPEED"
+            print meanRes
             setSpeed = setSpeed - 1
             meanRes = 1000.0
             generation_number = 1
-            FirstGen(setSpeed,xCar,mapa)
+            FirstGen(setSpeed,xCar,mapa,h)
 
-        if meanRes > 2.0:
+        else:
+            print "We're good move FORWARD"
+            print meanRes
             setSpeed = 25
             xCar = xCar + 20
             meanRes = 10.0
             generation_number = 1
-            FirstGen(setSpeed,xCar,mapa)
+            FirstGen(setSpeed,xCar,mapa,h)
 
 
 
 
 
-def FirstGen(setSpeed, xCar,mapa):
+def FirstGen(setSpeed, xCar,mapa,h):
 
     Deer10 = ['1011110011010101111100000','1000011110110111001101000','0011010011101011111001101','1011001010011011110100111','1110001110010110110101000','0101011010101111100110101','1001011110101011000101110','1110100000110001010111001','1011101101011011001011011','0010100010001101001001111','0101111110001101001100001','1001010110101111010110110','0010010000000111000101001','0001000001001100100110000','0101010000110001110001001']
     #Deer10 = ['0000100000011111111100000','0000000000110111001101000','0000000000001011111001101','0000000000011011110100111','0000100000010110110101000','0000100000101111100110101','0000100000101011000101110','0000100000110001010111001','1011101101011011001011011','0010100010001101001001111','0101111110001101001100001','1001010110101111010110110','0010010000000111000101001','0001000001001100100110000','0101010000110001110001001']
@@ -444,11 +458,14 @@ def FirstGen(setSpeed, xCar,mapa):
 
         print(Deer1)
 
-        Distance1 = TestDeer_MPC(deer_ind=Deer1, n=8, agent = agent, setSpeed = setSpeed, xCar = xCar, fake_map = mapa)
-
+        Distance1, minDistanceVec = TestDeer_MPC(deer_ind=Deer1, n=h, agent = agent, setSpeed = setSpeed, xCar = xCar, fake_map = mapa)
+        print minDistanceVec
 
         newGenFile = open(Gfname, 'a');
-        newGenFile.write(str(Deer1_bin) + ' ' + str(Distance1) + '\n');
+        newGenFile.write(str(Deer1_bin) + ' ' + str(Distance1));
+        for ind in range(0,h):
+            newGenFile.write(' ' + str(minDistanceVec[ind]))
+        newGenFile.write('\n')
         newGenFile.close()
 
 
