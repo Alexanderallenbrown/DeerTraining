@@ -16,211 +16,11 @@ from MPC_F_braking_KinCar import *
 from Deer_Map import *
 import os
 
-def BinaryConversion(ind):
 
-    resolution = 5
-
-    # Set minimum and maximum values
-
-    Psi0_min = -3.14/2 # radians
-    Psi0_max = 3.14/2 # radians
-
-    SigmaPsi_min = 0 # radians
-    SigmaPsi_max = 0.45*3.24 # radians
-
-    tturn_min = 0.4 # seconds
-    tturn_max = 2.5 # seconds
-
-    Vmax_min = 5 # m/s
-    Vmax_max = 18 # m/s
-
-    Tau_min = 0.75 # seconds
-    Tau_max = 5 # seconds
-
-    # Divide individual into different binary 
-    Psi0_bin = ind[0:resolution]
-    SigmaPsi_bin = ind[resolution:2*resolution]
-    tturn_bin = ind[2*resolution:3*resolution]
-    Vmax_bin = ind[3*resolution:4*resolution]
-    Tau_bin = ind[4*resolution:5*resolution]
-
-    # Convert from binary to decimala
-    Psi0 = Psi0_min + (Psi0_max - Psi0_min)*float(int(Psi0_bin,2))/((2**resolution)-1)
-    SigmaPsi = SigmaPsi_min + (SigmaPsi_max - SigmaPsi_min)*float(int(SigmaPsi_bin,2))/((2**resolution)-1)
-    tturn = tturn_min + (tturn_max - tturn_min)*float(int(tturn_bin,2))/((2**resolution)-1)
-    Vmax = Vmax_min + (Vmax_max - Vmax_min)*float(int(Vmax_bin,2))/((2**resolution)-1)
-    Tau = Tau_min + (Tau_max - Tau_min)*float(int(Tau_bin,2))/((2**resolution)-1)
-
-    #Rrint results
-    # print(Psi0)
-    # print(SigmaPsi)
-    # print(tturn)
-    # print(Vmax)
-    # print(Tau)
-
-    return array([Psi0,SigmaPsi,tturn,Vmax,Tau])
-
-def TestDeer_MPC(deer_ind, n, agent, xCar, setSpeed,fake_map):
-
-    min_distance = zeros(n)
-
-    for k_1 in range(0,n):
-
-        MPCDistance = 50.0
-        setSpeed = setSpeed
-        x_car = xCar
-        x_deer = xCar + 80.0
-        KML = False
-        fake_map = fake_map
-
-
-        print("Run " + str(k_1+1) + " of " + str(n))
-        print("The current car speed is " + str(setSpeed) + " m/s, and the starting x is " + str(xCar) + "m")
-        print('KML = ' + str(KML) + ', map = ' + str(fake_map))
-
-
-        # Where n is the number of drivers we are goin to test each deer against
-
-        deer = Deer_Map(mapa = 'Test2.kml', KML = KML, fake = fake_map, Psi0_Deer = deer_ind[0], Sigma_Psi = deer_ind[1], tturn_Deer = deer_ind[2], Vmax_Deer = deer_ind[3], Tau_Deer = deer_ind[4])
-
-        # Indicate deer initial position
-        deer.x_Deer = x_deer
-        deer.y_Deer = -2
-        # Define simulation time and dt
-        simtime = 10
-        dt = deer.dT
-        t = arange(0,simtime,dt) #takes min, max, and timestep\
-
-        #now set up the car's parameters        
-        car = BicycleModel(dT=dt,U=20)
-        
-        carx = zeros((len(t),len(car.x)))
-        car.x[3] = setSpeed
-        car.x[2] = x_car
-        carx[0,:] = car.x
-
-        #initialize for deer as well
-        deerx = zeros((len(t),4))
-        #fill in initial conditions because they're nonzero
-        deerx[0,:] = array([deer.Speed_Deer,deer.Psi_Deer,deer.x_Deer,deer.y_Deer])
-        distancevec = zeros(len(t))
-
-        if agent == "F":
-            weight = 10.0
-            MPC = MPC_F(q_lane_error = weight,q_obstacle_error =1.0/weight*2,q_lateral_velocity=0.00,q_steering_effort=0.0,q_accel = 0.005,predictionmethod='CV')
-  
-            for k in range(1,len(t)):
-
-                if ((deer.x_Deer - car.x[2]) < MPCDistance): 
-                    opt_steer = MPC.calcOptimal(carnow = car,deernow = deer, yroad = 0)
-                else:
-                    opt_steer = 0
-
-                carx[k,:],junk = car.heuns_update(steer = opt_steer, setspeed = 25.0)
-                deerx[k,:] = deer.updateDeer(car.x[2])
-                distancevec[k] = sqrt((deer.x_Deer - car.x[2])**2+(deer.y_Deer - car.x[0])**2)
-
-            distancevec = distancevec[1:len(distancevec)]
-            min_distance[k_1] = min(distancevec)
-
-
-        if agent == "G":
-            MPC = MPC_G(q_obstacle_error = 1000000000.0,q_x_accel=0.0,q_cruise_speed=0.01,brake_max = 0.5,predictionmethod='CV')
-        
-            for k in range(1,len(t)):
-
-                opt_steer = 0
-                gas,brake = MPC.calcOptimal(carnow = car, deernow = deer, setSpeed = setSpeed)
-
-                if ((sqrt((deer.x_Deer - car.x[2])**2+(deer.y_Deer - car.x[0])**2) < MPCDistance) and (deer.x_Deer>car.x[2])):
-
-                    carx[k,:],junk = car.heuns_update(gas = gas, brake = brake, steer = 0, cruise = 'off')
-                    deerx[k,:] = deer.updateDeer(car.x[2])
-
-                else:
-                    carx[k,:],junk = car.heuns_update(steer = 0, setspeed = setSpeed,)
-                    deerx[k,:] = deer.updateDeer(car.x[2])
-
-                distancevec[k] = sqrt((deer.x_Deer - car.x[2])**2+(deer.y_Deer - car.x[0])**2)
-
-            distancevec = distancevec[1:len(distancevec)]
-            min_distance[k_1] = min(distancevec)
-
-        if agent == "H":
-            MPC = MPC_H(q_lane_error = 10.0,q_obstacle_error_F = .05,q_lateral_velocity = 0.00,q_steering_effort = 0.0,q_lat_accel = 0.005,q_obstacle_error_G = 1000000000.0, q_x_accel = 0.0, q_cruise_speed = 25.0, gas_max = 0.25, brake_max = 0.25, predictionmethod = 'CV')
-    
-            for k in range(1,len(t)):
-                
-                gas,brake,steer = MPC.calcOptimal(carnow = car, deernow = deer, setSpeed = setSpeed)
-
-                if ((deer.x_Deer - car.x[2]) < MPCDistance):
-
-                    carx[k,:],junk = car.heuns_update(gas = gas, brake = brake, steer = steer, cruise = 'off')
-                    deerx[k,:] = deer.updateDeer(car.x[2])
-
-
-                else:
-                    carx[k,:],junk = car.heuns_update(steer = steer, setspeed = setSpeed,)
-                    deerx[k,:] = deer.updateDeer(car.x[2])
-
-                distancevec[k] = sqrt((deer.x_Deer - car.x[2])**2+(deer.y_Deer - car.x[0])**2)
-
-            distancevec = distancevec[1:len(distancevec)]
-            min_distance[k_1] = min(distancevec)
-
-        if agent == "Fb":
-            weight = 10.0
-            swerveDistance = 50.0
-            last_steer_t = 0
-            MPC = MPC_Fb(q_lane_error = weight,q_obstacle_error =0.0/weight*10,q_lateral_velocity=1.0,q_steering_effort=1.0,q_accel = 0.005,predictionmethod='CV')
-
-
-
-            for k in range(1,len(t)):
-
-                if ((deer.x_Deer - car.x[2]) < swerveDistance): 
-
-                    if ((t[k]- last_steer_t) >= MPC.dtp):
-                        opt_steer = MPC.calcOptimal(carnow = car,deernow = deer, yroad = 0)
-                        brake = MPC.calcBraking(carnow = car)
-                        gas = 0
-                        last_steer_t = t[k]
-        
-                else:
-                    opt_steer = 0
-                    gas = 0
-                    brake = 0
-
-                carx[k,:],junk1,junk2 = car.rk_update(gas = gas, brake = brake, steer = opt_steer, cruise = 'off')
-                deerx[k,:] = deer.updateDeer(car.x[2])
-                distancevec[k] = sqrt((deer.x_Deer - car.x[2])**2+(deer.y_Deer - car.x[0])**2)
-                #print carx[k,:]
-                #print deerx[k,:]
-                #print distancevec[k]
-
-            distancevec = distancevec[1:len(distancevec)]
-            min_distance[k_1] = min(distancevec)
-
-
-
-
-
-    # Calculate IQM
-
-    # Sort values from smallest to largest
-    min_distance = sorted(min_distance)
-    minDistanceVec = min_distance
-    # Eliminate lower and upper quartiles
-    min_distance = min_distance[int(round(n/4.0)):int(ceil(3.0*n/4.0))]
-    # Calculate the IQM
-    avg_min_distance = mean(min_distance)
-    # print(avg_min_distance)
-
-    return avg_min_distance, minDistanceVec
 
 def demo():
 
-    mapa = 'nothing'
+    mapa = 'single_tree_60'
    
     xCar = 0
     setSpeed = 25
@@ -423,8 +223,207 @@ def demo():
             FirstGen(setSpeed,xCar,mapa,h)
 
 
+def BinaryConversion(ind):
+
+    resolution = 5
+
+    # Set minimum and maximum values
+
+    Psi0_min = -3.14/2 # radians
+    Psi0_max = 3.14/2 # radians
+
+    SigmaPsi_min = 0 # radians
+    SigmaPsi_max = 0.45*3.24 # radians
+
+    tturn_min = 0.4 # seconds
+    tturn_max = 2.5 # seconds
+
+    Vmax_min = 5 # m/s
+    Vmax_max = 18 # m/s
+
+    Tau_min = 0.75 # seconds
+    Tau_max = 5 # seconds
+
+    # Divide individual into different binary 
+    Psi0_bin = ind[0:resolution]
+    SigmaPsi_bin = ind[resolution:2*resolution]
+    tturn_bin = ind[2*resolution:3*resolution]
+    Vmax_bin = ind[3*resolution:4*resolution]
+    Tau_bin = ind[4*resolution:5*resolution]
+
+    # Convert from binary to decimala
+    Psi0 = Psi0_min + (Psi0_max - Psi0_min)*float(int(Psi0_bin,2))/((2**resolution)-1)
+    SigmaPsi = SigmaPsi_min + (SigmaPsi_max - SigmaPsi_min)*float(int(SigmaPsi_bin,2))/((2**resolution)-1)
+    tturn = tturn_min + (tturn_max - tturn_min)*float(int(tturn_bin,2))/((2**resolution)-1)
+    Vmax = Vmax_min + (Vmax_max - Vmax_min)*float(int(Vmax_bin,2))/((2**resolution)-1)
+    Tau = Tau_min + (Tau_max - Tau_min)*float(int(Tau_bin,2))/((2**resolution)-1)
+
+    #Rrint results
+    # print(Psi0)
+    # print(SigmaPsi)
+    # print(tturn)
+    # print(Vmax)
+    # print(Tau)
+
+    return array([Psi0,SigmaPsi,tturn,Vmax,Tau])
+
+def TestDeer_MPC(deer_ind, n, agent, xCar, setSpeed,fake_map):
+
+    min_distance = zeros(n)
+
+    for k_1 in range(0,n):
+
+        MPCDistance = 50.0
+        setSpeed = setSpeed
+        x_car = xCar
+        x_deer = xCar + 80.0
+        KML = False
+        fake_map = fake_map
 
 
+        print("Run " + str(k_1+1) + " of " + str(n))
+        print("The current car speed is " + str(setSpeed) + " m/s, and the starting x is " + str(xCar) + "m")
+        print('KML = ' + str(KML) + ', map = ' + str(fake_map))
+
+
+        # Where n is the number of drivers we are goin to test each deer against
+
+        deer = Deer_Map(mapa = 'Test2.kml', KML = KML, fake = fake_map, Psi0_Deer = deer_ind[0], Sigma_Psi = deer_ind[1], tturn_Deer = deer_ind[2], Vmax_Deer = deer_ind[3], Tau_Deer = deer_ind[4])
+
+        # Indicate deer initial position
+        deer.x_Deer = x_deer
+        deer.y_Deer = -2
+        # Define simulation time and dt
+        simtime = 10
+        dt = deer.dT
+        t = arange(0,simtime,dt) #takes min, max, and timestep\
+
+        #now set up the car's parameters        
+        car = BicycleModel(dT=dt,U=20)
+        
+        carx = zeros((len(t),len(car.x)))
+        car.x[3] = setSpeed
+        car.x[2] = x_car
+        carx[0,:] = car.x
+
+        #initialize for deer as well
+        deerx = zeros((len(t),4))
+        #fill in initial conditions because they're nonzero
+        deerx[0,:] = array([deer.Speed_Deer,deer.Psi_Deer,deer.x_Deer,deer.y_Deer])
+        distancevec = zeros(len(t))
+
+        if agent == "F":
+            weight = 10.0
+            MPC = MPC_F(q_lane_error = weight,q_obstacle_error =1.0/weight*2,q_lateral_velocity=0.00,q_steering_effort=0.0,q_accel = 0.005,predictionmethod='CV')
+  
+            for k in range(1,len(t)):
+
+                if ((deer.x_Deer - car.x[2]) < MPCDistance): 
+                    opt_steer = MPC.calcOptimal(carnow = car,deernow = deer, yroad = 0)
+                else:
+                    opt_steer = 0
+
+                carx[k,:],junk = car.heuns_update(steer = opt_steer, setspeed = 25.0)
+                deerx[k,:] = deer.updateDeer(car.x[2])
+                distancevec[k] = sqrt((deer.x_Deer - car.x[2])**2+(deer.y_Deer - car.x[0])**2)
+
+            distancevec = distancevec[1:len(distancevec)]
+            min_distance[k_1] = min(distancevec)
+
+
+        if agent == "G":
+            MPC = MPC_G(q_obstacle_error = 1000000000.0,q_x_accel=0.0,q_cruise_speed=0.01,brake_max = 0.5,predictionmethod='CV')
+        
+            for k in range(1,len(t)):
+
+                opt_steer = 0
+                gas,brake = MPC.calcOptimal(carnow = car, deernow = deer, setSpeed = setSpeed)
+
+                if ((sqrt((deer.x_Deer - car.x[2])**2+(deer.y_Deer - car.x[0])**2) < MPCDistance) and (deer.x_Deer>car.x[2])):
+
+                    carx[k,:],junk = car.heuns_update(gas = gas, brake = brake, steer = 0, cruise = 'off')
+                    deerx[k,:] = deer.updateDeer(car.x[2])
+
+                else:
+                    carx[k,:],junk = car.heuns_update(steer = 0, setspeed = setSpeed,)
+                    deerx[k,:] = deer.updateDeer(car.x[2])
+
+                distancevec[k] = sqrt((deer.x_Deer - car.x[2])**2+(deer.y_Deer - car.x[0])**2)
+
+            distancevec = distancevec[1:len(distancevec)]
+            min_distance[k_1] = min(distancevec)
+
+        if agent == "H":
+            MPC = MPC_H(q_lane_error = 10.0,q_obstacle_error_F = .05,q_lateral_velocity = 0.00,q_steering_effort = 0.0,q_lat_accel = 0.005,q_obstacle_error_G = 1000000000.0, q_x_accel = 0.0, q_cruise_speed = 25.0, gas_max = 0.25, brake_max = 0.25, predictionmethod = 'CV')
+    
+            for k in range(1,len(t)):
+                
+                gas,brake,steer = MPC.calcOptimal(carnow = car, deernow = deer, setSpeed = setSpeed)
+
+                if ((deer.x_Deer - car.x[2]) < MPCDistance):
+
+                    carx[k,:],junk = car.heuns_update(gas = gas, brake = brake, steer = steer, cruise = 'off')
+                    deerx[k,:] = deer.updateDeer(car.x[2])
+
+
+                else:
+                    carx[k,:],junk = car.heuns_update(steer = steer, setspeed = setSpeed,)
+                    deerx[k,:] = deer.updateDeer(car.x[2])
+
+                distancevec[k] = sqrt((deer.x_Deer - car.x[2])**2+(deer.y_Deer - car.x[0])**2)
+
+            distancevec = distancevec[1:len(distancevec)]
+            min_distance[k_1] = min(distancevec)
+
+        if agent == "Fb":
+            weight = 10.0
+            swerveDistance = 50.0
+            last_steer_t = 0
+            MPC = MPC_Fb(q_lane_error = weight,q_obstacle_error =0.0/weight*10,q_lateral_velocity=1.0,q_steering_effort=1.0,q_accel = 0.005,predictionmethod='CV')
+
+
+
+            for k in range(1,len(t)):
+
+                if ((deer.x_Deer - car.x[2]) < swerveDistance): 
+
+                    if ((t[k]- last_steer_t) >= MPC.dtp):
+                        opt_steer = MPC.calcOptimal(carnow = car,deernow = deer, yroad = 0)
+                        brake = MPC.calcBraking(carnow = car)
+                        gas = 0
+                        last_steer_t = t[k]
+        
+                else:
+                    opt_steer = 0
+                    gas = 0
+                    brake = 0
+
+                carx[k,:],junk1,junk2 = car.rk_update(gas = gas, brake = brake, steer = opt_steer, cruise = 'off')
+                deerx[k,:] = deer.updateDeer(car.x[2])
+                distancevec[k] = sqrt((deer.x_Deer - car.x[2])**2+(deer.y_Deer - car.x[0])**2)
+                #print carx[k,:]
+                #print deerx[k,:]
+                #print distancevec[k]
+
+            distancevec = distancevec[1:len(distancevec)]
+            min_distance[k_1] = min(distancevec)
+
+
+
+
+
+    # Calculate IQM
+
+    # Sort values from smallest to largest
+    min_distance = sorted(min_distance)
+    minDistanceVec = min_distance
+    # Eliminate lower and upper quartiles
+    min_distance = min_distance[int(round(n/4.0)):int(ceil(3.0*n/4.0))]
+    # Calculate the IQM
+    avg_min_distance = mean(min_distance)
+    # print(avg_min_distance)
+
+    return avg_min_distance, minDistanceVec
 
 def FirstGen(setSpeed, xCar,mapa,h):
 

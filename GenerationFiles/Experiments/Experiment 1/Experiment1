@@ -1,0 +1,14 @@
+Experiment 1
+Date 02/26/19 - 02/27/19
+MPC: Fb_KinCar
+Parameters: 
+q_lane_error = 10
+q_obstacle_error =0
+q_lateral_velocity=1.0
+q_steering_effort=1.0,q_accel = 0.005
+
+Old deer tested in open field, and single_tree_60
+Mean of results used to determine speed reduction, given distance < 2.0m
+Maximum generation at which min speed is found = 20
+
+Test canceled to begin testing using minimum score rather than average score
