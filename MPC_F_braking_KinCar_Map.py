@@ -4,8 +4,8 @@ from BicycleModel import *
 from scipy.optimize import minimize
 from BinaryConversion import *
 from CV_Deer import *
-from Deer_Map import *
-import copy
+from Deer_Escape import *
+from copy import deepcopy
 from KinCar import KinCar
 from RayCasting import *
 
@@ -37,7 +37,7 @@ class MPC_Fb:
 
 
     def predictDeer_static(self,deernow,carnow):
-        predictDeer = copy.deepcopy(deernow)
+        predictDeer = deepcopy(deernow)
         if(self.downsample_horizon=='false'):
             predictDeer.dT = self.dtp
             xdeer_pred_downsampled = zeros((self.Np,4))
@@ -61,7 +61,7 @@ class MPC_Fb:
         return xdeer_pred_downsampled
 
     def predictDeer_CV(self,deernow,carnow):
-        predictDeer = copy.deepcopy(deernow)
+        predictDeer = deepcopy(deernow)
         if(self.downsample_horizon=='false'):
             predictDeer.dT = self.dtp
             
@@ -125,17 +125,20 @@ class MPC_Fb:
 
     def ObjectiveFn(self,steervector,carnow,deernow,yroad):
         J=0
+
         #Np rows by 6 columns, one for each state (or vice versa)
         xcar_pred,xdotcar_pred = self.predictCar(carnow,steervector)
+
         if (self.predictionmethod == 'static'):
             xdeer_pred = self.predictDeer_static(deernow,carnow)
         else:
             xdeer_pred = self.predictDeer_CV(deernow,carnow)
         #calculate lateral acceleration Vdot+U*psidot for the prediction too, so we can use it in objective function
+        
         car_y_accel_pred = xdotcar_pred[:,1]+xcar_pred[:,3]*xcar_pred[:,5]
 
         self.car_y_accel_pred = car_y_accel_pred
-
+        
 
         #Np rows by 5 columns, one for x and y of deer
         J = 0 # initialize the objective to zero
@@ -161,6 +164,7 @@ class MPC_Fb:
                     J = J +  1*self.q_steering_effort * ((steervector[k]-carnow.delta)*60.0)**2 + q_lane_error * (xcar_pred[k,0]-yroad)**2+ 5*self.q_accel*((car_y_accel_pred[k]))**2
                 else:
                     J = J +  1*self.q_steering_effort * ((steervector[k]-steervector[k-1])*60.0)**2 + q_lane_error * (xcar_pred[k,0]-yroad)**2+ 5*self.q_accel*((car_y_accel_pred[k]))**2
+        
         return J
 
 
@@ -277,8 +281,7 @@ def demo_GAdeer():
 
     deer_ind = BinaryConversion(deer_ind)
 
-    deer = Deer_Map(Psi0_Deer = deer_ind[0], Sigma_Psi = deer_ind[1], tturn_Deer = deer_ind[2], Vmax_Deer = deer_ind[3], Tau_Deer = deer_ind[4])
-
+    deer = Deer_Escape(deer_ind[0],deer_ind[1],deer_ind[2],deer_ind[3],deer_ind[4])
     # Indicate deer initial position
     deer.x_Deer = x_deer
     deer.y_Deer = -2.0#PUTrsion(deer_ind)
@@ -375,7 +378,7 @@ def demo_GAdeer():
             cafvec[k] = car.Caf
             carvec[k] = car.Car
             #deerx[k,:] = array([deer.Speed_Deer, deer.Psi_Deer, deer.x_Deer, deer.y_Deer])#updateDeer(car.x[2])
-            deerx[k,:] = deer.updateDeer(car.x[2])
+            deerx[k,:] = deer.updateDeer(car.x[2],car.x[0])
             command_steervec[k] = opt_steer
             distancevec[k] = sqrt((deer.x_Deer - car.x[2])**2+(deer.y_Deer - car.x[0])**2)
 
@@ -582,6 +585,8 @@ def demo_CVdeer():
     newFile = open(FileName, 'a');
     predF = open(predFileName,'a')
 
+    deerSight = False
+
     #now simulate!!
     for k in range(1,len(t)):
 
@@ -601,6 +606,9 @@ def demo_CVdeer():
             print distanceAngle[deerAngle]
 
             if (deerDist < distanceAngle[deerAngle]): 
+                deerSight = True
+
+            if deerSight == True:
                 ##### The commented lines below allow you to test the objective function independently
                 # steervector = 0.01*random.randn(MPC.Np)
                 # bounds = [(-MPC.steering_angle_max,MPC.steering_angle_max)]
@@ -790,10 +798,10 @@ def demo_CVdeer():
 
 
 
+
+
 if __name__ == '__main__':
-    demo_CVdeer()
-
-
+    demo_GAdeer()
 
 
 

@@ -5,7 +5,7 @@ from scipy.optimize import minimize
 from BinaryConversion import *
 from CV_Deer import *
 from Deer_Map import *
-import copy
+from copy import deepcopy
 from KinCar import KinCar
 
 class MPC_Fb:
@@ -36,7 +36,7 @@ class MPC_Fb:
 
 
     def predictDeer_static(self,deernow,carnow):
-        predictDeer = copy.deepcopy(deernow)
+        predictDeer = deepcopy(deernow)
         if(self.downsample_horizon=='false'):
             predictDeer.dT = self.dtp
             xdeer_pred_downsampled = zeros((self.Np,4))
@@ -60,7 +60,7 @@ class MPC_Fb:
         return xdeer_pred_downsampled
 
     def predictDeer_CV(self,deernow,carnow):
-        predictDeer = copy.deepcopy(deernow)
+        predictDeer = deepcopy(deernow)
         if(self.downsample_horizon=='false'):
             predictDeer.dT = self.dtp
             

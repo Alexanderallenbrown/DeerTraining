@@ -91,7 +91,14 @@ class Deer_Escape:
 
         carAngle = arctan((self.y_Deer-y_Car)/(self.x_Deer-x_Car))
 
-        sigmaPsi = sigmaPsi + carAngle
+        sigmaPsi = 3.1415 - sigmaPsi
+
+        if self.y_Deer > y_Car:
+            sigmaPsi = sigmaPsi + carAngle
+
+        else:
+            sigmaPsi = -sigmaPsi + carAngle
+
         sigmaPsi = (90*3.1416/180.) - sigmaPsi
 
         self.Psi2_Deer = sigmaPsi*3.1415/180.
