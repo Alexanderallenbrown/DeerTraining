@@ -333,13 +333,30 @@ def demo_GAdeer():
     newFile = open(FileName, 'a');
     predF = open(predFileName,'a')
 
+    deerSight = False
+
     #now simulate!!
     for k in range(1,len(t)):
 
             #print carx[k-1,:]
             #print deerx[k-1,:]
+            distance_pred = zeros(10)
 
-            if ((deer.x_Deer - car.x[2]) < swerveDistance): 
+            distanceAngle = MapRaycasting([car.x[2],car.x[0]],'mapa',KML = False, fake = 'nothing')
+
+            deerAngle = arctan((deer.y_Deer-car.x[0])/(deer.x_Deer-car.x[2]))
+            deerDist = sqrt((deer.y_Deer-car.x[0])**2+(deer.x_Deer-car.x[2])**2)
+
+            deerAngle = int(deerAngle *180./3.1415)
+
+            print deerAngle
+            print deerDist
+            print distanceAngle[deerAngle]
+
+            if (deerDist < distanceAngle[deerAngle]): 
+                deerSight = True
+
+            if deerSight == True:
                 ##### The commented lines below allow you to test the objective function independently
                 # steervector = 0.01*random.randn(MPC.Np)
                 # bounds = [(-MPC.steering_angle_max,MPC.steering_angle_max)]
@@ -348,15 +365,21 @@ def demo_GAdeer():
                 # opt_steer = 0
                 # #steervector,carnow,deernow,yroad
                 # J = MPC.ObjectiveFn(steervector,car,deer,yroad=0)
+                distance_pred = sqrt((MPC.xcar_pred_downsampled[:,0]-MPC.xdeer_pred_downsampled[:,3])**2+(MPC.xcar_pred_downsampled[:,2]-MPC.xdeer_pred_downsampled[:,2])**2)
+                
                 if ((t[k]- last_steer_t) >= MPC.dtp):
                     opt_steer = MPC.calcOptimal(carnow = car,deernow = deer, yroad = 0)
                     brake = MPC.calcBraking(carnow = car)
                     gas = 0
+                    print min(distance_pred)
 
                     last_steer_t = t[k]
                     print t[k]
 
-            
+                    distance_pred = sqrt((MPC.xcar_pred_downsampled[:,0]-MPC.xdeer_pred_downsampled[:,3])**2+(MPC.xcar_pred_downsampled[:,2]-MPC.xdeer_pred_downsampled[:,2])**2)
+                    
+                   
+                
             #if((deer.x_Deer<car.x[2])):
 
 #                yr = 0
@@ -371,7 +394,6 @@ def demo_GAdeer():
                 opt_steer = 0
                 gas = 0
                 brake = 0
-
 
             #print opt_steer
             carx[k,:],carxdot[k,:],actual_steervec[k] = car.rk_update(gas = gas, brake = brake, steer = opt_steer, cruise = 'off')

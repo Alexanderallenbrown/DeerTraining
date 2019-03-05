@@ -153,6 +153,8 @@ def MapRaycasting(pos, mapa, KML=True, fake = 'nothing'):
             Trees = [(array([-1000,1000,1000,-1000]),array([1000,1000,-1000,-1000]),array([0,0,0,0]))]
         if fake == 'single_tree_60':
             Trees = [(array([58,62,62,58]),array([12,12,8,8]),array([0,0,0,0]))]
+        if fake == 'real_tree_wismer':
+            Trees = [(array([100,180,180,100]),array([-4,-4,-94,-94]),array([0,0,0,0]))]
     else:
         Trees = KMLtoXYZ(f)
     

@@ -54,7 +54,7 @@ class Deer_Escape:
 
             else:
                 if self.chPsi == True:
-                    print "Choose Psi2"
+                    #print "Choose Psi2"
                     self.Psi2_Deer = self.choosePsi2(x_Car,y_Car)
                     self.chPsi = False
 
@@ -63,7 +63,7 @@ class Deer_Escape:
                         self.Speed_Deer = self.Speed_Deer - self.Amax_Deer*self.dT
 
                     else:
-                        print "TURN"
+                        #print "TURN"
                         self.Psi_Deer = self.Psi2_Deer
                         self.turn = True
 
@@ -106,11 +106,11 @@ class Deer_Escape:
         self.Psidot_Deer = abs(self.Psi1_Deer - self.Psi2_Deer)/(10*self.dT)
         self.Vturn_Deer = abs(self.Amax_Deer/self.Psidot_Deer)
 
-        print "THIS IS THE DATA"
-        print self.Psi2_Deer
-        print self.Psi1_Deer
-        print self.Psidot_Deer
-        print self.Vturn_Deer
+        # print "THIS IS THE DATA"
+        # print self.Psi2_Deer
+        # print self.Psi1_Deer
+        # print self.Psidot_Deer
+        # print self.Vturn_Deer
 
         return sigmaPsi
 
@@ -120,9 +120,8 @@ if __name__=='__main__':
 
     #set up our deer
 
-    deer = Deer_Escape(Psi1_Deer = 0., y_init = -2.0, tturn_Deer = 2.0, Vmax_Deer = 6.5, Tau_Deer = 2.0)
+    deer = Deer_Escape(Psi1_Deer = 0., y_init = -30.0, tturn_Deer = 2.5, Vmax_Deer = 18.0, Tau_Deer = .75)
     deer.x_Deer = 80.0
-    deer.y_Deer = -2.0
 
     simtime = 6
     dt = deer.dT
@@ -187,8 +186,8 @@ if __name__=='__main__':
     figure()
     plot(t, carx[:,3])
 
-    print(deer.Psi1_Deer,deer.Psi2_Deer)
-    print(deer.Vturn_Deer,deer.Vmax_Deer)
+    #print(deer.Psi1_Deer,deer.Psi2_Deer)
+    #print(deer.Vturn_Deer,deer.Vmax_Deer)
 
     figure()
     plot(t,distance)
