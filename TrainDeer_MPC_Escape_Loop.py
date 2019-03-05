@@ -378,6 +378,8 @@ def TestDeer_MPC(deer_ind, n, agent, xCar, setSpeed,fake_map):
     avg_min_distance = mean(min_distance)
     # print(avg_min_distance)
 
+    return avg_min_distance, minDistanceVec, Collision
+
 
 def FirstGen(setSpeed, xCar,mapa,h):
 
@@ -397,7 +399,6 @@ def FirstGen(setSpeed, xCar,mapa,h):
     newGenFile.close();
 
     for ind in range(0,len(Deer10)):
-
 
         Deer1 = Deer10[(ind)]
         Deer1_bin = Deer1
@@ -431,6 +432,5 @@ def FirstGen(setSpeed, xCar,mapa,h):
 
 
 if __name__=='__main__':
-
     demo()
 
