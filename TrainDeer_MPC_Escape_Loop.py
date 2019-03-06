@@ -186,6 +186,8 @@ def demo():
             newGenFile = open(G2fname, 'a');
             for x in range(0, len(NewBaseGenArray)):
                 newGenFile.write(str(NewBaseGenArray[x].traits) + ' ' + str(NewBaseGenArray[x].result))
+                print NewBaseGenArray[x].minDistanceVec
+                print NewBaseGenArray[x].collisionVec
                 for ind in range(0,h):
                     newGenFile.write(' ' + str(NewBaseGenArray[x].minDistanceVec[ind]))
                 for ind in range(0,h):
@@ -313,7 +315,7 @@ def TestDeer_MPC(deer_ind, n, agent, xCar, setSpeed,fake_map):
 
         weight = 10.0
         swerveDistance = 50.0
-        last_steer_t = 0
+        last_steer_t = 0.
         deerSight = False
         
         MPC = MPC_Fb(q_lane_error = weight,q_obstacle_error =0.0/weight*10,q_lateral_velocity=1.0,q_steering_effort=1.0,q_accel = 0.005,predictionmethod='CV')
