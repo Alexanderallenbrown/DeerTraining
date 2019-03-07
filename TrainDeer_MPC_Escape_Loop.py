@@ -69,10 +69,12 @@ def demo():
                 for line in ins:
                     values = line.split()
                     deer = TraitResult();
-                    minDistanceVec = values[2:(2+h-1)]
+                    minDistanceVec = values[2:(2+h)]
                     collisionVec = values[(2+h):]
                     deer.assign(str(values[0]),float(values[1]),minDistanceVec,collisionVec);
                     CurrentGenarray.append(deer)
+
+                    print minDistanceVec
 
 
             # we now have an arrary of deer objects, paired values of attributes and the corresponding results
