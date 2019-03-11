@@ -19,12 +19,12 @@ def demo():
 
     mapa = 'nothing'
    
-    xCar = 0
-    setSpeed = 25
+    xCar = 20
+    setSpeed = 21
 
     agent_type = "Fb"
 
-    generation_number = 1
+    generation_number = 6
     meanRes = 100. 
 
     intermediatePopulationSize = 10;
