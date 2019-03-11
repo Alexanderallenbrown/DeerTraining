@@ -277,7 +277,7 @@ def demo_GAdeer():
     x_car = 0.0
     x_deer = 80.0
 
-    deer_ind = '1011111111111011001111111'
+    deer_ind = '0001000011111111110001101'
 
     deer_ind = BinaryConversion(deer_ind)
 
