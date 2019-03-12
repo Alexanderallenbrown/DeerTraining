@@ -20,7 +20,7 @@ def demo():
     mapa = 'real_tree_wismer'
    
     xCar = 60
-    setSpeed = 25
+    setSpeed = 20
 
     agent_type = "Fb"
 
