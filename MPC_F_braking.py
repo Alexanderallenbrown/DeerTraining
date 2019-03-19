@@ -5,6 +5,7 @@ from scipy.optimize import minimize
 from BinaryConversion import *
 from CV_Deer import *
 import copy
+import time
 
 class MPC_Fb:
     def __init__(self, Np=10, dtp=.1,q_lane_error = 1.0,q_obstacle_error = 1.0,q_steering_effort=1.0,q_accel = 1.0,q_lateral_velocity=1.0,steering_angle_max=.25, epsilon = 0.00001,downsample_horizon = 'false',predictionmethod = 'static'):
@@ -511,7 +512,7 @@ def demo_CVdeer():
 
             #print carx[k-1,:]
             #print deerx[k-1,:]
-
+            print(t[k])
             if ((deer.x_Deer - car.x[2]) < swerveDistance): 
                 ##### The commented lines below allow you to test the objective function independently
                 # steervector = 0.01*random.randn(MPC.Np)
@@ -694,7 +695,11 @@ def demo_CVdeer():
 
 
 if __name__ == '__main__':
+    starttime = time.time()
+    print("running")
     demo_CVdeer()
+    endtime = time.time()
+    print("elapsed time: "+str(endtime-starttime))
 
 
 

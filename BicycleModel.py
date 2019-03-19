@@ -16,10 +16,11 @@ import sys
 from numpy import *#array,dot,cos,sin,sqrt,tan
 from pacejkatire import PacejkaTire
 from matplotlib.pyplot import *
+from numba import jit
 
 #from matplotlib.pyplot import *
 
-class BicycleModel:
+class BicycleModel(object):
 
     def __init__(self,a = 0.8,b = 1.5,m = 1000.0,I=2000.0,U=20.0,Cf=100000.0,Cr=100000.0,mu=1.0,dT=0.01,tiretype='pacejka',drive='rear',bias=0.3,autopilot_gain = 1, xinit = 0, yinit = 0, zinit = 0,steering_actuator = 'on'):
         """ 
@@ -96,6 +97,7 @@ class BicycleModel:
             Fy=0
         return Fy
 
+    @jit()
     def state_eq(self,x,t,Fxf,Fxr,delta):
         """ state_eq(self,x,t,Fx,delta):
             returns state derivatives for odeint"""
@@ -157,6 +159,7 @@ class BicycleModel:
         #print array([[Ydot],[vdot],[Xdot],[Udot],[Psidot],[rdot]])
         return array([Ydot,vdot,Xdot,Udot,Psidot,rdot])
 
+    @jit
     def calc_inputs(self,brake,gas,steer):
         #first calculate engine power accepting an input from 0 to 1
         #gas = -gas
@@ -275,6 +278,7 @@ class BicycleModel:
 
         return self.x,self.xdot,steer
 
+    @jit()
     def rk_update(self,brake=0,gas=0,steer=0,cruise = 'on',setspeed=20.0,autopilot='off',mpc='off',patherror=0):
        
         # Update steering actuator
@@ -317,10 +321,12 @@ class BicycleModel:
         return x,self.xdot
 
 
+    @jit()
     def steering_statederivs(self, delta, deltadot, delta_r, delta_rdot):
         deltaddot = 2 * self.z * self.w * (delta_rdot - deltadot) + self.w * self.w * (delta_r - delta)
         return [deltadot, deltaddot]
   
+    @jit()
     def steering_update(self, delta_r):
         self.delta_r = delta_r;
         self.delta_rdot = (self.delta_r - self.delta_rold) / self.dT;
@@ -345,80 +351,6 @@ class BicycleModel:
             self.delta = -self.steer_limit
 
         return self.delta;
-
-    # def minError(self,uvec,roadvec,speedvec,xv,Rsteer,Rgas,Rbrake,Qroad,Qspeed,dT):
-    #     """ minError(uvec,rvec,xvehicle) returns the objective value for minimizing vehicle-road error over a prediction horizon.
-    #     uvec should be an array of length N where N is the prediction horizon.
-    #     rvec should also be an array of length N where N is the prediction horizon.
-    #     bmodel is a BicycleModel object, with built-in discretization at the proper timestep.
-    #     This function is designed to be used in conjunction with a scipy.optimize minimize call. """
-    #     J = 0 #initialize the objective to zero
-    #     #print uvec
-    #     brakevec = uvec[0:len(roadvec)]#first row is brake
-    #     gasvec = uvec[len(roadvec):2*len(roadvec)]#second is brake
-    #     steervec = uvec[2*len(roadvec):]
-    #     #print len(brakevec),len(gasvec),len(steervec)
-    #     #now loop through and update J for every timestep in the prediction horizon.
-    #     #TODO this is something to do later: make the J look at lateral error, not y-error so we can go with closed paths etc.
-    #     for ind in range(0,len(roadvec)): #compute for each step in the prediction horizon
-    #         #print ind
-    #         xv = self.euler_predict(xv,brakevec[ind],gasvec[ind],steervec[ind],dT)
-    #         J=J+(Qroad*(roadvec[ind]-xv[0])**2+Qspeed*(speedvec[ind]-xv[3])**2+Rsteer*steervec[ind]**2+Rbrake*brakevec[ind]**2+Rgas*gasvec[ind]**2) #SIMPLE! just add the square of the error to the objective function!
-    #         #print J
-    #     return J
-
-    # def MPC_auto(self,xv,speedref,roadref,unow=None,Rsteer=1,Rgas=1,Rbrake=1,Qroad=1,Qspeed=10,dT=0.1):
-    #     #this is where the MPC autopilot code goes.
-    #     if unow is None:
-    #         u0 = random.randn(3,len(speedref))#grab an initial guess for the gas, brake, and steer values.
-    #     else:
-    #         u0 = unow
-    #     #print u0
-    #     umpc = minimize(self.minError,u0,args=(roadvec,speedvec,xv,Rsteer,Rgas,Rbrake,Qroad,Qspeed,dT),method='BFGS',options={'xtol': 1e-12, 'disp': True,'eps':.0001,'gtol':.0001}) # (BFGS)let minimize (scipy) do the optimization!     
-    #     brake,gas,steer =umpc.x[0],umpc.x[10],umpc.x[20]
-    #     print gas,umpc.x[10:20]
-
-    #     return brake,gas,steer
-    #     #brake,gas,steer = umpc[0,0],umpc[1,0],umpc[2,0] #optimal inputs are the first in the horizon optimized by MPC.
-    #     #return brake,gas,steer
-
-    def minError(self,steervec,gas,brake,roadvec,xv,Rsteer,Qroad,Qacc,dT):
-        """ minError(uvec,rvec,xvehicle) returns the objective value for minimizing vehicle-road error over a prediction horizon.
-        uvec should be an array of length N where N is the prediction horizon.
-        rvec should also be an array of length N where N is the prediction horizon.
-        bmodel is a BicycleModel object, with built-in discretization at the proper timestep.
-        This function is designed to be used in conjunction with a scipy.optimize minimize call. 
-
-        NOTE: This takes a SCALAR gas and brake value, gleaned from a separate ACC/cruise control algorithm.
-
-        """
-        J = 0 #initialize the objective to zero
-        #print len(brakevec),len(gasvec),len(steervec)
-        #now loop through and update J for every timestep in the prediction horizon.
-        #TODO this is something to do later: make the J look at lateral error, not y-error so we can go with closed paths etc.
-        for ind in range(0,len(steervec)): #compute for each step in the prediction horizon
-            #print ind
-            #calculate states AND derivatives so that we can calculate acceleration.
-            xv,xdot = self.euler_predict(xv,brake,gas,steervec[ind],dT)
-            #now acceleration in the y-direction is vdot + U*r
-            y_acc = xdot[1]+xv[3]*xv[5]
-            #print xv
-            J=J+(Qroad*(roadvec[ind]-xv[0])**2+Qacc*y_acc**2+Rsteer*steervec[ind]**2) #SIMPLE! just add the square of the error to the objective function!
-            #print J
-        return J
-
-    def MPC_auto(self,xv,roadref,brake,gas,unow=None,Rsteer=0,Qroad=1,Qacc=.0005,dT=0.1):
-        #this is where the MPC autopilot code goes.
-        if unow is None:
-            u0 = random.randn(len(roadref))#grab an initial guess for the gas, brake, and steer values.
-        else:
-            u0 = unow
-        #print u0
-        umpc = minimize(self.minError,u0,args=(gas,brake,roadvec,xv,Rsteer,Qroad,Qacc,dT),method='BFGS',options={'xtol': 1e-12, 'disp': False,'eps':.0001,'gtol':.0001}) # (BFGS)let minimize (scipy) do the optimization!     
-        steer =umpc.x[0]
-        return steer,umpc.x
-        #brake,gas,steer = umpc[0,0],umpc[1,0],umpc[2,0] #optimal inputs are the first in the horizon optimized by MPC.
-        #return brake,gas,steer
 
 
 
