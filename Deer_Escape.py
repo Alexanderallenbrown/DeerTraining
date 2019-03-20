@@ -5,7 +5,7 @@ from matplotlib.pyplot import *
 from Driver import *
 from RayCasting import *
 
-class Deer_Escape:
+class Deer_Escape(object):
 
     def __init__(self, Psi1_Deer = -.307, y_init = -2.0, tturn_Deer = 0.594, Vmax_Deer = 13.5, Tau_Deer = 2.203, dT = 1./60, x_Deer = 80):
        

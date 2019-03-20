@@ -8,8 +8,9 @@ from Deer_Escape import *
 from copy import deepcopy
 from KinCar import KinCar
 from RayCasting import *
+import time
 
-class MPC_Fb:
+class MPC_Fb(object):
     def __init__(self, Np=10, dtp=.1,q_lane_error = 1.0,q_obstacle_error = 1.0,q_steering_effort=1.0,q_accel = 1.0,q_lateral_velocity=1.0,steering_angle_max=.25, epsilon = 0.00001,downsample_horizon = 'false',predictionmethod = 'static'):
         self.Np = Np
         self.dtp = dtp
@@ -97,29 +98,10 @@ class MPC_Fb:
 
     def predictCar(self,carnow,steervector):
         predictCar = KinCar(self.dtp,carnow.a,carnow.b,carnow.x[0],carnow.x[1],carnow.x[2],carnow.x[3],carnow.x[4],carnow.x[5])
+            
+        for k in range(0,self.Np):
+            self.xcar_pred_downsampled[k,:],self.xdotcar_pred_downsampled[k,:],steer = predictCar.euler_update(steervector[k],0,0)
 
-        if(self.downsample_horizon=='false'):
-            
-            for k in range(0,self.Np):
-                self.xcar_pred_downsampled[k,:],self.xdotcar_pred_downsampled[k,:],steer = predictCar.euler_update(steer = steervector[k])
-        else:
-            #compute a time vector for predicting
-            tvec = arange(0,self.prediction_time+predictCar.dT,predictCar.dT)
-            
-            #initialize the 'fine' vector we will fill while predicting 
-            xcar_pred = zeros((len(tvec),6))
-            xdotcar_pred  = zeros((len(tvec),6))
-            #we have to 'upsample' the steer vector since it is only Np long. it will look like 'stairs'
-            steervector_upsampled = interp(tvec,self.t_horizon,steervector)
-            #print steervector_upsampled.shape
-            #actually predict the car's states given the input
-            for k in range(0,len(tvec)):
-                xcar_pred[k,:],xdotcar_pred[k,:],steer = predictCar.euler_update(steer = steervector_upsampled[k])
-            #now downsample the prediction so it is only MPC.Np points long
-            for k in range(0,6):
-                self.xcar_pred_downsampled[:,k] = interp(self.t_horizon,tvec,xcar_pred[:,k])
-                self.xdotcar_pred_downsampled[:,k] = interp(self.t_horizon,tvec,xdotcar_pred[:,k])
-            #print xdotcar_pred_downsampled.shape,xcar_pred_downsampled.shape
         self.XYPrediction = hstack((self.xcar_pred_downsampled[2,:],self.xcar_pred_downsampled[0,:]))
         return self.xcar_pred_downsampled,self.xdotcar_pred_downsampled
 
@@ -470,7 +452,7 @@ def demo_GAdeer():
     y = 0.5*9.8*sin(theta)
     plot(x,y,'r--')
 
-    print ax,ay
+    #print ax,ay
 
 
     ### CREATE ANIMATION
@@ -539,7 +521,7 @@ def demo_GAdeer():
 
     ### ANIMATION END
 
-    show()
+    #show()
 
 def demo_CVdeer():
 
@@ -816,14 +798,18 @@ def demo_CVdeer():
 
     ### ANIMATION END
 
-    show()
+    #show()
 
 
 
 
 
 if __name__ == '__main__':
+    starttime = time.time()
+    print("running...")
     demo_GAdeer()
+    endtime = time.time()
+    print("elapsed: "+str(endtime-starttime))
 
 
 

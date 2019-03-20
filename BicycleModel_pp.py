@@ -14,32 +14,11 @@ import sys
 #sys.path.append("/usr/local/lib/python3.4/dist-packages/numpy-1.12.0.dev0+4c415d2-py3.4-linux-x86_64.egg/")
 #import numpy
 from numpy import *#array,dot,cos,sin,sqrt,tan
-from pacejkatire import PacejkaTire
+from pacejkatire_pp import PacejkaTire
 from matplotlib.pyplot import *
-from numba import jit,jitclass
-from numba import float32 as nfloat32
-from numba import int32 as nint32
+from numba import jit
 
-spec = [
-    ('a',nfloat32),
-    ('b',nfloat32),
-    ('m',nfloat32),
-    ('I',nfloat32),
-    ('U',nfloat32),
-    ('Caf',nfloat32),
-    ('Car',nfloat32),
-    ('dT',nfloat32),
-    ('mu',nfloat32),
-    ('tiretype',nint32), #TODO CHANGE IN CLASS
-    ('drive',nint32), #TODO CHANGE IN CLASS
-    ('bias',nfloat32),
-    ('Fyf',nfloat32),
-    ('Fyr',nfloat32),
-    ('Fxf',nfloat32),
-    ('Fxr',nfloat32),
-    ('alpha_f',nfloat32),
-    ('alpha_r',nfloat32),
-]
+#from matplotlib.pyplot import *
 
 class BicycleModel(object):
 

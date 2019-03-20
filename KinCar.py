@@ -1,6 +1,23 @@
 from numpy import array,sin,cos
+from numba import jit,jitclass
+from numba import float32 as nfloat32
+from numba import int32 as nint32
 
-class KinCar:
+spec = [
+    ('a',nfloat32),
+    ('b',nfloat32),
+    ('Y',nfloat32),
+    ('V',nfloat32),
+    ('X',nfloat32),
+    ('U',nfloat32),
+    ('Psi',nfloat32),
+    ('r',nfloat32),
+    ('rtau',nfloat32),
+    ('dt',nfloat32)
+]
+
+@jitclass(spec)
+class KinCar(object):
     def __init__(self,dt=0.01,a = 0.8,b = 1.5,Y=0,V=0,X=0,U=0,Psi=0,r=0):
         self.dt,self.a,self.b,self.Y,self.V,self.X,self.U,self.Psi,self.r=dt,a,b,Y,V,X,U,Psi,r
         self.rtau = 0.05 #just a guess...

@@ -91,8 +91,12 @@ class PacejkaTire(object):
 
         newkappa = kappa[minfx_kappa:maxfx_kappa]
         newfx = Fx[minfx_kappa:maxfx_kappa]
+        fxincreasing = np.all(np.diff(newfx) > 0)
         # mykappa = np.interp(iFx,Fx,kappa,right=maxfx_kappa,left=-maxfx_kappa)
-        mykappa = np.interp(iFx,newfx,newkappa)
+        if fxincreasing:
+          mykappa = np.interp(iFx,newfx,newkappa)
+        else: #probably means we're sliding
+          mykappa = maxfx_kappa
         return mykappa
 
     def updateFyparams(self,iFz):
