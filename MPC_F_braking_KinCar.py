@@ -584,6 +584,8 @@ def demo_CVdeer():
     #now simulate!!
     for k in range(1,len(t)):
 
+        if car.x[3] > 1.0:
+
             #print carx[k-1,:]
             #print deerx[k-1,:]
             distance_pred = zeros(10)

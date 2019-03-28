@@ -324,38 +324,46 @@ def TestDeer_MPC(deer_ind, n, agent, xCar, setSpeed,fake_map):
 
         for k in range(1,len(t)):
 
-            distance_pred = zeros(10)
+            if car.x[3] > 1.0:
 
-            distanceAngle = MapRaycasting([car.x[2],car.x[0]],'mapa',KML = KML, fake = fake_map)
+                distance_pred = zeros(10)
 
-            deerAngle = arctan((deer.y_Deer-car.x[0])/(deer.x_Deer-car.x[2]))
-            deerDist = sqrt((deer.y_Deer-car.x[0])**2+(deer.x_Deer-car.x[2])**2)
+                distanceAngle = MapRaycasting([car.x[2],car.x[0]],'mapa',KML = KML, fake = fake_map)
 
-            deerAngle = int(deerAngle *180./3.1415)
+                deerAngle = arctan((deer.y_Deer-car.x[0])/(deer.x_Deer-car.x[2]))
+                deerDist = sqrt((deer.y_Deer-car.x[0])**2+(deer.x_Deer-car.x[2])**2)
 
-            if (deerDist < distanceAngle[deerAngle]): 
-                deerSight = True
+                deerAngle = int(deerAngle *180./3.1415)
 
-            if deerSight == True:
+                if (deerDist < distanceAngle[deerAngle]): 
+                    deerSight = True
 
-                if ((t[k]- last_steer_t) >= MPC.dtp):
-                    opt_steer = MPC.calcOptimal(carnow = car,deernow = deer, yroad = 0)
-                    brake = MPC.calcBraking(carnow = car)
+                if deerSight == True:
+
+                    if ((t[k]- last_steer_t) >= MPC.dtp):
+                        opt_steer = MPC.calcOptimal(carnow = car,deernow = deer, yroad = 0)
+                        brake = MPC.calcBraking(carnow = car)
+                        gas = 0
+
+                        last_steer_t = t[k]
+        
+                else:
+                    opt_steer = 0
                     gas = 0
+                    brake = 0
 
-                    last_steer_t = t[k]
-    
+                carx[k,:],junk1,junk2 = car.rk_update(gas = gas, brake = brake, steer = opt_steer, cruise = 'off')
+                deerx[k,:] = deer.updateDeer(car.x[2],car.x[0])
+                distancevec[k] = sqrt((deer.x_Deer - car.x[2])**2+(deer.y_Deer - car.x[0])**2)
+                #print carx[k,:]
+                #print deerx[k,:]
+                #print distancevec[k]
+
             else:
-                opt_steer = 0
-                gas = 0
-                brake = 0
+                carx[k,:] = array([carx[k-1,0],0.0,carx[k-1,2],0.0,carx[k-1,4],0.0])
+                deerx[k,:] = array([0.0,deerx[k-1,1],deerx[k-1,2],deerx[k-1,3]])
+                distancevec[k] = distancevec[k-1]
 
-            carx[k,:],junk1,junk2 = car.rk_update(gas = gas, brake = brake, steer = opt_steer, cruise = 'off')
-            deerx[k,:] = deer.updateDeer(car.x[2],car.x[0])
-            distancevec[k] = sqrt((deer.x_Deer - car.x[2])**2+(deer.y_Deer - car.x[0])**2)
-            #print carx[k,:]
-            #print deerx[k,:]
-            #print distancevec[k]
 
         distancevec = distancevec[1:len(distancevec)]
         min_distance[k_1] = min(distancevec)

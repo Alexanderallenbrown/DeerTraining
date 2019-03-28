@@ -273,7 +273,7 @@ class MPC_Fb:
 def demo_GAdeer():
 
     swerveDistance = 50.0
-    setSpeed = 25.0
+    setSpeed = 15.0
     x_car = 0.0
     x_deer = 80.0
 
@@ -287,7 +287,7 @@ def demo_GAdeer():
     deer.y_Deer = -2.0#PUTrsion(deer_ind)
         
     # Define simulation time and dt
-    simtime = 5
+    simtime = 10.
     dt = deer.dT
     t = arange(0,simtime,dt) #takes min, max, and timestep\
 
@@ -338,6 +338,8 @@ def demo_GAdeer():
     #now simulate!!
     for k in range(1,len(t)):
 
+        if car.x[3] > 1.0:
+
             #print carx[k-1,:]
             #print deerx[k-1,:]
             distance_pred = zeros(10)
@@ -377,8 +379,8 @@ def demo_GAdeer():
                     print t[k]
 
                     distance_pred = sqrt((MPC.xcar_pred_downsampled[:,0]-MPC.xdeer_pred_downsampled[:,3])**2+(MPC.xcar_pred_downsampled[:,2]-MPC.xdeer_pred_downsampled[:,2])**2)
-                    
-                   
+
+
                 
             #if((deer.x_Deer<car.x[2])):
 
@@ -427,6 +429,21 @@ def demo_GAdeer():
             for ind2 in range(0,len(MPC.XYDeerPrediction)):
                 predF.write(str(MPC.XYDeerPrediction[ind2])+'\t')
             predF.write('\n')
+
+        else:
+            carx[k,:] = array([carx[k-1,0],0.0,carx[k-1,2],0.0,carx[k-1,4],0.0])
+            carxdot[k,:] = array([0.,0.,0.,0.,0.,0.])
+            actual_steervec[k] = 0.0
+            cafvec[k] = cafvec[k-1]
+            carvec[k] = carvec[k-1]
+            #deerx[k,:] = array([deer.Speed_Deer, deer.Psi_Deer, deer.x_Deer, deer.y_Deer])#updateDeer(car.x[2])
+            deerx[k,:] = array([0.0,deerx[k-1,1],deerx[k-1,2],deerx[k-1,3]])
+            command_steervec[k] = 0.0
+            distancevec[k] = distancevec[k-1]
+
+            ay[k] = carxdot[k,1]+carx[k,3]*carx[k,5]
+            ax[k] = carxdot[k,3]-carx[k,1]*carx[k,5]
+
 
 
     ## SAVE end
@@ -612,6 +629,8 @@ def demo_CVdeer():
     #now simulate!!
     for k in range(1,len(t)):
 
+        if car.x[3] > 1.0:
+
             #print carx[k-1,:]
             #print deerx[k-1,:]
             distance_pred = zeros(10)
@@ -702,6 +721,20 @@ def demo_CVdeer():
             for ind2 in range(0,len(MPC.XYDeerPrediction)):
                 predF.write(str(MPC.XYDeerPrediction[ind2])+'\t')
             predF.write('\n')
+
+        else:
+            carx[k,:] = array([carx[k-1,0],0.0,carx[k-1,2],0.0,carx[k-1,4],0.0])
+            carxdot[k,:] = array([0.,0.,0.,0.,0.,0.])
+            actual_steervec[k] = 0.0
+            cafvec[k] = cafvec[k-1]
+            carvec[k] = carvec[k-1]
+            #deerx[k,:] = array([deer.Speed_Deer, deer.Psi_Deer, deer.x_Deer, deer.y_Deer])#updateDeer(car.x[2])
+            deerx[k,:] = array([0.0,deerx[k-1,1],deerx[k-1,2],deerx[k-1,3]])
+            command_steervec[k] = 0.0
+            distancevec[k] = distancevec[k-1]
+
+            ay[k] = carxdot[k,1]+carx[k,3]*carx[k,5]
+            ax[k] = carxdot[k,3]-carx[k,1]*carx[k,5]
 
 
     ## SAVE end
