@@ -54,12 +54,12 @@ class Deer_Escape_Smooth:
                     if (self.Speed_Deer > self.Vturn_Deer):
                         self.Speed_Deer = self.Speed_Deer - self.Amax_Deer*self.dT
                         if self.Psi2_Deer > self.Psi_Deer:
-                            psidot_max = self.Amax_Deer/self.Speed_Deer
+                            psidot_max = self.Amax_Deer/(self.Speed_Deer*self.dT)
                         else:
-                            psidot_max = -self.Amax_Deer/self.Speed_Deer
+                            psidot_max = -self.Amax_Deer/(self.Speed_Deer*self.dT)
 
-                        psidot_max = psidot_max*10*self.dT
-                        self.Psi_Deer = self.Psi_Deer + psidot_max
+
+                        self.Psi_Deer = self.Psi_Deer + psidot_max*self.dT
 
                     else:
                         #print "TURN"

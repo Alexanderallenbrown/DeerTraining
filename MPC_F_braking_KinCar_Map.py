@@ -275,7 +275,7 @@ def demo_GAdeer():
 
     fakemap = 'real_tree_wismer'
     swerveDistance = 50.0
-    setSpeed = 15.0
+    setSpeed = 25.0
     x_car = 80.0
     x_deer = x_car + 80.0
 
