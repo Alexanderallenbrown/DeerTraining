@@ -46,11 +46,11 @@ class Deer_Escape_Smooth:
                 self.Speed_Deer += self.dT/(self.Tau_Deer)*(self.Vmax_Deer-self.Speed_Deer)
 
             else:
-                self.Psi2_Deer = self.choosePsi2(x_Car,y_Car)
-                self.Psidot_Deer = abs(self.Psi_Deer - self.Psi2_Deer)/(10*self.dT)
-                self.Vturn_Deer = abs(self.Amax_Deer/self.Psidot_Deer)
-
+                
                 if self.turn == False:
+                    self.Psi2_Deer = self.choosePsi2(x_Car,y_Car)
+                    self.Psidot_Deer = abs(self.Psi_Deer - self.Psi2_Deer)/(10*self.dT)
+                    self.Vturn_Deer = abs(self.Amax_Deer/self.Psidot_Deer)
                     if (self.Speed_Deer > self.Vturn_Deer):
                         self.Speed_Deer = self.Speed_Deer - self.Amax_Deer*self.dT
                         if self.Psi2_Deer > self.Psi_Deer:
@@ -115,7 +115,7 @@ if __name__=='__main__':
 
     #set up our deer
 
-    deer = Deer_Escape_Smooth(Psi1_Deer = 0., y_init = -15.0, tturn_Deer = 2.5, Vmax_Deer = 15.0, Tau_Deer = 1.)
+    deer = Deer_Escape_Smooth(Psi1_Deer = 0., y_init = -15.0, tturn_Deer = 2.0, Vmax_Deer = 15.0, Tau_Deer = 1.)
     deer.x_Deer = 80.0
 
     simtime = 6
