@@ -5,6 +5,7 @@ from scipy.optimize import minimize
 from BinaryConversion import *
 from CV_Deer import *
 from Deer_Escape import *
+from Deer_Escape_Smooth import *
 from copy import deepcopy
 from KinCar import KinCar
 from RayCasting import *
@@ -563,10 +564,7 @@ def demo_GAdeer():
         deer_plot.set_height(deer_width)
         deer_plot.set_xy([deer_x[i]-(deer_length/2*sin(deer_yaw[i])), deer_y[i]]-(deer_width/2*cos(deer_yaw[i])))
         deer_plot.angle = 90-deer_yaw[i]*180/3.14
-        deer_plot.facecolor = 'r'
-        print deer_visible[i]
         if deer_visible[i] == 1.0:
-            print 'setfacecolor to red'
             deer_plot.set_color('r') 
         else:
             deer_plot.set_color('y')
