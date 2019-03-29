@@ -276,17 +276,20 @@ def demo_GAdeer():
     fakemap = 'real_tree_wismer'
     swerveDistance = 50.0
     setSpeed = 25.0
+<<<<<<< HEAD
     x_car = 80.0
+=======
+    x_car = 40.0
+>>>>>>> cb9ec8304b5ff25491e03bcc497e8839727b3875
     x_deer = x_car + 80.0
 
-    deer_ind = '0001000011111111110001101'
+    deer_ind = '010001000011111111110000'
 
-    deer_ind = BinaryConversion(deer_ind)
+    deer_ind = BinaryConversion_Escape(deer_ind)
 
-    deer = Deer_Escape(deer_ind[0],deer_ind[1],deer_ind[2],deer_ind[3],deer_ind[4])
+    deer = Deer_Escape_Smooth(deer_ind[0],deer_ind[1],deer_ind[2],deer_ind[3],deer_ind[4])
     # Indicate deer initial position
     deer.x_Deer = x_deer
-    deer.y_Deer = -2.0#PUTrsion(deer_ind)
         
     # Define simulation time and dt
     simtime = 10.
@@ -350,13 +353,23 @@ def demo_GAdeer():
             distanceAngle = MapRaycasting([car.x[2],car.x[0]],'mapa',KML = False, fake = fakemap)
 
             deerAngle = arctan((deer.y_Deer-car.x[0])/(deer.x_Deer-car.x[2]))
+
             deerDist = sqrt((deer.y_Deer-car.x[0])**2+(deer.x_Deer-car.x[2])**2)
 
             deerAngle = int(deerAngle *180./3.1415)
 
+            if deerAngle < 0:
+                deerAngle = 360 + deerAngle
+
+            print 'LENGTH'
+            print len(distanceAngle)
+
+            print 'COMPARE'
             print deerAngle
+            print distanceAngle[270]
             print deerDist
-            print distanceAngle[deerAngle]
+            print car.x[2]
+            print deer_visible[k-1]
 
             if (deerDist < distanceAngle[deerAngle]): 
                 deerSight = True
@@ -538,6 +551,8 @@ def demo_GAdeer():
 
     def init():
         ax.add_patch(car_circle)
+        if fakemap == 'real_tree_wismer':
+            ax.add_patch(trees)
         ax.add_patch(car_plot)
         ax.add_patch(deer_plot)
         ax.add_patch(background)
@@ -546,14 +561,17 @@ def demo_GAdeer():
         ax.add_patch(center_line_1)
         ax.add_patch(center_line_2)
         if fakemap == 'real_tree_wismer':
-            ax.add_patch(trees)
-            return car_circle,car_plot,deer_plot,trees,
+            return car_circle,trees,car_plot,deer_plot,
         else:
             return car_circle,car_plot,deer_plot,
 
     # Set animation
     def animate(i):
         car_circle.center = (car_x[i],car_y[i])
+
+        if fakemap == 'real_tree_wismer':
+            trees.set_width(90)
+
 
         car_plot.set_width(car_length)
         car_plot.set_height(car_width)
@@ -570,10 +588,8 @@ def demo_GAdeer():
             deer_plot.set_color('y')
 
         if fakemap == 'real_tree_wismer':
-            trees.set_width(90)
-            return car_circle,car_plot,deer_plot,trees,        
+            return car_circle,trees,car_plot,deer_plot,        
             
-
         else:
             return car_circle,car_plot,deer_plot,
 

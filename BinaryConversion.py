@@ -4,49 +4,93 @@ from BicycleModel import *
 from matplotlib.pyplot import *
 from Deer import *
 
+def BinaryConversion_Escape(ind):
+
+    resolution = 5
+
+    # Set minimum and maximum values
+
+    Psi1_min = -3.14/2 # radians
+    Psi1_max = 3.14/2 # radians
+
+    yinit_min = -1. # meters
+    yinit_max = -30. # meters
+
+    tturn_min = 0.4 # seconds
+    tturn_max = 2.5 # seconds
+
+    Vmax_min = 5 # m/s
+    Vmax_max = 18 # m/s
+
+    Tau_min = 0.75 # seconds
+    Tau_max = 5 # seconds
+
+    # Divide individual into different binary 
+    Psi1_bin = ind[0:resolution]
+    yinit_bin = ind[resolution:2*resolution]
+    tturn_bin = ind[2*resolution:3*resolution]
+    Vmax_bin = ind[3*resolution:4*resolution]
+    Tau_bin = ind[4*resolution:5*resolution]
+
+    # Convert from binary to decimala
+    Psi1 = Psi1_min + (Psi1_max - Psi1_min)*float(int(Psi1_bin,2))/((2**resolution)-1)
+    yinit = yinit_min + (yinit_max - yinit_min)*float(int(yinit_bin,2))/((2**resolution)-1)
+    tturn = tturn_min + (tturn_max - tturn_min)*float(int(tturn_bin,2))/((2**resolution)-1)
+    Vmax = Vmax_min + (Vmax_max - Vmax_min)*float(int(Vmax_bin,2))/((2**resolution)-1)
+    Tau = Tau_min + (Tau_max - Tau_min)*float(int(Tau_bin,2))/((2**resolution)-1)
+
+    #Rrint results
+    # print(Psi1)
+    # print(yinit)
+    # print(tturn)
+    # print(Vmax)
+    # print(Tau)
+
+    return array([Psi1,yinit,tturn,Vmax,Tau])
+
 def BinaryConversion(ind):
 
-	resolution = 5
+    resolution = 5
 
-	# Set minimum and maximum values
+    # Set minimum and maximum values
 
-	Psi0_min = -3.14/2 # radians
-	Psi0_max = 3.14/2 # radians
+    Psi0_min = -3.14/2 # radians
+    Psi0_max = 3.14/2 # radians
 
-	SigmaPsi_min = 0 # radians
-	SigmaPsi_max = 0.45*3.24 # radians
+    SigmaPsi_min = 0 # radians
+    SigmaPsi_max = 0.45*3.24 # radians
 
-	tturn_min = 0.4 # seconds
-	tturn_max = 2.5 # seconds
+    tturn_min = 0.4 # seconds
+    tturn_max = 2.5 # seconds
 
-	Vmax_min = 5 # m/s
-	Vmax_max = 18 # m/s
+    Vmax_min = 5 # m/s
+    Vmax_max = 18 # m/s
 
-	Tau_min = 0.75 # seconds
-	Tau_max = 5 # seconds
+    Tau_min = 0.75 # seconds
+    Tau_max = 5 # seconds
 
-	# Divide individual into different binary 
-	Psi0_bin = ind[0:resolution]
-	SigmaPsi_bin = ind[resolution:2*resolution]
-	tturn_bin = ind[2*resolution:3*resolution]
-	Vmax_bin = ind[3*resolution:4*resolution]
-	Tau_bin = ind[4*resolution:5*resolution]
+    # Divide individual into different binary 
+    Psi0_bin = ind[0:resolution]
+    SigmaPsi_bin = ind[resolution:2*resolution]
+    tturn_bin = ind[2*resolution:3*resolution]
+    Vmax_bin = ind[3*resolution:4*resolution]
+    Tau_bin = ind[4*resolution:5*resolution]
 
-	# Convert from binary to decimala
-	Psi0 = Psi0_min + (Psi0_max - Psi0_min)*float(int(Psi0_bin,2))/((2**resolution)-1)
-	SigmaPsi = SigmaPsi_min + (SigmaPsi_max - SigmaPsi_min)*float(int(SigmaPsi_bin,2))/((2**resolution)-1)
-	tturn = tturn_min + (tturn_max - tturn_min)*float(int(tturn_bin,2))/((2**resolution)-1)
-	Vmax = Vmax_min + (Vmax_max - Vmax_min)*float(int(Vmax_bin,2))/((2**resolution)-1)
-	Tau = Tau_min + (Tau_max - Tau_min)*float(int(Tau_bin,2))/((2**resolution)-1)
+    # Convert from binary to decimala
+    Psi0 = Psi0_min + (Psi0_max - Psi0_min)*float(int(Psi0_bin,2))/((2**resolution)-1)
+    SigmaPsi = SigmaPsi_min + (SigmaPsi_max - SigmaPsi_min)*float(int(SigmaPsi_bin,2))/((2**resolution)-1)
+    tturn = tturn_min + (tturn_max - tturn_min)*float(int(tturn_bin,2))/((2**resolution)-1)
+    Vmax = Vmax_min + (Vmax_max - Vmax_min)*float(int(Vmax_bin,2))/((2**resolution)-1)
+    Tau = Tau_min + (Tau_max - Tau_min)*float(int(Tau_bin,2))/((2**resolution)-1)
 
-	#Rrint results
-	# print(Psi0)
-	# print(SigmaPsi)
-	# print(tturn)
-	# print(Vmax)
-	# print(Tau)
+    #Rrint results
+    # print(Psi0)
+    # print(SigmaPsi)
+    # print(tturn)
+    # print(Vmax)
+    # print(Tau)
 
-	return array([Psi0,SigmaPsi,tturn,Vmax,Tau])
+    return array([Psi0,SigmaPsi,tturn,Vmax,Tau])
 
 def TestDeer(deer_ind, n, agent):
 
