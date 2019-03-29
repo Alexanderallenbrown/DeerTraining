@@ -276,11 +276,7 @@ def demo_GAdeer():
     fakemap = 'real_tree_wismer'
     swerveDistance = 50.0
     setSpeed = 25.0
-<<<<<<< HEAD
-    x_car = 80.0
-=======
     x_car = 40.0
->>>>>>> cb9ec8304b5ff25491e03bcc497e8839727b3875
     x_deer = x_car + 80.0
 
     deer_ind = '010001000011111111110000'
