@@ -328,7 +328,7 @@ def TestDeer_MPC(deer_ind, n, agent, xCar, setSpeed,fake_map):
 
                 distanceAngle = MapRaycasting([car.x[2],car.x[0]],'mapa',KML = KML, fake = fake_map)
 
-                deerAngle = arctan((deer.y_Deer-car.x[0])/(deer.x_Deer-car.x[2]))
+                deerAngle = arctan2((deer.y_Deer-car.x[0]),(deer.x_Deer-car.x[2]))
                 deerDist = sqrt((deer.y_Deer-car.x[0])**2+(deer.x_Deer-car.x[2])**2)
 
                 deerAngle = int(deerAngle *180./3.1415)
