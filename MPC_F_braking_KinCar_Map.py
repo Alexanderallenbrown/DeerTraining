@@ -465,8 +465,10 @@ def demo_GAdeer():
             ay[k] = carxdot[k,1]+carx[k,3]*carx[k,5]
             ax[k] = carxdot[k,3]-carx[k,1]*carx[k,5]
 
-        xCarPred[k,:] = MPC.XYPrediction[0:12:2]
+        print MPC.XYPrediction
 
+        xCarPred[k,:] = MPC.XYPrediction[0:12:2]
+        #print xCarPred[k,:]
 
 
 
@@ -521,8 +523,6 @@ def demo_GAdeer():
     x = 0.5*9.8*cos(theta)
     y = 0.5*9.8*sin(theta)
     plot(x,y,'r--')
-
-    print ax,ay
 
 
     ### CREATE ANIMATION
