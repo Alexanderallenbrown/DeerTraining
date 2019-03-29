@@ -7,11 +7,11 @@ from RayCasting import *
 
 class Deer_Escape_Smooth:
 
-    def __init__(self, Psi1_Deer = -.307, y_init = -2.0, tturn_Deer = 0.594, Vmax_Deer = 13.5, Tau_Deer = 2.203, dT = 1./60, x_Deer = 80):
+    def __init__(self, Psi1_Deer = -.307, y_init = -2.0, dturn_Deer = 0.594, Vmax_Deer = 13.5, Tau_Deer = 2.203, dT = 1./60, x_Deer = 80):
        
         self.Tau_Deer = Tau_Deer  
         self.Vmax_Deer = Vmax_Deer 
-        self.tturn_Deer = tturn_Deer
+        self.dturn_Deer = dturn_Deer
         self.y_init = y_init
         self.Psi1_Deer = Psi1_Deer
         self.dT = dT
@@ -40,35 +40,41 @@ class Deer_Escape_Smooth:
             pass
 
         else:
-
-            if self.tmove_Deer < self.tturn_Deer:
-                self.Psi_Deer = self.Psi1_Deer
-                self.Speed_Deer += self.dT/(self.Tau_Deer)*(self.Vmax_Deer-self.Speed_Deer)
-
-            else:
-                self.Psi2_Deer = self.choosePsi2(x_Car,y_Car)
-                self.Psidot_Deer = abs(self.Psi_Deer - self.Psi2_Deer)/(self.dT)
-                self.Vturn_Deer = abs(self.Amax_Deer/self.Psidot_Deer)
-
-                if self.turn == False:
-                    if ((self.Speed_Deer > self.Vturn_Deer) and (x_Car<self.x_Deer)):
-                        self.Speed_Deer = self.Speed_Deer - self.Amax_Deer*self.dT
-                        if self.Psi2_Deer > self.Psi_Deer:
-                            psidot_max = self.Amax_Deer/(self.Speed_Deer)
-                        else:
-                            psidot_max = -self.Amax_Deer/(self.Speed_Deer)
+            if (x_Car<self.x_Deer):
 
 
-                        self.Psi_Deer = self.Psi_Deer + psidot_max*self.dT
+                dist = sqrt((x_Car-self.x_Deer)**2+(y_Car-self.y_Deer)**2)
 
-                    else:
-                        #print "TURN"
-                        self.Psi_Deer = self.Psi2_Deer
-                        self.turn = True
-
-                if self.turn == True:
+                if dist > self.dturn_Deer:
+                    self.Psi_Deer = self.Psi1_Deer
                     self.Speed_Deer += self.dT/(self.Tau_Deer)*(self.Vmax_Deer-self.Speed_Deer)
 
+                else:
+                    self.Psi2_Deer = self.choosePsi2(x_Car,y_Car)
+                    self.Psidot_Deer = abs(self.Psi_Deer - self.Psi2_Deer)/(self.dT)
+                    self.Vturn_Deer = abs(self.Amax_Deer/self.Psidot_Deer)
+
+                    if self.turn == False:
+                        if ((self.Speed_Deer > self.Vturn_Deer)): # and (x_Car<self.x_Deer)):
+                            self.Speed_Deer = self.Speed_Deer - self.Amax_Deer*self.dT
+                            if self.Psi2_Deer > self.Psi_Deer:
+                                psidot_max = self.Amax_Deer/(self.Speed_Deer)
+                            else:
+                                psidot_max = -self.Amax_Deer/(self.Speed_Deer)
+
+
+                            self.Psi_Deer = self.Psi_Deer + psidot_max*self.dT
+
+                        else:
+                            #print "TURN"
+                            self.Psi_Deer = self.Psi2_Deer
+                            self.turn = True
+
+                    if self.turn == True:
+                        self.Speed_Deer += self.dT/(self.Tau_Deer)*(self.Vmax_Deer-self.Speed_Deer)
+
+            else:
+                self.Speed_Deer += self.dT/(self.Tau_Deer)*(self.Vmax_Deer-self.Speed_Deer)
 
             self.tmove_Deer += self.dT
 
@@ -115,16 +121,16 @@ if __name__=='__main__':
 
     #set up our deer
 
-    deer = Deer_Escape_Smooth(Psi1_Deer = 0., y_init = -15.0, tturn_Deer = 2.5, Vmax_Deer = 15.0, Tau_Deer = 5.)
+    deer = Deer_Escape_Smooth(Psi1_Deer = 0., y_init = -15.0, dturn_Deer = 2.5, Vmax_Deer = 15.0, Tau_Deer = 5.)
     deer.x_Deer = 80.0
 
-    simtime = 6
+    simtime = 10
     dt = deer.dT
     t = arange(0,simtime,dt) #takes min, max, and timestep
 
     #now set up the car's parameters
     car = BicycleModel(dT=dt)
-    car.x[3] = 1.
+    car.x[3] = 25
     steervec = zeros(len(t))
 
     #set up the driver
@@ -169,7 +175,7 @@ if __name__=='__main__':
 
     deermoving_index = nonzero((deerx[:,2]-carx[:,2])<=deer.x_StartDeer)
     deermoving_index = deermoving_index[0][0]-1
-    turn_index = nonzero(t>=(deer.tturn_Deer+t[deermoving_index]))
+    turn_index = nonzero(t>=(deer.dturn_Deer+t[deermoving_index]))
     turn_index = turn_index[0][0]
 
     figure()

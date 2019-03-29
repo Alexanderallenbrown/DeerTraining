@@ -279,14 +279,14 @@ def demo_GAdeer():
     x_car = 40.0
     x_deer = x_car + 80.0
 
-    deer_ind = '010001000011111111100000'
+    deer_ind = '0100010000000111111100000'
 
     deer_ind = BinaryConversion_Escape(deer_ind)
 
     deer = Deer_Escape_Smooth(deer_ind[0],deer_ind[1],deer_ind[2],deer_ind[3],deer_ind[4])
     # Indicate deer initial position
     deer.x_Deer = x_deer
-        
+
     # Define simulation time and dt
     simtime = 10.
     dt = deer.dT
@@ -319,6 +319,8 @@ def demo_GAdeer():
     carvec = zeros(len(t))
     distancevec = zeros(len(t))
     deer_visible = zeros(len(t))
+    deer_psi = zeros(len(t))
+    deer_speed = zeros(len(t))
     opt_steer = 0
     last_steer_t = 0
     ax = zeros(len(t))
@@ -336,6 +338,8 @@ def demo_GAdeer():
     predF = open(predFileName,'a')
 
     deerSight = False
+
+    xCarPred = zeros((len(t),6))
 
     #now simulate!!
     for k in range(1,len(t)):
@@ -357,15 +361,12 @@ def demo_GAdeer():
             if deerAngle < 0:
                 deerAngle = 360 + deerAngle
 
-            print 'LENGTH'
-            print len(distanceAngle)
-
-            print 'COMPARE'
-            print deerAngle
-            print distanceAngle[270]
-            print deerDist
-            print car.x[2]
-            print deer_visible[k-1]
+            # print 'COMPARE'
+            # print deerAngle
+            # print distanceAngle[270]
+            # print deerDist
+            # print car.x[2]
+            # print deer_visible[k-1]
 
             if (deerDist < distanceAngle[deerAngle]): 
                 deerSight = True
@@ -417,9 +418,11 @@ def demo_GAdeer():
             carvec[k] = car.Car
             #deerx[k,:] = array([deer.Speed_Deer, deer.Psi_Deer, deer.x_Deer, deer.y_Deer])#updateDeer(car.x[2])
             deerx[k,:] = deer.updateDeer(car.x[2],car.x[0])
-            print "deer velocities: "+str(deer.Vturn_Deer)+ "   "+str(deer.Speed_Deer)
+            print "deer velocities: "+str(deer.Vturn_Deer)+ "   "+str(deer.Speed_Deer) + "  " + str(deer.turn)
             command_steervec[k] = opt_steer
             distancevec[k] = sqrt((deer.x_Deer - car.x[2])**2+(deer.y_Deer - car.x[0])**2)
+            deer_speed[k] = deer.Speed_Deer
+            deer_psi[k] = deer.Psi_Deer*180/3.1415
 
             ay[k] = carxdot[k,1]+carx[k,3]*carx[k,5]
             ax[k] = carxdot[k,3]-carx[k,1]*carx[k,5]
@@ -452,6 +455,8 @@ def demo_GAdeer():
             cafvec[k] = cafvec[k-1]
             carvec[k] = carvec[k-1]
             deer_visible[k] = deer_visible[k-1]
+            deer_speed[k] = deer.Speed_Deer
+            deer_psi[k] = deer.Psi_Deer*180/3.1415
             #deerx[k,:] = array([deer.Speed_Deer, deer.Psi_Deer, deer.x_Deer, deer.y_Deer])#updateDeer(car.x[2])
             deerx[k,:] = array([0.0,deerx[k-1,1],deerx[k-1,2],deerx[k-1,3]])
             command_steervec[k] = 0.0
@@ -460,10 +465,16 @@ def demo_GAdeer():
             ay[k] = carxdot[k,1]+carx[k,3]*carx[k,5]
             ax[k] = carxdot[k,3]-carx[k,1]*carx[k,5]
 
+        xCarPred[k,:] = MPC.XYPrediction[0:12:2]
+
+
+
 
 
     ## SAVE end
 
+    print "XY PREDICTION"
+    print xCarPred
 
     ayg = (carxdot[:,1]+carx[:,5]*carx[:,3])/9.81
     figure()
@@ -493,6 +504,14 @@ def demo_GAdeer():
     plot(t,distancevec)
     xlabel('time (s)')
     ylabel('Distance(m)')
+    figure()
+    plot(t,deer_speed)
+    xlabel('Time(s)')
+    ylabel('Deer Speed (m/s')
+    figure()
+    plot(t,deer_psi)
+    xlabel('Time (s)')
+    ylabel('Deer Psi (rad)')
     figure()
     plot(ay,ax,'ko-')
     xlabel('ay')
