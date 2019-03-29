@@ -279,7 +279,7 @@ def demo_GAdeer():
     x_car = 40.0
     x_deer = x_car + 80.0
 
-    deer_ind = '010001000011111111110000'
+    deer_ind = '010001000011111111111111'
 
     deer_ind = BinaryConversion_Escape(deer_ind)
 
