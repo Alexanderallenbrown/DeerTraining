@@ -279,7 +279,7 @@ def demo_GAdeer():
     x_car = 40.0
     x_deer = x_car + 80.0
 
-    deer_ind = '010001000011111111111111'
+    deer_ind = '010001000011111111100000'
 
     deer_ind = BinaryConversion_Escape(deer_ind)
 
@@ -417,6 +417,7 @@ def demo_GAdeer():
             carvec[k] = car.Car
             #deerx[k,:] = array([deer.Speed_Deer, deer.Psi_Deer, deer.x_Deer, deer.y_Deer])#updateDeer(car.x[2])
             deerx[k,:] = deer.updateDeer(car.x[2],car.x[0])
+            print "deer velocities: "+str(deer.Vturn_Deer)+ "   "+str(deer.Speed_Deer)
             command_steervec[k] = opt_steer
             distancevec[k] = sqrt((deer.x_Deer - car.x[2])**2+(deer.y_Deer - car.x[0])**2)
 
