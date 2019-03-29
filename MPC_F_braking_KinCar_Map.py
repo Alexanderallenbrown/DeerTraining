@@ -272,10 +272,11 @@ class MPC_Fb:
 
 def demo_GAdeer():
 
+    fakemap = 'real_tree_wismer'
     swerveDistance = 50.0
     setSpeed = 15.0
-    x_car = 0.0
-    x_deer = 80.0
+    x_car = 80.0
+    x_deer = x_car + 80.0
 
     deer_ind = '0001000011111111110001101'
 
@@ -344,7 +345,7 @@ def demo_GAdeer():
             #print deerx[k-1,:]
             distance_pred = zeros(10)
 
-            distanceAngle = MapRaycasting([car.x[2],car.x[0]],'mapa',KML = False, fake = 'nothing')
+            distanceAngle = MapRaycasting([car.x[2],car.x[0]],'mapa',KML = False, fake = fakemap)
 
             deerAngle = arctan((deer.y_Deer-car.x[0])/(deer.x_Deer-car.x[2]))
             deerDist = sqrt((deer.y_Deer-car.x[0])**2+(deer.x_Deer-car.x[2])**2)
@@ -515,19 +516,23 @@ def demo_GAdeer():
     fig = plt.figure()
     ax = fig.add_subplot(111)
     plt.axis('equal')
-    ax.set_xlim(0, 100)
+    ax.set_xlim(x_car, x_car + 100)
     ax.set_ylim(-25, 25)
 
     # Initialize rectangles
+    car_circle = patches.Circle((100,0),60,fc = 'w', alpha = 0.25)
     car_plot = patches.Rectangle((0, 0), 0, 0,angle = 0.0, fc='b', alpha = 0.5)
     deer_plot = patches.Rectangle((0, 0), 0, 0,angle = 0.0, fc='r', alpha = 0.5)
-    background = patches.Rectangle((-100,-100),200,200,fc='k')
-    center_line_1 = patches.Rectangle((-10,(1.75+0.025)),200,0.1,fc='y')
-    center_line_2 = patches.Rectangle((-10,(1.75-0.1-0.025)),200,0.1,fc='y')
-    right_line = patches.Rectangle((-10,-1.75),200,0.1,fc='w')
-    left_line = patches.Rectangle((-10,4.75),200,0.1,fc='w')
+    background = patches.Rectangle((-100,-100),10000,10000,fc='k')
+    center_line_1 = patches.Rectangle((-10,(1.75+0.025)),10000,0.1,fc='y')
+    center_line_2 = patches.Rectangle((-10,(1.75-0.1-0.025)),10000,0.1,fc='y')
+    right_line = patches.Rectangle((-10,-1.75),10000,0.1,fc='w')
+    left_line = patches.Rectangle((-10,4.75),10000,0.1,fc='w')
+    if fakemap == 'real_tree_wismer':
+        trees = patches.Rectangle((100,-94),80,90,fc='g')
 
     def init():
+        ax.add_patch(car_circle)
         ax.add_patch(car_plot)
         ax.add_patch(deer_plot)
         ax.add_patch(background)
@@ -535,10 +540,16 @@ def demo_GAdeer():
         ax.add_patch(right_line)
         ax.add_patch(center_line_1)
         ax.add_patch(center_line_2)
-        return car_plot,deer_plot,
+        if fakemap == 'real_tree_wismer':
+            ax.add_patch(trees)
+            return car_circle,car_plot,deer_plot,trees,
+        else:
+            return car_circle,car_plot,deer_plot,
 
     # Set animation
     def animate(i):
+        car_circle.center = (car_x[i],car_y[i])
+
         car_plot.set_width(car_length)
         car_plot.set_height(car_width)
         car_plot.set_xy([car_x[i]-(car_length/2), car_y[i]-(car_width/2)])
@@ -549,7 +560,13 @@ def demo_GAdeer():
         deer_plot.set_xy([deer_x[i]-(deer_length/2*sin(deer_yaw[i])), deer_y[i]]-(deer_width/2*cos(deer_yaw[i])))
         deer_plot.angle = 90-deer_yaw[i]*180/3.14
 
-        return car_plot,deer_plot,
+        if fakemap == 'real_tree_wismer':
+            trees.set_width(90)
+            return car_circle,car_plot,deer_plot,trees,        
+            
+
+        else:
+            return car_circle,car_plot,deer_plot,
 
     # Run anumation
     anim = animation.FuncAnimation(fig, animate,init_func=init,frames=len(car_x),interval=20,blit=True)
@@ -560,6 +577,7 @@ def demo_GAdeer():
 
 def demo_CVdeer():
 
+    fakemap = 'real_tree_wismer'
     swerveDistance = 50.0
     setSpeed = 25.0
     deer_x = 80.0
@@ -819,6 +837,7 @@ def demo_CVdeer():
     center_line_2 = patches.Rectangle((-10,(1.75-0.1-0.025)),200,0.1,fc='y')
     right_line = patches.Rectangle((-10,-1.75),200,0.1,fc='w')
     left_line = patches.Rectangle((-10,4.75),200,0.1,fc='w')
+
 
     def init():
         ax.add_patch(car_plot)
