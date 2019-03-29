@@ -31,6 +31,9 @@ class BicycleModel:
         Right now, very simple engine model with constant power. See euler_update for details. planning to break these out soon.
 
          """
+         #maximum steer velocity taken from these: https://www.abdynamics.com/en/products/track-testing/driving-robots/steering-robots
+         #asusming a 20:1 hand:road ratio
+        self.max_steer_vel = 1600*pi/180.*1.0/20#rad/s, the max amount of ROADWHEEL velocity the motor can make.
         self.a = a
         self.b = b
         self.m = m
@@ -325,6 +328,8 @@ class BicycleModel:
         self.delta_r = delta_r;
         self.delta_rdot = (self.delta_r - self.delta_rold) / self.dT;
         self.deltadot = (self.delta - self.deltaold) / self.dT;
+        if(abs(self.deltadot)>self.max_steer_vel):
+            self.deltadot = sign(self.deltadot)*self.max_steer_vel
         self.deltaold = self.delta;
         self.delta_rold = self.delta_r;
         #self uses Heun's method (trapezoidal)
@@ -332,11 +337,15 @@ class BicycleModel:
         #first calculation
         deltaprime = self.delta + xdot1[0] * self.dT;
         deltadotprime = self.deltadot + xdot1[1] * self.dT;
+        if(abs(deltadotprime)>self.max_steer_vel):
+            deltadotprime = sign(self.deltadot)*self.max_steer_vel
         #now compute again
         xdot2 = self.steering_statederivs(deltaprime, deltadotprime, self.delta_r, self.delta_rdot);
         #now compute the final update
         self.delta = self.delta + self.dT / 2 * (xdot1[0] + xdot2[0]);
         self.deltadot = self.deltadot + self.dT / 2 * (xdot1[1] + xdot2[1]);
+
+
 
         if (self.delta > self.steer_limit):
             self.delta = self.steer_limit
