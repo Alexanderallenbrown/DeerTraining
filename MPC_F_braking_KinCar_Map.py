@@ -318,6 +318,7 @@ def demo_GAdeer():
     cafvec = zeros(len(t))
     carvec = zeros(len(t))
     distancevec = zeros(len(t))
+    deer_visible = zeros(len(t))
     opt_steer = 0
     last_steer_t = 0
     ax = zeros(len(t))
@@ -360,6 +361,7 @@ def demo_GAdeer():
                 deerSight = True
 
             if deerSight == True:
+                deer_visible[k] = 1.0
                 ##### The commented lines below allow you to test the objective function independently
                 # steervector = 0.01*random.randn(MPC.Np)
                 # bounds = [(-MPC.steering_angle_max,MPC.steering_angle_max)]
@@ -394,6 +396,7 @@ def demo_GAdeer():
       #          opt_steer = steer_gain*(yr-ep)
         
             else:
+                deer_visible[k] = 0
                 opt_steer = 0
                 gas = 0
                 brake = 0
@@ -437,6 +440,7 @@ def demo_GAdeer():
             actual_steervec[k] = 0.0
             cafvec[k] = cafvec[k-1]
             carvec[k] = carvec[k-1]
+            deer_visible[k] = deer_visible[k-1]
             #deerx[k,:] = array([deer.Speed_Deer, deer.Psi_Deer, deer.x_Deer, deer.y_Deer])#updateDeer(car.x[2])
             deerx[k,:] = array([0.0,deerx[k-1,1],deerx[k-1,2],deerx[k-1,3]])
             command_steervec[k] = 0.0
@@ -522,7 +526,7 @@ def demo_GAdeer():
     # Initialize rectangles
     car_circle = patches.Circle((100,0),60,fc = 'w', alpha = 0.25)
     car_plot = patches.Rectangle((0, 0), 0, 0,angle = 0.0, fc='b', alpha = 0.5)
-    deer_plot = patches.Rectangle((0, 0), 0, 0,angle = 0.0, fc='r', alpha = 0.5)
+    deer_plot = patches.Rectangle((0, 0), 0, 0,angle = 0.0, fc='g', alpha = 0.5)
     background = patches.Rectangle((-100,-100),10000,10000,fc='k')
     center_line_1 = patches.Rectangle((-10,(1.75+0.025)),10000,0.1,fc='y')
     center_line_2 = patches.Rectangle((-10,(1.75-0.1-0.025)),10000,0.1,fc='y')
@@ -559,6 +563,13 @@ def demo_GAdeer():
         deer_plot.set_height(deer_width)
         deer_plot.set_xy([deer_x[i]-(deer_length/2*sin(deer_yaw[i])), deer_y[i]]-(deer_width/2*cos(deer_yaw[i])))
         deer_plot.angle = 90-deer_yaw[i]*180/3.14
+        deer_plot.facecolor = 'r'
+        print deer_visible[i]
+        if deer_visible[i] == 1.0:
+            print 'setfacecolor to red'
+            deer_plot.set_color('r') 
+        else:
+            deer_plot.set_color('y')
 
         if fakemap == 'real_tree_wismer':
             trees.set_width(90)
@@ -626,6 +637,7 @@ def demo_CVdeer():
     cafvec = zeros(len(t))
     carvec = zeros(len(t))
     distancevec = zeros(len(t))
+    deer_visible = zeros(len(t))
     opt_steer = 0
     last_steer_t = 0
     ax = zeros(len(t))
@@ -667,7 +679,9 @@ def demo_CVdeer():
             if (deerDist < distanceAngle[deerAngle]): 
                 deerSight = True
 
+
             if deerSight == True:
+                deer_visible[k] == True
                 ##### The commented lines below allow you to test the objective function independently
                 # steervector = 0.01*random.randn(MPC.Np)
                 # bounds = [(-MPC.steering_angle_max,MPC.steering_angle_max)]
@@ -702,6 +716,7 @@ def demo_CVdeer():
       #          opt_steer = steer_gain*(yr-ep)
         
             else:
+                deer_visible[k] = False
                 opt_steer = 0
                 gas = 0
                 brake = 0
@@ -750,6 +765,7 @@ def demo_CVdeer():
             deerx[k,:] = array([0.0,deerx[k-1,1],deerx[k-1,2],deerx[k-1,3]])
             command_steervec[k] = 0.0
             distancevec[k] = distancevec[k-1]
+            deer_visible[k] = deer_visible[k-1]
 
             ay[k] = carxdot[k,1]+carx[k,3]*carx[k,5]
             ax[k] = carxdot[k,3]-carx[k,1]*carx[k,5]
@@ -758,7 +774,8 @@ def demo_CVdeer():
     ## SAVE end
 
     #print min(distancevec[1:])
-
+    print 'DEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEERRRRRRRRRRRRRRRRRRRr'
+    print deer_visiblev
 
     ayg = (carxdot[:,1]+carx[:,5]*carx[:,3])/9.81
     figure()
@@ -800,7 +817,6 @@ def demo_CVdeer():
 
     # print ax,ay
 
-
     ### CREATE ANIMATION
     import matplotlib.pyplot as plt
     import matplotlib.patches as patches
@@ -831,7 +847,7 @@ def demo_CVdeer():
 
     # Initialize rectangles
     car_plot = patches.Rectangle((0, 0), 0, 0,angle = 0.0, fc='b', alpha = 0.5)
-    deer_plot = patches.Rectangle((0, 0), 0, 0,angle = 0.0, fc='r', alpha = 0.5)
+    deer_plot = patches.Rectangle((0, 0), 0, 0,angle = 0.0, fc='y', alpha = 0.5)
     background = patches.Rectangle((-100,-100),200,200,fc='k')
     center_line_1 = patches.Rectangle((-10,(1.75+0.025)),200,0.1,fc='y')
     center_line_2 = patches.Rectangle((-10,(1.75-0.1-0.025)),200,0.1,fc='y')
@@ -860,6 +876,11 @@ def demo_CVdeer():
         deer_plot.set_height(deer_width)
         deer_plot.set_xy([deer_x[i]-(deer_length/2*sin(deer_yaw[i])), deer_y[i]]-(deer_width/2*cos(deer_yaw[i])))
         deer_plot.angle = 90-deer_yaw[i]*180/3.14
+        deer_plot.fc = 'r'
+        if deer_visible[i] == True:
+            deer_plot.fc = 'r'
+        else:
+            deer_plot.fc = 'y'
 
         return car_plot,deer_plot,
 
@@ -869,6 +890,8 @@ def demo_CVdeer():
     ### ANIMATION END
 
     show()
+
+
 
 
 
