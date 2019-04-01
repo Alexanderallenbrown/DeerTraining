@@ -51,8 +51,8 @@ class Deer_Escape_Smooth:
                 dist = sqrt((x_Car-self.x_Deer)**2+(y_Car-self.y_Deer)**2)
 
 
-                print "phase 2"
-                print self.phase2
+                #print "phase 2"
+                #print self.phase2
 
                 if dist < self.dturn_Deer:
                     self.phase2 = True
