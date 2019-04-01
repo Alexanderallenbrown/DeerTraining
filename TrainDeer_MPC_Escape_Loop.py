@@ -17,9 +17,15 @@ import os
 
 def demo():
 
+<<<<<<< HEAD
     mapa = 'nothing'
     xCar = 20
     setSpeed = 22
+=======
+    mapa = 'real_tree_wismer'
+    xCar = 0
+    setSpeed = 25
+>>>>>>> 712578fc13835988d7d7f075e9188ba426e77375
     generation_number = 1
 
     agent_type = "Fb"
@@ -236,8 +242,8 @@ def BinaryConversion(ind):
     yinit_min = -1. # meters
     yinit_max = -30. # meters
 
-    tturn_min = 0.4 # seconds
-    tturn_max = 2.5 # seconds
+    dturn_min = 20 # meters
+    dturn_max = 120 # meters
 
     Vmax_min = 5 # m/s
     Vmax_max = 18 # m/s
@@ -248,25 +254,25 @@ def BinaryConversion(ind):
     # Divide individual into different binary 
     Psi1_bin = ind[0:resolution]
     yinit_bin = ind[resolution:2*resolution]
-    tturn_bin = ind[2*resolution:3*resolution]
+    dturn_bin = ind[2*resolution:3*resolution]
     Vmax_bin = ind[3*resolution:4*resolution]
     Tau_bin = ind[4*resolution:5*resolution]
 
     # Convert from binary to decimala
     Psi1 = Psi1_min + (Psi1_max - Psi1_min)*float(int(Psi1_bin,2))/((2**resolution)-1)
     yinit = yinit_min + (yinit_max - yinit_min)*float(int(yinit_bin,2))/((2**resolution)-1)
-    tturn = tturn_min + (tturn_max - tturn_min)*float(int(tturn_bin,2))/((2**resolution)-1)
+    dturn = dturn_min + (dturn_max - dturn_min)*float(int(dturn_bin,2))/((2**resolution)-1)
     Vmax = Vmax_min + (Vmax_max - Vmax_min)*float(int(Vmax_bin,2))/((2**resolution)-1)
     Tau = Tau_min + (Tau_max - Tau_min)*float(int(Tau_bin,2))/((2**resolution)-1)
 
     #Rrint results
     # print(Psi1)
     # print(yinit)
-    # print(tturn)
+    # print(dturn)
     # print(Vmax)
     # print(Tau)
 
-    return array([Psi1,yinit,tturn,Vmax,Tau])
+    return array([Psi1,yinit,dturn,Vmax,Tau])
 
 def TestDeer_MPC(deer_ind, n, agent, xCar, setSpeed,fake_map):
 
@@ -290,7 +296,7 @@ def TestDeer_MPC(deer_ind, n, agent, xCar, setSpeed,fake_map):
 
         # Where n is the number of drivers we are goin to test each deer against
 
-        deer = Deer_Escape(Psi1_Deer = deer_ind[0], y_init = deer_ind[1], tturn_Deer = deer_ind[2], Vmax_Deer = deer_ind[3], Tau_Deer = deer_ind[4])
+        deer = Deer_Escape(Psi1_Deer = deer_ind[0], y_init = deer_ind[1], dturn_Deer = deer_ind[2], Vmax_Deer = deer_ind[3], Tau_Deer = deer_ind[4])
 
         # Indicate deer initial position
         deer.x_Deer = x_deer
@@ -328,7 +334,7 @@ def TestDeer_MPC(deer_ind, n, agent, xCar, setSpeed,fake_map):
 
                 distanceAngle = MapRaycasting([car.x[2],car.x[0]],'mapa',KML = KML, fake = fake_map)
 
-                deerAngle = arctan((deer.y_Deer-car.x[0])/(deer.x_Deer-car.x[2]))
+                deerAngle = arctan2((deer.y_Deer-car.x[0]),(deer.x_Deer-car.x[2]))
                 deerDist = sqrt((deer.y_Deer-car.x[0])**2+(deer.x_Deer-car.x[2])**2)
 
                 deerAngle = int(deerAngle *180./3.1415)

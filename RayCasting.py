@@ -152,9 +152,9 @@ def MapRaycasting(pos, mapa, KML=True, fake = 'nothing'):
         if fake == 'nothing':
             Trees = [(array([-1000,1000,1000,-1000]),array([1000,1000,-1000,-1000]),array([0,0,0,0]))]
         if fake == 'single_tree_60':
-            Trees = [(array([58,62,62,58]),array([12,12,8,8]),array([0,0,0,0]))]
+            Trees = [(array([58,62,62,58,58]),array([12,12,8,8,12]),array([0,0,0,0,0]))]
         if fake == 'real_tree_wismer':
-            Trees = [(array([100,180,180,100]),array([-4,-4,-94,-94]),array([0,0,0,0]))]
+            Trees = [(array([100,180,180,100,100]),array([-4,-4,-94,-94,-4]),array([0,0,0,0,0]))]
     else:
         Trees = KMLtoXYZ(f)
     
@@ -219,7 +219,8 @@ if __name__=='__main__':
 
     #min_dist = MapRaycasting([200.0,0.0])
 
-    dist = ProbDist([200.0,0.0],0.0, 'Test2.kml', KML=True, fake = 'single_tree_60')
+    dist = ProbDist([200.0,0.0],0.0, 'Test2.kml', KML=True, fake = 'real_tree_wismer')
+    dist = MapRaycasting([62,0],'mapa',KML = False, fake = 'real_tree_wismer')
 
     angles = linspace(0,360,360)
 
@@ -228,8 +229,8 @@ if __name__=='__main__':
 
     angle = zeros(10000)
 
-    for k in range(0,10000):
-        angle[k] = random.choice(len(dist),1,p =dist)
+    # for k in range(0,10000):
+    #     angle[k] = random.choice(len(dist),1,p =dist)
 
     figure()
     hist(angle, bins = 360)
