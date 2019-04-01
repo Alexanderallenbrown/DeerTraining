@@ -202,7 +202,7 @@ class MPC_Fb:
         min_y = min(xcar_pred[:,0])
 
         # Determine the min and max allowable y-positions
-        min_allow_y = -1.75-4
+        min_allow_y = -1.75-2
 
         return min_y-min_allow_y
 
@@ -215,7 +215,7 @@ class MPC_Fb:
         max_y = max(xcar_pred[:,0])
 
         # Determine the min and max allowable y-positions
-        max_allow_y = 1.75+3.5+1.5
+        max_allow_y = 1.75+3.5+2
 
         return max_allow_y-max_y
 
@@ -565,10 +565,11 @@ def demo_GAdeer():
     ax.set_ylim(-25, 25)
 
     # Initialize rectangles
+    background = patches.Rectangle((-100,-100),10000,10000,fc='g')
     car_circle = patches.Circle((100,0),60,fc = 'w', alpha = 0.25)
     car_plot = patches.Rectangle((0, 0), 0, 0,angle = 0.0, fc='b', alpha = 0.5)
     deer_plot = patches.Rectangle((0, 0), 0, 0,angle = 0.0, fc='g', alpha = 0.5)
-    background = patches.Rectangle((-100,-100),10000,10000,fc='k')
+    road = patches.Rectangle((-100,-3.75),10000,11,fc='k')
     center_line_1 = patches.Rectangle((-10,(1.75+0.025)),10000,0.1,fc='y')
     center_line_2 = patches.Rectangle((-10,(1.75-0.1-0.025)),10000,0.1,fc='y')
     right_line = patches.Rectangle((-10,-1.75),10000,0.1,fc='w')
@@ -584,12 +585,13 @@ def demo_GAdeer():
         trees = patches.Rectangle((100,-94),80,90,fc='g')
 
     def init():
+        ax.add_patch(background)
         ax.add_patch(car_circle)
         if fakemap == 'real_tree_wismer':
             ax.add_patch(trees)
+        ax.add_patch(road)
         ax.add_patch(car_plot)
         ax.add_patch(deer_plot)
-        ax.add_patch(background)
         ax.add_patch(left_line)
         ax.add_patch(right_line)
         ax.add_patch(center_line_1)

@@ -51,8 +51,8 @@ class Deer_Escape_Smooth:
                 dist = sqrt((x_Car-self.x_Deer)**2+(y_Car-self.y_Deer)**2)
 
 
-                #print "phase 2"
-                #print self.phase2
+                print "phase 2"
+                print self.phase2
 
                 if dist < self.dturn_Deer:
                     self.phase2 = True
@@ -62,8 +62,11 @@ class Deer_Escape_Smooth:
                     self.Speed_Deer += self.dT/(self.Tau_Deer)*(self.Vmax_Deer-self.Speed_Deer)
 
                 else:
+                    psidot_max = self.Amax_Deer/self.Speed_Deer
                    
                     if self.turn == False:
+
+                        
 
                         if (x_Car<self.x_Deer):
                             self.Psi2_Deer = self.choosePsi2(x_Car,y_Car)
@@ -71,9 +74,12 @@ class Deer_Escape_Smooth:
                         self.Vturn_Deer = abs(self.Amax_Deer/psidot_total)
 
                         if ((self.Speed_Deer > self.Vturn_Deer)): # and (x_Car<self.x_Deer)):
-                             self.Speed_Deer = self.Speed_Deer - self.Amax_Deer*self.dT
-                             psidot = 1/self.tau_turn*(self.Psi2_Deer - self.Psi_Deer)
-                             self.Psi_Deer = self.Psi_Deer + psidot*self.dT
+                            self.Speed_Deer = self.Speed_Deer - self.Amax_Deer*self.dT
+                            psidot = 1/self.tau_turn*(self.Psi2_Deer - self.Psi_Deer)
+                            if abs(psidot)>psidot_max:
+                                psidot = psidot_max * sign(psidot)
+
+                            self.Psi_Deer = self.Psi_Deer + psidot*self.dT
 
                         else:
                             #print "TURN"
@@ -81,6 +87,8 @@ class Deer_Escape_Smooth:
 
                     if self.turn == True:
                         psidot = 1/self.tau_turn*(self.Psi2_Deer - self.Psi_Deer)
+                        if abs(psidot)>psidot_max:
+                            psidot = psidot_max * sign(psidot)
                         self.Psi_Deer = self.Psi_Deer + psidot*self.dT
                         self.Speed_Deer += self.dT/(self.Tau_Deer)*(self.Vmax_Deer-self.Speed_Deer)
 
