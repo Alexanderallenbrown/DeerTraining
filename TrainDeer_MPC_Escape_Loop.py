@@ -17,15 +17,9 @@ import os
 
 def demo():
 
-<<<<<<< HEAD
     mapa = 'nothing'
-    xCar = 20
-    setSpeed = 22
-=======
-    mapa = 'real_tree_wismer'
     xCar = 0
     setSpeed = 25
->>>>>>> 712578fc13835988d7d7f075e9188ba426e77375
     generation_number = 1
 
     agent_type = "Fb"
@@ -296,7 +290,7 @@ def TestDeer_MPC(deer_ind, n, agent, xCar, setSpeed,fake_map):
 
         # Where n is the number of drivers we are goin to test each deer against
 
-        deer = Deer_Escape(Psi1_Deer = deer_ind[0], y_init = deer_ind[1], dturn_Deer = deer_ind[2], Vmax_Deer = deer_ind[3], Tau_Deer = deer_ind[4])
+        deer = Deer_Escape_Smooth(Psi1_Deer = deer_ind[0], y_init = deer_ind[1], dturn_Deer = deer_ind[2], Vmax_Deer = deer_ind[3], Tau_Deer = deer_ind[4])
 
         # Indicate deer initial position
         deer.x_Deer = x_deer
@@ -338,6 +332,9 @@ def TestDeer_MPC(deer_ind, n, agent, xCar, setSpeed,fake_map):
                 deerDist = sqrt((deer.y_Deer-car.x[0])**2+(deer.x_Deer-car.x[2])**2)
 
                 deerAngle = int(deerAngle *180./3.1415)
+
+                if deerAngle < 0:
+                    deerAngle = 360 + deerAngle
 
                 if (deerDist < distanceAngle[deerAngle]): 
                     deerSight = True

@@ -26,8 +26,8 @@ class MPC_Fb:
         self.downsample_horizon = downsample_horizon
         self.predictionmethod = predictionmethod
         self.car_y_accel_pred = zeros(Np)
-        self.XYPrediction = zeros(2*Np)
-        self.XYDeerPrediction = zeros(2*Np)
+        self.XYPrediction = zeros(3*Np)
+        self.XYDeerPrediction = zeros(3*Np)
         self.steervector = 0.1*random.randn(self.Np)
         self.xdeer_pred_downsampled = zeros((self.Np,4))
         #initialize the downsampled vector we will return
@@ -93,6 +93,7 @@ class MPC_Fb:
             for k in range(0,4):
                 self.xdeer_pred_downsampled[:,k] = interp(self.t_horizon,tvec,self.xdeer_pred[:,k])
         self.XYDeerPrediction = hstack((self.xdeer_pred_downsampled[:,2],self.xdeer_pred_downsampled[:,3]))
+        self.XYDeerPrediction = hstack((self.XYDeerPrediction,self.xdeer_pred_downsampled[:,1]))
         #print self.XYDeerPrediction
         return self.xdeer_pred_downsampled
 
@@ -122,6 +123,7 @@ class MPC_Fb:
                 self.xdotcar_pred_downsampled[:,k] = interp(self.t_horizon,tvec,xdotcar_pred[:,k])
             #print xdotcar_pred_downsampled.shape,xcar_pred_downsampled.shape
         self.XYPrediction = hstack((self.xcar_pred_downsampled[:,2],self.xcar_pred_downsampled[:,0]))
+        self.XYPrediction = hstack((self.XYPrediction,self.xcar_pred_downsampled[:,4]))
         return self.xcar_pred_downsampled,self.xdotcar_pred_downsampled
 
     def ObjectiveFn(self,steervector,carnow,deernow,yroad):
@@ -276,8 +278,8 @@ def demo_GAdeer():
     fakemap = 'real_tree_wismer'
     swerveDistance = 50.0
     setSpeed = 25.0
-    x_car = 40.0
-    x_deer = x_car + 40.0
+    x_car = 0.0
+    x_deer = x_car + 80.0
 
     deer_ind = '0100010000000111111100000'
 
@@ -288,7 +290,7 @@ def demo_GAdeer():
     deer.x_Deer = x_deer
 
     # Define simulation time and dt
-    simtime = 1.
+    simtime = 10.
     dt = deer.dT
     t = arange(0,simtime,dt) #takes min, max, and timestep\
 
@@ -341,8 +343,10 @@ def demo_GAdeer():
 
     xCarPred = zeros((len(t),10))
     yCarPred = zeros((len(t),10))
+    psiCarPred = zeros((len(t),10))
     xDeerPred = zeros((len(t),10))
     yDeerPred = zeros((len(t),10))
+    psiDeerPred = zeros((len(t),10))
 
     #now simulate!!
     for k in range(1,len(t)):
@@ -468,12 +472,13 @@ def demo_GAdeer():
             ay[k] = carxdot[k,1]+carx[k,3]*carx[k,5]
             ax[k] = carxdot[k,3]-carx[k,1]*carx[k,5]
 
-        print MPC.XYPrediction
 
         xCarPred[k,:] = MPC.XYPrediction[0:10]
-        yCarPred[k,:] = MPC.XYPrediction[10:]
+        yCarPred[k,:] = MPC.XYPrediction[10:20]
+        psiCarPred[k,:] = MPC.XYPrediction[20:]
         xDeerPred[k,:] = MPC.XYDeerPrediction[0:10]
-        yDeerPred[k,:] = MPC.XYDeerPrediction[10:]
+        yDeerPred[k,:] = MPC.XYDeerPrediction[10:20]
+        psiDeerPred[k,:] = MPC.XYDeerPrediction[20:]
         #print xCarPred[k,:]
 
 
@@ -570,20 +575,10 @@ def demo_GAdeer():
     left_line = patches.Rectangle((-10,4.75),10000,0.1,fc='w')
 
     car_pred =[]
+    deer_pred =[]
     for k in range(0,5):
         car_pred.append(patches.Rectangle((0, 0), car_length, car_width,angle = 0.0, fc='w', alpha = .1))
-
-    # car_pred1 = patches.Rectangle((0,0), 0, 0,angle = 0.0, fc = 'b', alpha = 0.2)
-    # car_pred2 = patches.Rectangle((0,0), 0, 0,angle = 0.0, fc = 'b', alpha = 0.2)
-    # car_pred3 = patches.Rectangle((0,0), 0, 0,angle = 0.0, fc = 'b', alpha = 0.2)
-    # car_pred4 = patches.Rectangle((0,0), 0, 0,angle = 0.0, fc = 'b', alpha = 0.2)
-    # car_pred5 = patches.Rectangle((0,0), 0, 0,angle = 0.0, fc = 'b', alpha = 0.2)
-    # car_pred6 = patches.Rectangle((0,0), 0, 0,angle = 0.0, fc = 'b', alpha = 0.2)
-    # car_pred7 = patches.Rectangle((0,0), 0, 0,angle = 0.0, fc = 'b', alpha = 0.2)
-    # car_pred8 = patches.Rectangle((0,0), 0, 0,angle = 0.0, fc = 'b', alpha = 0.2)
-    # car_pred9 = patches.Rectangle((0,0), 0, 0,angle = 0.0, fc = 'b', alpha = 0.2)
-    # car_pred10 = patches.Rectangle((0,0), 0, 0,angle = 0.0, fc = 'b', alpha = 0.2)
-
+        deer_pred.append(patches.Rectangle((0, 0), deer_length, deer_width,angle = 0.0, fc='w', alpha = .1))
 
     if fakemap == 'real_tree_wismer':
         trees = patches.Rectangle((100,-94),80,90,fc='g')
@@ -602,23 +597,12 @@ def demo_GAdeer():
 
         for k in range(0,5):
             ax.add_patch(car_pred[k])
-
-        # ax.add_patch(car_pred1)
-        # ax.add_patch(car_pred2)
-        # ax.add_patch(car_pred3)
-        # ax.add_patch(car_pred4)
-        # ax.add_patch(car_pred5)
-        # ax.add_patch(car_pred6)
-        # ax.add_patch(car_pred7)
-        # ax.add_patch(car_pred8)
-        # ax.add_patch(car_pred9)
-        # ax.add_patch(car_pred10)
-
+            ax.add_patch(deer_pred[k])            
 
         if fakemap == 'real_tree_wismer':
-            return car_circle,trees,car_plot,deer_plot,car_pred[0],car_pred[1],car_pred[2],car_pred[3],car_pred[4],#car_pred[5],#car_pred[6],car_pred[7],car_pred[8],car_pred[9],
+            return car_circle,trees,car_plot,deer_plot,car_pred[0],car_pred[1],car_pred[2],car_pred[3],car_pred[4],deer_pred[0],deer_pred[1],deer_pred[2],deer_pred[3],deer_pred[4],#car_pred[5],#car_pred[6],car_pred[7],car_pred[8],car_pred[9],
         else:
-            return car_circle,car_plot,deer_plot,car_pred[0],car_pred[1],car_pred[2],car_pred[3],car_pred[4],#car_pred[5],#car_pred[6],car_pred[7],car_pred[8],car_pred[9],
+            return car_circle,car_plot,deer_plot,car_pred[0],car_pred[1],car_pred[2],car_pred[3],car_pred[4],deer_pred[0],deer_pred[1],deer_pred[2],deer_pred[3],deer_pred[4],#car_pred[5],#car_pred[6],car_pred[7],car_pred[8],car_pred[9],
 
     # Set animation
     def animate(i):
@@ -644,13 +628,18 @@ def demo_GAdeer():
 
 
         for k in range(0,5):
+            print psiDeerPred[i,:]
             car_pred[k].set_xy([xCarPred[i,2*k]-(car_length/2),yCarPred[i,2*k]-(car_width/2)])
+            car_pred[k].angle = psiCarPred[i,2*k]*180/3.14
+            deer_pred[k].set_xy([xDeerPred[i,2*k]-(deer_length/2*sin(deer_yaw[i])),yDeerPred[i,2*k]-(deer_width/2*cos(deer_yaw[i]))])
+            deer_pred[k].angle = 90-psiDeerPred[i,2*k]*180/3.14
+
 
         if fakemap == 'real_tree_wismer':
-            return car_circle,trees,car_plot,deer_plot,car_pred[0],car_pred[1],car_pred[2],car_pred[3],car_pred[4],#car_pred[5],#car_pred[6],car_pred[7],car_pred[8],car_pred[9],   
+            return car_circle,trees,car_plot,deer_plot,car_pred[0],car_pred[1],car_pred[2],car_pred[3],car_pred[4],deer_pred[0],deer_pred[1],deer_pred[2],deer_pred[3],deer_pred[4],#car_pred[5],#car_pred[6],car_pred[7],car_pred[8],car_pred[9],   
             
         else:
-            return car_circle,car_plot,deer_plot,car_pred[0],car_pred[1],car_pred[2],car_pred[3],car_pred[4],#car_pred[5],#car_pred[6],car_pred[7],car_pred[8],car_pred[9],
+            return car_circle,car_plot,deer_plot,car_pred[0],car_pred[1],car_pred[2],car_pred[3],car_pred[4],deer_pred[0],deer_pred[1],deer_pred[2],deer_pred[3],deer_pred[4],#car_pred[5],#car_pred[6],car_pred[7],car_pred[8],car_pred[9],
 
     # Run anumation
     anim = animation.FuncAnimation(fig, animate,init_func=init,frames=len(car_x),interval=20,blit=True)

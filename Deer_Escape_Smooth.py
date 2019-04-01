@@ -28,55 +28,66 @@ class Deer_Escape_Smooth:
         self.turn = False
         self.Vturn_Deer = 0.
         self.Psi2_Deer = 0.
+        self.tau_turn = 0.1
         mean = 136.
         mean = 180. - mean
         std = 28.3
         StankAngle = random.normal(mean,std,1)
         self.StankAngle = StankAngle *3.1416/180.
+        self.phase2 = False
+
 
     def updateDeer(self,x_Car,y_Car):
+
+
 
         if (self.x_Deer - x_Car) > self.x_StartDeer:
             pass
 
         else:
-            if (x_Car<self.x_Deer):
+            #if (x_Car<self.x_Deer):
 
 
                 dist = sqrt((x_Car-self.x_Deer)**2+(y_Car-self.y_Deer)**2)
 
-                if dist > self.dturn_Deer:
+
+                #print "phase 2"
+                #print self.phase2
+
+                if dist < self.dturn_Deer:
+                    self.phase2 = True
+
+                if self.phase2 == False:
                     self.Psi_Deer = self.Psi1_Deer
                     self.Speed_Deer += self.dT/(self.Tau_Deer)*(self.Vmax_Deer-self.Speed_Deer)
 
                 else:
-                    self.Psi2_Deer = self.choosePsi2(x_Car,y_Car)
-                    self.Psidot_Deer = abs(self.Psi_Deer - self.Psi2_Deer)/(self.dT)
-                    self.Vturn_Deer = abs(self.Amax_Deer/self.Psidot_Deer)
-
+                   
                     if self.turn == False:
+
+                        if (x_Car<self.x_Deer):
+                            self.Psi2_Deer = self.choosePsi2(x_Car,y_Car)
+                        psidot_total = abs(self.Psi_Deer - self.Psi2_Deer)/(self.dT)
+                        self.Vturn_Deer = abs(self.Amax_Deer/psidot_total)
+
                         if ((self.Speed_Deer > self.Vturn_Deer)): # and (x_Car<self.x_Deer)):
-                            self.Speed_Deer = self.Speed_Deer - self.Amax_Deer*self.dT
-                            if self.Psi2_Deer > self.Psi_Deer:
-                                psidot_max = self.Amax_Deer/(self.Speed_Deer)
-                            else:
-                                psidot_max = -self.Amax_Deer/(self.Speed_Deer)
-
-
-                            self.Psi_Deer = self.Psi_Deer + psidot_max*self.dT
+                             self.Speed_Deer = self.Speed_Deer - self.Amax_Deer*self.dT
+                             psidot = 1/self.tau_turn*(self.Psi2_Deer - self.Psi_Deer)
+                             self.Psi_Deer = self.Psi_Deer + psidot*self.dT
 
                         else:
                             #print "TURN"
-                            self.Psi_Deer = self.Psi2_Deer
                             self.turn = True
 
                     if self.turn == True:
+                        psidot = 1/self.tau_turn*(self.Psi2_Deer - self.Psi_Deer)
+                        self.Psi_Deer = self.Psi_Deer + psidot*self.dT
                         self.Speed_Deer += self.dT/(self.Tau_Deer)*(self.Vmax_Deer-self.Speed_Deer)
 
-            else:
-                self.Speed_Deer += self.dT/(self.Tau_Deer)*(self.Vmax_Deer-self.Speed_Deer)
+            #else:
+            #    self.Speed_Deer += self.dT/(self.Tau_Deer)*(self.Vmax_Deer-self.Speed_Deer)
 
-            self.tmove_Deer += self.dT
+            #self.tmove_Deer += self.dT
 
         self.xdot_Deer = self.Speed_Deer*sin(self.Psi_Deer)
         self.ydot_Deer = self.Speed_Deer*cos(self.Psi_Deer)
