@@ -35,6 +35,7 @@ class Deer_Escape_Smooth:
         StankAngle = random.normal(mean,std,1)
         self.StankAngle = StankAngle *3.1416/180.
         self.phase2 = False
+        self.xdeer = array([self.Speed_Deer, self.Psi_Deer, self.x_Deer, self.y_Deer])
 
 
     def updateDeer(self,x_Car,y_Car):

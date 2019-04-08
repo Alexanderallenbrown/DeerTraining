@@ -124,12 +124,18 @@ class MPC_Fb:
 
     def ObjectiveFn(self,steervector,carnow,deernow,yroad):
         J=0
+        print(J)
+
         #Np rows by 6 columns, one for each state (or vice versa)
         xcar_pred,xdotcar_pred = self.predictCar(carnow,steervector)
+
         if (self.predictionmethod == 'static'):
             xdeer_pred = self.predictDeer_static(deernow,carnow)
         else:
             xdeer_pred = self.predictDeer_CV(deernow,carnow)
+
+
+
         #calculate lateral acceleration Vdot+U*psidot for the prediction too, so we can use it in objective function
         car_y_accel_pred = xdotcar_pred[:,1]+xcar_pred[:,3]*xcar_pred[:,5]
 
@@ -160,6 +166,7 @@ class MPC_Fb:
                     J = J +  1*self.q_steering_effort * ((steervector[k]-carnow.delta)*60.0)**2 + q_lane_error * (xcar_pred[k,0]-yroad)**2+ 5*self.q_accel*((car_y_accel_pred[k]))**2
                 else:
                     J = J +  1*self.q_steering_effort * ((steervector[k]-steervector[k-1])*60.0)**2 + q_lane_error * (xcar_pred[k,0]-yroad)**2+ 5*self.q_accel*((car_y_accel_pred[k]))**2
+        
         return J
 
 
