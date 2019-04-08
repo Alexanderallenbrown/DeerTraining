@@ -2,9 +2,9 @@ import sys
 from numpy import *
 from matplotlib.pyplot import *
 from KMLtoXYZ import *
+from numba import jit,float32,int32
 
-
-
+@jit(float32[:](float32[:], float32[:]))
 def distanceray(pos, array):
     
     # Points of array (Begin and end with the same point)
@@ -142,7 +142,8 @@ def ProbDist(pos, psi1, mapa, KML = True, fake = 'nothing',q_dist = 1.0,q_dangle
 
     return Prob1
 
-def MapRaycasting(pos, mapa, KML=True, fake = 'nothing'):
+@jit(float32[:](float32[:],int32,int32,int32))
+def MapRaycasting(pos, mapa, KML, fake):
 
     # print KML
 
@@ -150,12 +151,12 @@ def MapRaycasting(pos, mapa, KML=True, fake = 'nothing'):
 
     f = mapa
 
-    if KML == False:
-        if fake == 'nothing':
+    if KML == 0:
+        if fake == 0:#'nothing':
             Trees = [(array([-1000,1000,1000,-1000]),array([1000,1000,-1000,-1000]),array([0,0,0,0]))]
-        if fake == 'single_tree_60':
+        if fake == 1:#'single_tree_60':
             Trees = [(array([58,62,62,58,58]),array([12,12,8,8,12]),array([0,0,0,0,0]))]
-        if fake == 'real_tree_wismer':
+        if fake == 2:#'real_tree_wismer':
             Trees = [(array([100,180,180,100,100]),array([-4,-4,-94,-94,-4]),array([0,0,0,0,0]))]
     else:
         Trees = KMLtoXYZ(f)

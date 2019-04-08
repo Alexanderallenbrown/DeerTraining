@@ -14,7 +14,7 @@ import sys
 #sys.path.append("/usr/local/lib/python3.4/dist-packages/numpy-1.12.0.dev0+4c415d2-py3.4-linux-x86_64.egg/")
 #import numpy
 from numpy import *#array,dot,cos,sin,sqrt,tan
-from pacejkatire import PacejkaTire
+from pacejkatire_numba import PacejkaTire
 from matplotlib.pyplot import *
 
 #from matplotlib.pyplot import *
