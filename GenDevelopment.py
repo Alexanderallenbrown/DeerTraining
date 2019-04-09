@@ -11,7 +11,7 @@ def SinglePoint(a,b):
 	traitsplit2 = traits2[point:len(traits2)];
 	newTrait = traitsplit1+traitsplit2;
 	NewDeer = TraitResult();
-	NewDeer.assign(newTrait,str(0),[],[]);
+	NewDeer.assign(newTrait,str(0),[]);
 	return NewDeer;
 
 def DoublePoint(a,b):
@@ -26,7 +26,7 @@ def DoublePoint(a,b):
 	traitsplit3 = traits1[points[1]:len(traits1)];
 	newTrait = traitsplit1 + traitsplit2 + traitsplit3;
 	NewDeer = TraitResult();
-	NewDeer.assign(newTrait,str(0),[],[]);
+	NewDeer.assign(newTrait,str(0),[]);
 	return NewDeer;
 
 def RandomPoint(a,b):
@@ -42,7 +42,7 @@ def RandomPoint(a,b):
 		else:
 			newTrait = newTrait + traits2[x];
 	NewDeer = TraitResult();
-	NewDeer.assign(newTrait,str(0),[],[]);
+	NewDeer.assign(newTrait,str(0),[]);
 	return NewDeer;
 
 def AndCross(a,b):
@@ -57,7 +57,7 @@ def AndCross(a,b):
 		else:
 			newTrait = newTrait + '0'
 	NewDeer = TraitResult();
-	NewDeer.assign(newTrait,str(0),[],[]);
+	NewDeer.assign(newTrait,str(0),[]);
 	return NewDeer;
 
 def OrCross(a,b):
@@ -72,7 +72,7 @@ def OrCross(a,b):
 		else:
 			newTrait = newTrait + '0'
 	NewDeer = TraitResult();
-	NewDeer.assign(newTrait,0,[],[]);
+	NewDeer.assign(newTrait,0,[]);
 	return NewDeer;
 
 def Mutate(a):
@@ -85,5 +85,5 @@ def Mutate(a):
 		else:
 			newTrait = newTrait + '1'
 	NewDeer = TraitResult();
-	NewDeer.assign(newTrait,0,[],[]);
+	NewDeer.assign(newTrait,0,[]);
 	return NewDeer;

@@ -34,7 +34,7 @@ def demo():
     h = numberOfHumans;
 
     if generation_number == 1:
-        FirstGen(setSpeed,xCar,mapa,h)  
+        FirstGen(setSpeed,xCar,mapa,h,n)  
 
     while True:
 
@@ -324,20 +324,22 @@ def TestDeer_MPC(deer_ind, n, agent, xCar, setSpeed,fake_map):
 
             if car.x[3] > 1.0:
 
-                distance_pred = zeros(10)
+                if deerSight == False:
 
-                distanceAngle = MapRaycasting([car.x[2],car.x[0]],'mapa',KML = KML, fake = fake_map)
+                    distance_pred = zeros(10)
 
-                deerAngle = arctan2((deer.y_Deer-car.x[0]),(deer.x_Deer-car.x[2]))
-                deerDist = sqrt((deer.y_Deer-car.x[0])**2+(deer.x_Deer-car.x[2])**2)
+                    distanceAngle = MapRaycasting([car.x[2],car.x[0]],'mapa',KML = KML, fake = fake_map)
 
-                deerAngle = int(deerAngle *180./3.1415)
+                    deerAngle = arctan2((deer.y_Deer-car.x[0]),(deer.x_Deer-car.x[2]))
+                    deerDist = sqrt((deer.y_Deer-car.x[0])**2+(deer.x_Deer-car.x[2])**2)
 
-                if deerAngle < 0:
-                    deerAngle = 360 + deerAngle
+                    deerAngle = int(deerAngle *180./3.1415)
 
-                if (deerDist < distanceAngle[deerAngle]): 
-                    deerSight = True
+                    if deerAngle < 0:
+                        deerAngle = 360 + deerAngle
+
+                    if (deerDist < distanceAngle[deerAngle]): 
+                        deerSight = True
 
                 if deerSight == True:
 
@@ -369,34 +371,43 @@ def TestDeer_MPC(deer_ind, n, agent, xCar, setSpeed,fake_map):
         distancevec = distancevec[1:len(distancevec)]
         min_distance[k_1] = min(distancevec)
 
-    Collision[k_1] = bool(0)
+        Collision[k_1] = bool(0)
 
-    if min_distance[k_1] < 2.0:
+        if min_distance[k_1] < 2.0:
 
-        check = CollisionCheck()
-        Collision[k_1] = check.collision(carx[:,2],carx[:,0],carx[:,4],deerx[:,2],deerx[:,3],deerx[:,1])
-        if Collision[k_1] == True:
-            Collision[k_1] = bool(1)
-        else:
-            Collision[k_1] = bool(0)
+            check = CollisionCheck()
+            Collision[k_1] = check.collision(carx[:,2],carx[:,0],carx[:,4],deerx[:,2],deerx[:,3],deerx[:,1])
+            if Collision[k_1] == True:
+                Collision[k_1] = bool(1)
+            else:
+                Collision[k_1] = bool(0)
 
     # Calculate IQM
 
     # Sort values from smallest to largest
-    min_distance = sorted(min_distance)
+    sorted_min_distance = sorted(min_distance)
     minDistanceVec = min_distance
     # Eliminate lower and upper quartiles
-    min_distance = min_distance[int(round(n/4.0)):int(ceil(3.0*n/4.0))]
+    sorted_min_distance = sorted_min_distance[int(round(n/4.0)):int(ceil(3.0*n/4.0))]
     # Calculate the IQM
-    avg_min_distance = mean(min_distance)
+    IQM_min_distance = mean(sorted_min_distance)
     # print(avg_min_distance)
 
-    return avg_min_distance, minDistanceVec, Collision
+    return IQM_min_distance, minDistanceVec, Collision
 
 
-def FirstGen(setSpeed, xCar,mapa,h):
+def FirstGen(setSpeed, xCar,mapa,h,n):
 
-    Deer10 = ['1011110011010101111100000','1000011110110111001101000','0011010011101011111001101','1011001010011011110100111','1110001110010110110101000','0101011010101111100110101','1001011110101011000101110','1110100000110001010111001','1011101101011011001011011','0010100010001101001001111','0101111110001101001100001','1001010110101111010110110','0010010000000111000101001','0001000001001100100110000','0101010000110001110001001']
+    #Deer10 = ['','','','','','','','','','',]
+    Deer10 = []
+
+    for ind in range(0,n):
+        Deer10.append(str(randomGenome(25)))
+
+    print 'DEER 10'
+    print Deer10
+
+    #Deer10 = ['1011110011010101111100000','1000011110110111001101000','0011010011101011111001101','1011001010011011110100111','1110001110010110110101000','0101011010101111100110101','1001011110101011000101110','1110100000110001010111001','1011101101011011001011011','0010100010001101001001111','0101111110001101001100001','1001010110101111010110110','0010010000000111000101001','0001000001001100100110000','0101010000110001110001001']
     #Deer10 = ['0000100000011111111100000','0000000000110111001101000','0000000000001011111001101','0000000000011011110100111','0000100000010110110101000','0000100000101111100110101','0000100000101011000101110','0000100000110001010111001','1011101101011011001011011','0010100010001101001001111','0101111110001101001100001','1001010110101111010110110','0010010000000111000101001','0001000001001100100110000','0101010000110001110001001']
 
     agent = 'Fb'
@@ -440,6 +451,16 @@ def FirstGen(setSpeed, xCar,mapa,h):
         print "MINIMUM DISTANCE"
         print str(Deer1_bin)
         print(Distance1)
+
+def randomGenome(genomelength):
+
+    genomeVec = zeros(genomelength)
+    genome = ''
+
+    for ind in range(0,genomelength):
+        genome = genome + str(random.randint(0,2))
+
+    return str(genome)
 
 
 

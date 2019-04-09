@@ -284,12 +284,9 @@ def demo_GAdeer():
     x_car = 0.0
     x_deer = x_car + 80.0
 
-<<<<<<< HEAD
     deer_ind = '0011010011000001111000000'
-=======
     deer_ind = '0100010000000111111100000'
     deer_ind = '0000000000000001000100100' #xcar 0, speed 21, generation 17
->>>>>>> 50e26e6837ca65962cefc2fe084adc9c188b0e1c
 
     deer_ind = BinaryConversion_Escape(deer_ind)
 
