@@ -17,10 +17,10 @@ import os
 
 def demo():
 
-    mapa = 'nothing'
-    xCar = 0
-    setSpeed = 25
-    generation_number = 1
+    mapa = 'real_tree_wismer'
+    xCar = 40
+    setSpeed = 24
+    generation_number = 18
 
     agent_type = "D"
     meanRes = 100. 
@@ -71,7 +71,7 @@ def demo():
                     print 'RESULT VEC'
                     print values
                     print resultVec
-                    deer.assign(str(values[0]),float(values[1]),resultVec);
+                    deer.assign(str(values[0]),float(values[1]),resultVec,0);
                     CurrentGenarray.append(deer)
 
             # we now have an arrary of deer objects, paired values of attributes and the corresponding results
