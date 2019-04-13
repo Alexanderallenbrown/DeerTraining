@@ -280,7 +280,7 @@ def demo_GAdeer():
 
     fakemap = 'nothing'
     swerveDistance = 50.0
-    setSpeed = 21.0
+    setSpeed = 25.0
     x_car = 0.0
     x_deer = x_car + 80.0
 

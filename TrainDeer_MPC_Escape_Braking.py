@@ -18,11 +18,11 @@ import os
 def demo():
 
     mapa = 'real_tree_wismer'
-    xCar = 0
-    setSpeed = 25
+    xCar = 60
+    setSpeed = 17
     generation_number = 1
 
-    agent_type = "Fb"
+    agent_type = "D"
     meanRes = 100.
     collIndex = 0
 
@@ -394,19 +394,19 @@ def TestDeer_MPC(deer_ind, n, agent, xCar, setSpeed,fake_map,Dir,deerID):
         # Initialize data saving files
         dirName = Dir + '/ID_' + str(int(deerID))
         FileName = dirName + '/trial_' + str(k_1+1) + '.txt'
-        predDirName = Dir + '/preds/ID_' + str(int(deerID))
-        predFileName = predDirName + '/trial_' + str(k_1+1) + '.txt'
+        # predDirName = Dir + '/preds/ID_' + str(int(deerID))
+        # predFileName = predDirName + '/trial_' + str(k_1+1) + '.txt'
 
         if not os.path.exists(dirName):
             os.makedirs(dirName)
 
-        if not os.path.exists(predDirName):
-            os.makedirs(predDirName)
+        # if not os.path.exists(predDirName):
+        #     os.makedirs(predDirName)
 
         newFile = open(FileName,'w+');
         newFile.close();
         newFile = open(FileName, 'a');
-        predF = open(predFileName,'a')
+        # predF = open(predFileName,'a')
 
 
         for k in range(1,len(t)):
@@ -471,12 +471,12 @@ def TestDeer_MPC(deer_ind, n, agent, xCar, setSpeed,fake_map,Dir,deerID):
                     newFile.write(str(deerx[k,ind2]) + '\t');
             newFile.write('\n')
 
-            predF.write(str(t[k])+'\t')
-            for ind2 in range(0,len(MPC.XYPrediction)):  
-                predF.write(str(MPC.XYPrediction[ind2])+'\t')
-            for ind2 in range(0,len(MPC.XYDeerPrediction)):
-                predF.write(str(MPC.XYDeerPrediction[ind2])+'\t')
-            predF.write('\n')
+            # predF.write(str(t[k])+'\t')
+            # for ind2 in range(0,len(MPC.XYPrediction)):  
+            #     predF.write(str(MPC.XYPrediction[ind2])+'\t')
+            # for ind2 in range(0,len(MPC.XYDeerPrediction)):
+            #     predF.write(str(MPC.XYDeerPrediction[ind2])+'\t')
+            # predF.write('\n')
 
 
         distancevec = distancevec[1:len(distancevec)]
@@ -537,7 +537,7 @@ def FirstGen(setSpeed, xCar,mapa,h,n):
     #Deer10 = ['1011110011010101111100000','1000011110110111001101000','0011010011101011111001101','1011001010011011110100111','1110001110010110110101000','0101011010101111100110101','1001011110101011000101110','1110100000110001010111001','1011101101011011001011011','0010100010001101001001111','0101111110001101001100001','1001010110101111010110110','0010010000000111000101001','0001000001001100100110000','0101010000110001110001001']
     #Deer10 = ['0000100000011111111100000','0000000000110111001101000','0000000000001011111001101','0000000000011011110100111','0000100000010110110101000','0000100000101111100110101','0000100000101011000101110','0000100000110001010111001','1011101101011011001011011','0010100010001101001001111','0101111110001101001100001','1001010110101111010110110','0010010000000111000101001','0001000001001100100110000','0101010000110001110001001']
 
-    agent = 'Fb'
+    agent = 'D'
 
     directory = 'GenerationFiles/generations' + str(agent) + '/map_' + str(mapa) + '/xCar' + str(xCar) + '/setSpeed' + str(setSpeed) 
 
