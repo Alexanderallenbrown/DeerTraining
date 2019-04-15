@@ -120,7 +120,7 @@ if __name__=='__main__':
 
     #set up our deer
 
-    deer = Deer_Escape(Psi1_Deer = 0., y_init = -30.0, tturn_Deer = 2.5, Vmax_Deer = 18.0, Tau_Deer = .75)
+    deer = Deer_Escape(Psi1_Deer = -0.5, y_init = -30.0, tturn_Deer = 2.5, Vmax_Deer = 18.0, Tau_Deer = .75)
     deer.x_Deer = 80.0
 
     simtime = 6

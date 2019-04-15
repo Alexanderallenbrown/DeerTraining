@@ -67,10 +67,9 @@ class Deer_Escape_Smooth:
                    
                     if self.turn == False:
 
-                        
+                        #if (x_Car<self.x_Deer):
+                        self.Psi2_Deer = self.choosePsi2(x_Car,y_Car)
 
-                        if (x_Car<self.x_Deer):
-                            self.Psi2_Deer = self.choosePsi2(x_Car,y_Car)
                         psidot_total = abs(self.Psi_Deer - self.Psi2_Deer)/(self.dT)
                         self.Vturn_Deer = abs(self.Amax_Deer/psidot_total)
 
@@ -79,6 +78,7 @@ class Deer_Escape_Smooth:
                             psidot = 1/self.tau_turn*(self.Psi2_Deer - self.Psi_Deer)
                             if abs(psidot)>psidot_max:
                                 psidot = psidot_max * sign(psidot)
+
 
                             self.Psi_Deer = self.Psi_Deer + psidot*self.dT
 
@@ -141,7 +141,7 @@ if __name__=='__main__':
 
     #set up our deer
 
-    deer = Deer_Escape_Smooth(Psi1_Deer = 0., y_init = -15.0, dturn_Deer = 2.5, Vmax_Deer = 15.0, Tau_Deer = 5.)
+    deer = Deer_Escape_Smooth(Psi1_Deer = -3.14/2, y_init = -2.0, dturn_Deer = 20.5, Vmax_Deer = 15.0, Tau_Deer = 0.5)
     deer.x_Deer = 80.0
 
     simtime = 10
@@ -150,7 +150,7 @@ if __name__=='__main__':
 
     #now set up the car's parameters
     car = BicycleModel(dT=dt)
-    car.x[3] = 25
+    car.x[3] = 20
     steervec = zeros(len(t))
 
     #set up the driver
@@ -193,16 +193,16 @@ if __name__=='__main__':
     subplot(2,1,2)
     plot(t,deerx[:,3])
 
-    deermoving_index = nonzero((deerx[:,2]-carx[:,2])<=deer.x_StartDeer)
-    deermoving_index = deermoving_index[0][0]-1
-    turn_index = nonzero(t>=(deer.dturn_Deer+t[deermoving_index]))
-    turn_index = turn_index[0][0]
+    # deermoving_index = nonzero((deerx[:,2]-carx[:,2])<=deer.x_StartDeer)
+    # deermoving_index = deermoving_index[0][0]-1
+    # turn_index = nonzero(t>=(deer.dturn_Deer+t[deermoving_index]))
+    # turn_index = turn_index[0][0]
 
-    figure()
-    subplot(2,1,1)
-    plot(t,deerx[:,0],t[deermoving_index],deerx[deermoving_index,0],'ro',t[turn_index],deerx[turn_index,0],'bo')
-    subplot(2,1,2)
-    plot(t,carx[:,2],t[deermoving_index],carx[deermoving_index,2],'ro')
+    # figure()
+    # subplot(2,1,1)
+    # plot(t,deerx[:,0],t[deermoving_index],deerx[deermoving_index,0],'ro',t[turn_index],deerx[turn_index,0],'bo')
+    # subplot(2,1,2)
+    # plot(t,carx[:,2],t[deermoving_index],carx[deermoving_index,2],'ro')
 
     figure()
     plot(t, carx[:,3])
