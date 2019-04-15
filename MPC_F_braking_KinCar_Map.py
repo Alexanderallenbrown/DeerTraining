@@ -278,7 +278,7 @@ class MPC_Fb:
 
 def demo_GAdeer():
 
-    fakemap = 'nothing'
+    fakemap = 'real_tree_wismer_7'
     swerveDistance = 50.0
     setSpeed = 10.0
     x_car = 40.0
@@ -588,13 +588,22 @@ def demo_GAdeer():
         car_pred.append(patches.Rectangle((0, 0), car_length, car_width,angle = 0.0, fc='w', alpha = .1))
         deer_pred.append(patches.Rectangle((0, 0), deer_length, deer_width,angle = 0.0, fc='w', alpha = .1))
 
+    trees_ind = False
     if fakemap == 'real_tree_wismer':
         trees = patches.Rectangle((100,-94),80,90,fc='g')
+        trees_ind = True
+    if fakemap == 'real_tree_wismer_6':
+        trees = patches.Rectangle((100,-96),80,90,fc='g')
+        trees_ind = True
+    if fakemap == 'real_tree_wismer_8':
+        trees = patches.Rectangle((100,-98),80,90,fc='g')
+        trees_ind = True
+
 
     def init():
         ax.add_patch(background)
         ax.add_patch(car_circle)
-        if fakemap == 'real_tree_wismer':
+        if trees_ind == True:
             ax.add_patch(trees)
         ax.add_patch(road)
         ax.add_patch(car_plot)

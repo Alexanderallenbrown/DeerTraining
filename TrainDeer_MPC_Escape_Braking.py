@@ -17,7 +17,7 @@ import os
 
 def demo():
 
-    mapa = 'real_tree_wismer'
+    mapa = 'real_tree_wismer_7'
 
     xCar = 0
     setSpeed = 25
