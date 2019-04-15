@@ -239,7 +239,7 @@ class MPC_Fb:
         #print umpc.x
 
         if (isnan(umpc.x[0])==True):
-            print "Collision unavoidable: Eliminate collision constraint"
+            print("Collision unavoidable: Eliminate collision constraint")
             # Eliminate collision constraint
             cons = ({'type': 'ineq','fun':self.stayInRoadRight, 'args':(carnow,)},{'type': 'ineq','fun':self.stayInRoadLeft, 'args':(carnow,)})
             # Re-do minimization
@@ -249,7 +249,7 @@ class MPC_Fb:
             
             
             if (isnan(umpc.x[0])==True):
-                print "Impossible to stay in lane: Eliminate lane constraint"
+                print("Impossible to stay in lane: Eliminate lane constraint")
                 # Re-do minimization
                 umpc = minimize(self.ObjectiveFn,steervector,args = (carnow,deernow,yroad),bounds = bounds, method = 'SLSQP', options ={'maxiter': 100})
                 # Recalculate opt_steering
@@ -399,10 +399,10 @@ def demo_GAdeer():
                     opt_steer = MPC.calcOptimal(carnow = car,deernow = deer, yroad = 0)
                     brake = MPC.calcBraking(carnow = car)
                     gas = 0
-                    print min(distance_pred)
+                    print(min(distance_pred))
 
                     last_steer_t = t[k]
-                    print t[k]
+                    print(t[k])
 
                     distance_pred = sqrt((MPC.xcar_pred_downsampled[:,0]-MPC.xdeer_pred_downsampled[:,3])**2+(MPC.xcar_pred_downsampled[:,2]-MPC.xdeer_pred_downsampled[:,2])**2)
 
@@ -430,7 +430,7 @@ def demo_GAdeer():
             carvec[k] = car.Car
             #deerx[k,:] = array([deer.Speed_Deer, deer.Psi_Deer, deer.x_Deer, deer.y_Deer])#updateDeer(car.x[2])
             deerx[k,:] = deer.updateDeer(car.x[2],car.x[0])
-            print "deer velocities: "+str(deer.Vturn_Deer)+ "   "+str(deer.Speed_Deer) + "  " + str(deer.turn)
+            print("deer velocities: "+str(deer.Vturn_Deer)+ "   "+str(deer.Speed_Deer) + "  " + str(deer.turn))
             command_steervec[k] = opt_steer
             distancevec[k] = sqrt((deer.x_Deer - car.x[2])**2+(deer.y_Deer - car.x[0])**2)
             deer_speed[k] = deer.Speed_Deer
@@ -491,8 +491,8 @@ def demo_GAdeer():
 
     ## SAVE end
 
-    print "XY PREDICTION"
-    print xCarPred
+    print("XY PREDICTION")
+    print(xCarPred)
 
     ayg = (carxdot[:,1]+carx[:,5]*carx[:,3])/9.81
     figure()
@@ -745,9 +745,9 @@ def demo_CVdeer():
 
             deerAngle = int(deerAngle *180./3.1415)
 
-            print deerAngle
-            print deerDist
-            print distanceAngle[deerAngle]
+            print(deerAngle)
+            print(deerDist)
+            print(distanceAngle[deerAngle])
 
             if (deerDist < distanceAngle[deerAngle]): 
                 deerSight = True
@@ -769,10 +769,10 @@ def demo_CVdeer():
                     opt_steer = MPC.calcOptimal(carnow = car,deernow = deer, yroad = 0)
                     brake = MPC.calcBraking(carnow = car)
                     gas = 0
-                    print min(distance_pred)
+                    print(min(distance_pred))
 
                     last_steer_t = t[k]
-                    print t[k]
+                    print(t[k])
 
                     distance_pred = sqrt((MPC.xcar_pred_downsampled[:,0]-MPC.xdeer_pred_downsampled[:,3])**2+(MPC.xcar_pred_downsampled[:,2]-MPC.xdeer_pred_downsampled[:,2])**2)
                     
@@ -847,8 +847,8 @@ def demo_CVdeer():
     ## SAVE end
 
     #print min(distancevec[1:])
-    print 'DEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEERRRRRRRRRRRRRRRRRRRr'
-    print deer_visiblev
+    print('DEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEERRRRRRRRRRRRRRRRRRRr')
+    print(deer_visible)
 
     ayg = (carxdot[:,1]+carx[:,5]*carx[:,3])/9.81
     figure()

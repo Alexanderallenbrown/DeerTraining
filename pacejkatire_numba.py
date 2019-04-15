@@ -244,7 +244,7 @@ def main():
   #show()
 
 if __name__ == '__main__':
-  print "comnp.piling and running for first time..."
+  print("comnp.piling and running for first time...")
   start = time.time()
   main()
   end = time.time()
