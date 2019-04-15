@@ -19,8 +19,8 @@ def demo():
 
     mapa = 'real_tree_wismer'
     xCar = 60
-    setSpeed = 17
-    generation_number = 1
+    setSpeed = 14
+    generation_number = 2
 
     agent_type = "D"
     meanRes = 100.
