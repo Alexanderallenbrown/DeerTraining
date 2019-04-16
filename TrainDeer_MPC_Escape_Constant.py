@@ -18,11 +18,12 @@ import os
 def demo():
 
     mapa = 'constant_4'
+
     xCar = 0
     setSpeed = 25
     generation_number = 1
 
-    agent_type = "Fb"
+    agent_type = "D"
     meanRes = 100.
     collIndex = 0
 
@@ -41,11 +42,11 @@ def demo():
 
     while True:
 
-        while ((collIndex == 0.0) and (generation_number < 101)):
+        while ((collIndex == 0.0) and (generation_number < 100)):
 
-            print('New generation')
+            print "New generation"
 
-            print(generation_number)
+            print generation_number
 
             generation = generation_number
             agent = agent_type
@@ -56,11 +57,11 @@ def demo():
             # D = Brake
             # E = Hybrid
 
-            print(generation)
+            print generation
 
             Gfname = 'GenerationFiles/generations' + str(agent) + '/map_' + str(mapa) + '/xCar' + str(xCar) + '/setSpeed' + str(setSpeed) + '/Generation' + str(generation) + '.txt';
 
-            print(Gfname)
+            print Gfname
 
             #should have an array of size m*h (of object values )
 
@@ -74,30 +75,30 @@ def demo():
                     for ind in range(4,len(values)):
                         resultVec.append(float(values[ind]))
                     #resultVec = values[3:]
-                    print('RESULT VEC')
-                    print(resultVec)
+                    print 'RESULT VEC'
+                    print resultVec
                     deer.assign(int(values[0]),str(values[1]),float(values[2]),float(values[3]),resultVec)
                     CurrentGenarray.append(deer)
 
             # we now have an arrary of deer objects, paired values of attributes and the corresponding results
             CurrentGenarray.sort(key=operator.attrgetter("result"))
 
-            print("This is the CurrentGenarray")
+            print "This is the CurrentGenarray"
 
-            print(CurrentGenarray)
-
-            for x in range(0, len(CurrentGenarray)):
-                print(CurrentGenarray[x].traits)
+            print CurrentGenarray
 
             for x in range(0, len(CurrentGenarray)):
-                print(CurrentGenarray[x].result)
+                print CurrentGenarray[x].traits
+
+            for x in range(0, len(CurrentGenarray)):
+                print CurrentGenarray[x].result
 
             NewInterGenArray = []
 
 
-            print("This is the CurrentGenarray again")
+            print "This is the CurrentGenarray again"
 
-            print(CurrentGenarray)
+            print CurrentGenarray
 
             DevTrials = 'GenerationFiles/generations' + str(agent) + '/map_' + str(mapa)  + '/xCar' + str(xCar) + '/setSpeed' + str(setSpeed) + '/trialData/generation' + str(generation+1)
 
@@ -124,37 +125,37 @@ def demo():
                 develMethod = random.randint(6);
                 if develMethod == 0:
                     inds = random.choice(len(CurrentGenarray),2);
-                    print(str(x) + ' do single point cross with ' + str(inds[0]) + ' ' + str(inds[1]))
+                    print str(x) + ' do single point cross with ' + str(inds[0]) + ' ' + str(inds[1]);
                     NewDeer = SinglePoint(CurrentGenarray[inds[0]],CurrentGenarray[inds[1]]);
                     newDevFile.write(str(int(deerID[x])) + ' - ' + str(NewDeer.traits) + ': Single point cross with ' + str(CurrentGenarray[inds[0]].traits) + ' (' + str(CurrentGenarray[inds[0]].id) + ') and ' + str(CurrentGenarray[inds[1]].traits) + ' (' + str(CurrentGenarray[inds[1]].id) + ')' )
                     newDevFile.write('\n')
                 if develMethod == 1:
                     inds = random.choice(len(CurrentGenarray),2);
-                    print(str(x) + ' do double point cross with ' + str(inds[0]) + ' ' + str(inds[1]))
+                    print str(x) + ' do double point cross with ' + str(inds[0]) + ' ' + str(inds[1]);
                     NewDeer = DoublePoint(CurrentGenarray[inds[0]],CurrentGenarray[inds[1]]);
                     newDevFile.write(str(int(deerID[x])) + ' - ' + str(NewDeer.traits) + ': Double point cross with ' + str(CurrentGenarray[inds[0]].traits) + ' (' + str(CurrentGenarray[inds[0]].id) + ') and ' + str(CurrentGenarray[inds[1]].traits) + ' (' + str(CurrentGenarray[inds[1]].id) + ')' )
                     newDevFile.write('\n')
                 if develMethod == 2:
                     inds = random.choice(len(CurrentGenarray),2);
-                    print(str(x) + ' do random point cross with ' + str(inds[0]) + ' ' + str(inds[1]))
+                    print str(x) + ' do random point cross with ' + str(inds[0]) + ' ' + str(inds[1]);
                     NewDeer = RandomPoint(CurrentGenarray[inds[0]],CurrentGenarray[inds[1]]);
                     newDevFile.write(str(int(deerID[x])) + ' - ' + str(NewDeer.traits) + ': Random point cross with ' + str(CurrentGenarray[inds[0]].traits) + ' (' + str(CurrentGenarray[inds[0]].id) + ') and ' + str(CurrentGenarray[inds[1]].traits) + ' (' + str(CurrentGenarray[inds[1]].id) + ') ' )
                     newDevFile.write('\n')
                 if develMethod == 3:
                     inds = random.choice(len(CurrentGenarray),2);
-                    print(str(x) + ' do and cross with ' + str(inds[0]) + ' ' + str(inds[1]))
+                    print str(x) + ' do and cross with ' + str(inds[0]) + ' ' + str(inds[1]);
                     NewDeer = AndCross(CurrentGenarray[inds[0]],CurrentGenarray[inds[1]]);
                     newDevFile.write(str(int(deerID[x])) + ' - ' + str(NewDeer.traits) + ': And cross with ' + str(CurrentGenarray[inds[0]].traits) + ' (' + str(CurrentGenarray[inds[0]].id) + ') and ' + str(CurrentGenarray[inds[1]].traits) + ' (' + str(CurrentGenarray[inds[1]].id) + ')' )
                     newDevFile.write('\n')
                 if develMethod == 4:
                     inds = random.choice(len(CurrentGenarray),2);
-                    print(str(x) + ' do or cross with ' + str(inds[0]) + ' ' + str(inds[1]))
+                    print str(x) + ' do or cross with ' + str(inds[0]) + ' ' + str(inds[1]);
                     NewDeer = OrCross(CurrentGenarray[inds[0]],CurrentGenarray[inds[1]]);
                     newDevFile.write(str(int(deerID[x])) + ' - ' + str(NewDeer.traits) + ': Or cross with ' + str(CurrentGenarray[inds[0]].traits) + ' (' + str(CurrentGenarray[inds[0]].id) + ') and ' + str(CurrentGenarray[inds[1]].traits) + ' (' + str(CurrentGenarray[inds[1]].id) + ')' )
                     newDevFile.write('\n')
                 if develMethod == 5:
                     inds = random.choice(len(CurrentGenarray),1);
-                    print(str(x) + ' do mutation with ' + str(inds[0]))
+                    print str(x) + ' do mutation with ' + str(inds[0]);
                     NewDeer = Mutate(CurrentGenarray[inds[0]]);
                     newDevFile.write(str(int(deerID[x])) + ' - ' + str(NewDeer.traits) + ': Mutate ' + str(CurrentGenarray[inds[0]].traits) + ' (' + str(CurrentGenarray[inds[0]].id) + ')')
                     newDevFile.write('\n')
@@ -163,46 +164,46 @@ def demo():
 
             for ind in range(0,m):
                 NewInterGenArray[ind].id = int(deerID[ind])
-            print('DEER IDs')
-            print(deerID)
+            print 'DEER IDs'
+            print deerID
 
-            print('');
+            print '';
             for x in range(0, len(CurrentGenarray)):
-                print(str(x) + ' ' + str(CurrentGenarray[x].traits) + ' ' + str(CurrentGenarray[x].result));    
-            print('');
+                print  str(x) + ' ' + str(CurrentGenarray[x].traits) + ' ' + str(CurrentGenarray[x].result);    
+            print '';
             for x in range(0, len(NewInterGenArray)):
-                print(str(x) + ' ' + str(NewInterGenArray[x].traits) + ' ' + str(NewInterGenArray[x].result));  
-            print('');
+                print  str(x) + ' ' + str(NewInterGenArray[x].traits) + ' ' + str(NewInterGenArray[x].result);  
+            print '';
 
             DirTrials = 'GenerationFiles/generations' + str(agent) + '/map_' + str(mapa)  + '/xCar' + str(xCar) + '/setSpeed' + str(setSpeed) + '/trialData/generation' + str(generation+1)
 
             #Test deer in intermediate generation
             for index in range(0,m):
-                print("Training deer " + str(index + 1) + " out of " + str(m))
+                print "Training deer " + str(index + 1) + " out of " + str(m)
                 CurrentDeer = BinaryConversion(str(NewInterGenArray[index].traits))
-                print(CurrentDeer)
+                print CurrentDeer
                 NewInterGenArray[index].result,NewInterGenArray[index].collisions,NewInterGenArray[index].resultVec = TestDeer_MPC(CurrentDeer, h, agent, xCar, setSpeed,mapa,DirTrials,int(NewInterGenArray[index].id))
                 
 
 
-                print(NewInterGenArray[index].result)
-                print(NewInterGenArray[index].collisions)
-                print(NewInterGenArray[index].resultVec)
+                print NewInterGenArray[index].result
+                print NewInterGenArray[index].collisions
+                print NewInterGenArray[index].resultVec
 
             for x in range(0, n):
                 NewInterGenArray.append(CurrentGenarray[x])
 
             for x in range(0, len(NewInterGenArray)):
-                print(str(NewInterGenArray[x].traits) + ' ' + str(NewInterGenArray[x].result));  
-            print('');
+                print str(NewInterGenArray[x].traits) + ' ' + str(NewInterGenArray[x].result);  
+            print '';
 
             #Now, total array of intermediate and base generation, with scores
 
             NewInterGenArray.sort(key=operator.attrgetter("result"))
 
             for x in range(0, len(NewInterGenArray)):
-                print(str(NewInterGenArray[x].traits) + ' ' + str(NewInterGenArray[x].result));  
-            print('');
+                print str(NewInterGenArray[x].traits) + ' ' + str(NewInterGenArray[x].result);  
+            print '';
 
             NewBaseGenArray = []
 
@@ -219,27 +220,27 @@ def demo():
                 NewInterGenArray.pop(randIndex);
 
             for x in range(0, len(NewInterGenArray)):
-                print(str(NewInterGenArray[x].traits) + ' ' + str(NewInterGenArray[x].result));  
-            print('');
+                print str(NewInterGenArray[x].traits) + ' ' + str(NewInterGenArray[x].result);  
+            print '';
 
             for x in range(0, len(NewBaseGenArray)):
-                print(str(NewBaseGenArray[x].traits) + ' ' + str(NewBaseGenArray[x].result));    
-            print('');
+                print str(NewBaseGenArray[x].traits) + ' ' + str(NewBaseGenArray[x].result);    
+            print '';
 
             NewBaseGenArray.sort(key=operator.attrgetter("result"))
 
             # Find the range of results
             resultRange = NewBaseGenArray[n-1].result-NewBaseGenArray[0].result
-            print("RESULT RANGE: " + str(resultRange))
+            print "RESULT RANGE: " + str(resultRange)
             numNewDeer = 5
             minRange = 3
 
             # If the range is below the minimum, introduce x number of randomly generated deer
             if resultRange < minRange:
-                print('Result under minimum: Introduce ' + str(numNewDeer) + ' random deer')
+                print 'Result under minimum: Introduce ' + str(numNewDeer) + ' random deer'
                 for ind in range(0,5):
                     newGenomeRandom = randomGenome(genomeLength)
-                    print('New Random Deer Genome: ' + str(newGenomeRandom))
+                    print 'New Random Deer Genome: ' + str(newGenomeRandom)
                     CurrentDeer = BinaryConversion(newGenomeRandom)
                     NewBaseGenArray[(len(NewBaseGenArray)-1-ind)].traits = str(newGenomeRandom)
                     NewBaseGenArray[(len(NewBaseGenArray)-1-ind)].id = int(deerID[m+ind])
@@ -265,7 +266,7 @@ def demo():
             for x in range(0, len(NewBaseGenArray)):
                 collIndex = collIndex + NewBaseGenArray[x].collisions
 
-            print('NUMBER OF COLLISIONS' + str(collIndex))
+            print 'NUMBER OF COLLISIONS' + str(collIndex)
 
             meanRes = NewBaseGenArray[0].result
 
@@ -274,16 +275,16 @@ def demo():
             generation_number = generation_number + 1
 
         if collIndex > 0:
-            print("Crash reduce SPEED")
-            print(meanRes)
+            print "Crash reduce SPEED"
+            print meanRes
             setSpeed = setSpeed - 1
             collIndex = 0
             generation_number = 1
             FirstGen(setSpeed,xCar,mapa,h,n)
 
         else:
-            print("We're good move FORWARD")
-            print(meanRes)
+            print "We're good move FORWARD"
+            print meanRes
             setSpeed = 25
             xCar = xCar + 20
             collIndex = 0
@@ -389,24 +390,24 @@ def TestDeer_MPC(deer_ind, n, agent, xCar, setSpeed,fake_map,Dir,deerID):
         last_steer_t = -0.1
         deerSight = False
         
-        MPC = MPC_Fb(q_lane_error = weight,q_obstacle_error =0.0/weight*10,q_lateral_velocity=1.0,q_steering_effort=1.0,q_accel = 0.005,predictionmethod='CV')
+        #MPC = MPC_Fb(q_lane_error = weight,q_obstacle_error =0.0/weight*10,q_lateral_velocity=1.0,q_steering_effort=1.0,q_accel = 0.005,predictionmethod='CV')
 
         # Initialize data saving files
         dirName = Dir + '/ID_' + str(int(deerID))
         FileName = dirName + '/trial_' + str(k_1+1) + '.txt'
-        predDirName = Dir + '/preds/ID_' + str(int(deerID))
-        predFileName = predDirName + '/trial_' + str(k_1+1) + '.txt'
+        # predDirName = Dir + '/preds/ID_' + str(int(deerID))
+        # predFileName = predDirName + '/trial_' + str(k_1+1) + '.txt'
 
         if not os.path.exists(dirName):
             os.makedirs(dirName)
 
-        if not os.path.exists(predDirName):
-            os.makedirs(predDirName)
+        # if not os.path.exists(predDirName):
+        #     os.makedirs(predDirName)
 
         newFile = open(FileName,'w+');
         newFile.close();
         newFile = open(FileName, 'a');
-        predF = open(predFileName,'a')
+        # predF = open(predFileName,'a')
 
 
         for k in range(1,len(t)):
@@ -432,9 +433,9 @@ def TestDeer_MPC(deer_ind, n, agent, xCar, setSpeed,fake_map,Dir,deerID):
 
                 if deerSight == True:
 
-                    if ((t[k]- last_steer_t) >= MPC.dtp):
-                        opt_steer = MPC.calcOptimal(carnow = car,deernow = deer, yroad = 0)
-                        brake = MPC.calcBraking(carnow = car)
+                    if ((t[k]- last_steer_t) >= 0.1):#MPC.dtp):
+                        opt_steer = 0 #MPC.calcOptimal(carnow = car,deernow = deer, yroad = 0)
+                        brake = 0.6 #MPC.calcBraking(carnow = car)
                         gas = 0
 
                         last_steer_t = t[k]
@@ -471,12 +472,12 @@ def TestDeer_MPC(deer_ind, n, agent, xCar, setSpeed,fake_map,Dir,deerID):
                     newFile.write(str(deerx[k,ind2]) + '\t');
             newFile.write('\n')
 
-            predF.write(str(t[k])+'\t')
-            for ind2 in range(0,len(MPC.XYPrediction)):  
-                predF.write(str(MPC.XYPrediction[ind2])+'\t')
-            for ind2 in range(0,len(MPC.XYDeerPrediction)):
-                predF.write(str(MPC.XYDeerPrediction[ind2])+'\t')
-            predF.write('\n')
+            # predF.write(str(t[k])+'\t')
+            # for ind2 in range(0,len(MPC.XYPrediction)):  
+            #     predF.write(str(MPC.XYPrediction[ind2])+'\t')
+            # for ind2 in range(0,len(MPC.XYDeerPrediction)):
+            #     predF.write(str(MPC.XYDeerPrediction[ind2])+'\t')
+            # predF.write('\n')
 
 
         distancevec = distancevec[1:len(distancevec)]
@@ -493,6 +494,8 @@ def TestDeer_MPC(deer_ind, n, agent, xCar, setSpeed,fake_map,Dir,deerID):
                 Collision[k_1] = bool(1)
             else:
                 Collision[k_1] = bool(0)
+
+    newFile.close();
 
     # Calculate an index to know which result corresponds to each trial
     test_number = range(1,11)
@@ -513,11 +516,10 @@ def TestDeer_MPC(deer_ind, n, agent, xCar, setSpeed,fake_map,Dir,deerID):
 
     # Determine total number of collisions
     Collisions = sum(Collision[:])
-    if Collisions == 8:
+    if Collisions == n:
         Collisions = 1
     else:
         Collisions = 0
-
 
     results_vec_return = []
     for ind in range(0,n):
@@ -526,7 +528,7 @@ def TestDeer_MPC(deer_ind, n, agent, xCar, setSpeed,fake_map,Dir,deerID):
         results_vec_return.append(results_vec[ind][1])
         # = results_vec_return + str(results_vec[ind][2]) + ' ' + str(results_vec[ind][0]) + ' ' + str(results_vec[ind][1]) + ' '
 
-    print(results_vec_return)
+    print results_vec_return
     return IQM_min_distance, Collisions, results_vec_return
 
 def FirstGen(setSpeed, xCar,mapa,h,n):
@@ -536,13 +538,13 @@ def FirstGen(setSpeed, xCar,mapa,h,n):
     for ind in range(0,n):
         Deer10.append(str(randomGenome(25)))
 
-    print('DEER 10')
-    print(Deer10)
+    print 'DEER 10'
+    print Deer10
 
     #Deer10 = ['1011110011010101111100000','1000011110110111001101000','0011010011101011111001101','1011001010011011110100111','1110001110010110110101000','0101011010101111100110101','1001011110101011000101110','1110100000110001010111001','1011101101011011001011011','0010100010001101001001111','0101111110001101001100001','1001010110101111010110110','0010010000000111000101001','0001000001001100100110000','0101010000110001110001001']
     #Deer10 = ['0000100000011111111100000','0000000000110111001101000','0000000000001011111001101','0000000000011011110100111','0000100000010110110101000','0000100000101111100110101','0000100000101011000101110','0000100000110001010111001','1011101101011011001011011','0010100010001101001001111','0101111110001101001100001','1001010110101111010110110','0010010000000111000101001','0001000001001100100110000','0101010000110001110001001']
 
-    agent = 'Fb'
+    agent = 'D'
 
     directory = 'GenerationFiles/generations' + str(agent) + '/map_' + str(mapa) + '/xCar' + str(xCar) + '/setSpeed' + str(setSpeed) 
 
@@ -564,17 +566,17 @@ def FirstGen(setSpeed, xCar,mapa,h,n):
         Deer1 = Deer10[(ind)]
         Deer1_bin = Deer1
 
-        print("TRAINING DEER " + str(ind + 1) + " OUT OF " + str(len(Deer10)))
+        print "TRAINING DEER " + str(ind + 1) + " OUT OF " + str(len(Deer10))
 
-        print("This is the deer we are currently training")
-        print(str(Deer1))
+        print "This is the deer we are currently training"
+        print str(Deer1)
 
         Deer1 = BinaryConversion(Deer1)
 
         print(Deer1)
 
         Distance1, Collisions, resultVec = TestDeer_MPC(deer_ind=Deer1, n=h, agent = agent, setSpeed = setSpeed, xCar = xCar, fake_map = mapa, Dir = DirTrials, deerID = int(deerID[ind]))
-        print(resultVec)
+        print resultVec
 
         
 
@@ -587,8 +589,8 @@ def FirstGen(setSpeed, xCar,mapa,h,n):
         newGenFile.close()
 
 
-        print("MINIMUM DISTANCE")
-        print(str(Deer1_bin))
+        print "MINIMUM DISTANCE"
+        print str(Deer1_bin)
         print(Distance1)
 
 
