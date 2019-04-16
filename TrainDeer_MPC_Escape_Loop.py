@@ -19,7 +19,7 @@ def demo():
 
     mapa = 'nothing'
     xCar = 0
-    setSpeed = 25
+    setSpeed = 20
     generation_number = 1
 
     agent_type = "Fb"
