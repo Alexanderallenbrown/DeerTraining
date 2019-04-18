@@ -77,10 +77,8 @@ class Deer_Escape_Smooth:
                             self.Speed_Deer = self.Speed_Deer - self.Amax_Deer*self.dT
                             psidot = 1/self.tau_turn*(self.Psi2_Deer - self.Psi_Deer)
 
-                            if psidot > 3.14:
-                                psidot = -(psidot-3.1415)
-                            if psidot < 3.14:
-                                psidot = -(psidot+3.1415)
+                            if abs(psidot) > 3.14:
+                                psidot = sign(psidot)*(psidot - 2*3.1415)
 
                             if abs(psidot)>psidot_max:
                                 psidot = psidot_max * sign(psidot)
@@ -94,11 +92,8 @@ class Deer_Escape_Smooth:
                     if self.turn == True:
                         psidot = 1/self.tau_turn*(self.Psi2_Deer - self.Psi_Deer)
 
-                        if psidot > 3.14:
-                            psidot = -(psidot-3.1415)
-                        if psidot < 3.14:
-                            psidot = -(psidot+3.1415)
-
+                        if abs(psidot) > 3.14:
+                            psidot = sign(psidot)*(psidot - 2*3.1415)
 
                         if abs(psidot)>psidot_max:
                             psidot = psidot_max * sign(psidot)
@@ -249,8 +244,8 @@ if __name__=='__main__':
     deer_vel = deerx[:,0]
 
     # Create figure
-    fig = plt.figure(facecolor = 'black')
-    ax = fig.add_subplot(111, facecolor = 'black')
+    fig = plt.figure(facecolor = 'k')
+    ax = fig.add_subplot(111, facecolor = 'k')
     #plt.axis('equal')
     #ax.set_ylim(-25, 25)
     ax.set_xlim([10.0, 110.0])
