@@ -5,7 +5,17 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 from matplotlib import animation
 
-#Gfname = 'GenerationFiles/generations' + str(agent) + '/map_' + str(mapa) + '/xCar' + str(xCar) + '/setSpeed' + str(setSpeed) + '/Generation' + str(generation) + '.txt';
+agent = 'D'
+mapa = 'constant_4'
+xCar = 0
+setSpeed = 25
+generation = 1
+ID = 101
+trial = 1
+
+
+
+Gfname = 'GenerationFiles/generations' + str(agent) + '/map_' + str(mapa) + '/xCar' + str(xCar) + '/setSpeed' + str(setSpeed) + '/trialData/generation' + str(generation) + 'ID_' + str(ID) + '/trial_' + str(trial) + '.txt';
 Gfname = 'GenerationFiles/TestTest.txt'
 
 
