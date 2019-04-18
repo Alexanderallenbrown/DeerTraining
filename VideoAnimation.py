@@ -16,7 +16,7 @@ trial = 1
 
 
 Gfname = 'GenerationFiles/generations' + str(agent) + '/map_' + str(mapa) + '/xCar' + str(xCar) + '/setSpeed' + str(setSpeed) + '/trialData/generation' + str(generation) + 'ID_' + str(ID) + '/trial_' + str(trial) + '.txt';
-Gfname = 'GenerationFiles/TestTest.txt'
+#Gfname = 'GenerationFiles/TestTest.txt'
 
 
 print Gfname
