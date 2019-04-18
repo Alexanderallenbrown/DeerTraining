@@ -75,10 +75,14 @@ class Deer_Escape_Smooth:
 
                         if ((self.Speed_Deer > self.Vturn_Deer)): # and (x_Car<self.x_Deer)):
                             self.Speed_Deer = self.Speed_Deer - self.Amax_Deer*self.dT
-                            psidot = 1/self.tau_turn*(self.Psi2_Deer - self.Psi_Deer)
+                            deltapsi = self.Psi2_Deer - self.Psi_Deer
+                            
+                            if abs(deltapsi) > 3.14:
+                                deltapsi = sign(deltapsi)*(deltapsi - 2*3.1415)
 
-                            if abs(psidot) > 3.14:
-                                psidot = sign(psidot)*(psidot - 2*3.1415)
+                            psidot = 1/self.tau_turn*(deltapsi)
+
+
 
                             if abs(psidot)>psidot_max:
                                 psidot = psidot_max * sign(psidot)
@@ -90,10 +94,12 @@ class Deer_Escape_Smooth:
                             self.turn = True
 
                     if self.turn == True:
-                        psidot = 1/self.tau_turn*(self.Psi2_Deer - self.Psi_Deer)
+                        deltapsi = self.Psi2_Deer - self.Psi_Deer
+                        
+                        if abs(deltapsi) > 3.14:
+                            deltapsi = sign(deltapsi)*(deltapsi - 2*3.1415)
 
-                        if abs(psidot) > 3.14:
-                            psidot = sign(psidot)*(psidot - 2*3.1415)
+                        psidot = 1/self.tau_turn*(deltapsi)
 
                         if abs(psidot)>psidot_max:
                             psidot = psidot_max * sign(psidot)
@@ -148,7 +154,7 @@ if __name__=='__main__':
 
     #set up our deer
 
-    deer = Deer_Escape_Smooth(Psi1_Deer = -3.14/2, y_init = -2.0, dturn_Deer = 20.5, Vmax_Deer = 15.0, Tau_Deer = 0.5)
+    deer = Deer_Escape_Smooth(Psi1_Deer = -3.14/2, y_init = -12.0, dturn_Deer = 50, Vmax_Deer = 15.0, Tau_Deer = 0.5)
     deer.x_Deer = 80.0
 
     simtime = 10
@@ -245,7 +251,7 @@ if __name__=='__main__':
 
     # Create figure
     fig = plt.figure(facecolor = 'k')
-    ax = fig.add_subplot(111, facecolor = 'k')
+    ax = fig.add_subplot(111) #, facecolor = 'k')
     #plt.axis('equal')
     #ax.set_ylim(-25, 25)
     ax.set_xlim([10.0, 110.0])
@@ -311,8 +317,8 @@ if __name__=='__main__':
 
     # Run anumation
     anim = animation.FuncAnimation(fig, animate,init_func=init,frames=len(car_x),interval=10,blit=True)
-    Writer = animation.writers['imagemagick']
-    writer = Writer(fps=15, metadata=dict(artist='Me'),bitrate=1800)
+    # Writer = animation.writers['imagemagick']
+    # writer = Writer(fps=15, metadata=dict(artist='Me'),bitrate=1800)
     #anim.save('deer.gif',writer=writer)
 
     ### ANIMATION END
