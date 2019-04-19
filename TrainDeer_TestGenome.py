@@ -26,7 +26,7 @@ def demo():
 
     agent_type = "D"
 
-    n = 10
+    n = 100
 
     deer_ind = '0010000000000000100100000'
     CurrentDeer = BinaryConversion(str(deer_ind))
