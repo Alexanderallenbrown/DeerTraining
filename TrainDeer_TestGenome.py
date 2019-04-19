@@ -22,13 +22,13 @@ def demo():
     agent = 'D'
 
     xCar = 0
-    setSpeed = 25
+    setSpeed = 19
 
     agent_type = "D"
 
     n = 100
 
-    deer_ind = '0010000000000000100100000'
+    deer_ind = '0100011000000001111100100'
     CurrentDeer = BinaryConversion(str(deer_ind))
 
     DirTrials = 'GenerationFiles/TestGenomes/agent_' + str(agent) + '/map_' + str(mapa)  +  '/setSpeed' + str(setSpeed) + '/trialData'
