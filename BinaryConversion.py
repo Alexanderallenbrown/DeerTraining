@@ -13,7 +13,7 @@ def BinaryConversion_Escape(ind):
     Psi1_min = -3.14/2 # radians
     Psi1_max = 3.14/2 # radians
 
-    yinit_min = -1. # meters
+    yinit_min = -4. # meters
     yinit_max = -30. # meters
 
     dturn_min = 10 # meters

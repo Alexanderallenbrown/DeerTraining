@@ -17,7 +17,7 @@ import os
 
 def demo():
 
-    mapa = 'real_tree_wismer'
+    mapa = 'real_tree_wismer_7'
 
     xCar = 0
     setSpeed = 25
@@ -494,6 +494,8 @@ def TestDeer_MPC(deer_ind, n, agent, xCar, setSpeed,fake_map,Dir,deerID):
                 Collision[k_1] = bool(1)
             else:
                 Collision[k_1] = bool(0)
+
+    newFile.close();
 
     # Calculate an index to know which result corresponds to each trial
     test_number = range(1,11)

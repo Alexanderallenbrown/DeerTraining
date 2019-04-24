@@ -494,6 +494,9 @@ def TestDeer_MPC(deer_ind, n, agent, xCar, setSpeed,fake_map,Dir,deerID):
             else:
                 Collision[k_1] = bool(0)
 
+    newFile.close();
+    predF.close()
+    
     # Calculate an index to know which result corresponds to each trial
     test_number = range(1,11)
     # Create combined vector of 

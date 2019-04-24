@@ -280,14 +280,15 @@ def demo_GAdeer():
 
     fakemap = 'nothing'
     swerveDistance = 50.0
-    setSpeed = 10.0
-    x_car = 40.0
+    setSpeed = 25.0
+    x_car = 0.0
     x_deer = x_car + 80.0
 
     deer_ind = '0011010011000001111000000'
     deer_ind = '0100010000000111111100000'
     deer_ind = '0000000000000001000100100' #xcar 0, speed 21, generation 17
     deer_ind = '0010101111000001010000011'
+    deer_ind = '0010000000000000100100000'
 
     deer_ind = BinaryConversion_Escape(deer_ind)
 
@@ -588,13 +589,31 @@ def demo_GAdeer():
         car_pred.append(patches.Rectangle((0, 0), car_length, car_width,angle = 0.0, fc='w', alpha = .1))
         deer_pred.append(patches.Rectangle((0, 0), deer_length, deer_width,angle = 0.0, fc='w', alpha = .1))
 
+    trees_ind = False
     if fakemap == 'real_tree_wismer':
         trees = patches.Rectangle((100,-94),80,90,fc='g')
+        trees_ind = True
+    if fakemap == 'real_tree_wismer_6':
+        trees = patches.Rectangle((100,-96),80,90,fc='g')
+        trees_ind = True
+    if fakemap == 'real_tree_wismer_8':
+        trees = patches.Rectangle((100,-98),80,90,fc='g')
+        trees_ind = True
+    if fakemap == 'constant_4':
+        trees = patches.Rectangle((-100,-94),400,90,fc='g')
+        trees_ind = True
+    if fakemap == 'constant_7':
+        trees = patches.Rectangle((-100,-97),400,90,fc='g')
+        trees_ind = True
+    if fakemap == 'constant_10':
+        trees = patches.Rectangle((100,-100),400,90,fc='g')
+        trees_ind = True
+
 
     def init():
         ax.add_patch(background)
         ax.add_patch(car_circle)
-        if fakemap == 'real_tree_wismer':
+        if trees_ind == True:
             ax.add_patch(trees)
         ax.add_patch(road)
         ax.add_patch(car_plot)
