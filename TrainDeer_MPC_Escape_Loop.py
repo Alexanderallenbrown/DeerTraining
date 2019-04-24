@@ -17,20 +17,11 @@ import os
 
 def demo():
 
-<<<<<<< HEAD
-    mapa = 'real_tree_wismer'
-    xCar = 60
-    setSpeed = 15
-=======
     mapa = 'nothing'
-    xCar = 100
-    setSpeed = 20
-<<<<<<< HEAD
-    generation_number = 18
-=======
->>>>>>> 565ffbeb7123072484cd53b33120545c90ee7497
+    xCar = 0
+    setSpeed = 25
     generation_number = 1
->>>>>>> b77056a3b78ec2c857842ff999580463c78267a9
+
 
     agent_type = "Fb"
     meanRes = 100.
