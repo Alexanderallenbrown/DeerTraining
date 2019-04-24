@@ -18,9 +18,9 @@ import os
 def demo():
 
     mapa = 'nothing'
-    xCar = 0
+    xCar = 100
     setSpeed = 20
-    generation_number = 1
+    generation_number = 18
 
     agent_type = "Fb"
     meanRes = 100.
