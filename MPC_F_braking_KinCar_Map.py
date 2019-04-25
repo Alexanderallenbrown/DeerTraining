@@ -687,7 +687,7 @@ def demo_CVdeer():
     deer_x = 80.0
     car_x = 0.0
 
-    angle = 0
+    angle = -87
     speed = 10
     # Initiate process
     deer = CV_Deer()
@@ -723,7 +723,7 @@ def demo_CVdeer():
 
     #MPC = MPC_F(q_lane_error = 10.0,q_obstacle_error = 5000000.0,q_lateral_velocity=0.00,q_steering_effort=0.0,q_accel = 0.005)
     weight = 10.0
-    MPC = MPC_Fb(q_lane_error = weight,q_obstacle_error =0.0/weight*10,q_lateral_velocity=1.0,q_steering_effort=1.0,q_accel = 0.005,predictionmethod='CV')
+    MPC = MPC_Fb(q_lane_error = weight, q_obstacle_error =0.0/weight*10, q_lateral_velocity=1.0, q_steering_effort=1.0, q_accel = 0.005, predictionmethod='CV')
 
     actual_steervec = zeros(len(t))
     command_steervec = zeros(len(t))
@@ -991,7 +991,7 @@ def demo_CVdeer():
 
 
 if __name__ == '__main__':
-    demo_GAdeer()
+    demo_CVdeer()
 
 
 
