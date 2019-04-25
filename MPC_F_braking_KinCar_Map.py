@@ -686,9 +686,10 @@ def demo_CVdeer():
     setSpeed = 25.0
     deer_x = 80.0
     car_x = 0.0
+    x_car = car_x
 
-    angle = 0
-    speed = 10
+    angle = -84
+    speed = 13
     # Initiate process
     deer = CV_Deer()
     deer.x_Deer = deer_x
@@ -697,15 +698,12 @@ def demo_CVdeer():
     deer.Speed_Deer = speed
         
     # Define simulation time and dt
-    simtime = 10
-    dt = 1/100.0    
-    last_command_t = -0.1
-
-    deer.dT = dt
+    simtime = 10.
+    dt = deer.dT
     t = arange(0,simtime,dt) #takes min, max, and timestep\
 
 
-    car = BicycleModel(dT = dt, U = 25.0,tiretype='pacejka', steering_actuator = 'on')
+    car = BicycleModel(dT = dt, U = 25.0,tiretype='pacejka')
 
 
      #car state vector #print array([[Ydot],[vdot],[Xdot],[Udot],[Psidot],[rdot]])
@@ -713,7 +711,7 @@ def demo_CVdeer():
     carxdot = zeros((len(t),len(car.x)))
     car.x[3] = setSpeed
     car.x[0] = -0.0 #let the vehicle start away from lane.
-    car.x[2] = car_x
+    car.x[2] = x_car
     carx[0,:] = car.x
 
     #initialize for deer as well
@@ -731,6 +729,8 @@ def demo_CVdeer():
     carvec = zeros(len(t))
     distancevec = zeros(len(t))
     deer_visible = zeros(len(t))
+    deer_psi = zeros(len(t))
+    deer_speed = zeros(len(t))
     opt_steer = 0
     last_steer_t = 0
     ax = zeros(len(t))
@@ -749,6 +749,13 @@ def demo_CVdeer():
 
     deerSight = False
 
+    xCarPred = zeros((len(t),10))
+    yCarPred = zeros((len(t),10))
+    psiCarPred = zeros((len(t),10))
+    xDeerPred = zeros((len(t),10))
+    yDeerPred = zeros((len(t),10))
+    psiDeerPred = zeros((len(t),10))
+
     #now simulate!!
     for k in range(1,len(t)):
 
@@ -758,23 +765,29 @@ def demo_CVdeer():
             #print deerx[k-1,:]
             distance_pred = zeros(10)
 
-            distanceAngle = MapRaycasting([car.x[2],car.x[0]],'mapa',KML = False, fake = 'nothing')
+            distanceAngle = MapRaycasting([car.x[2],car.x[0]],'mapa',KML = False, fake = fakemap)
 
-            deerAngle = arctan((deer.y_Deer-car.x[0])/(deer.x_Deer-car.x[2]))
+            deerAngle = arctan2((deer.y_Deer-car.x[0]),(deer.x_Deer-car.x[2]))
+
             deerDist = sqrt((deer.y_Deer-car.x[0])**2+(deer.x_Deer-car.x[2])**2)
 
             deerAngle = int(deerAngle *180./3.1415)
 
-            print(deerAngle)
-            print(deerDist)
-            print(distanceAngle[deerAngle])
+            if deerAngle < 0:
+                deerAngle = 360 + deerAngle
+
+            # print 'COMPARE'
+            # print deerAngle
+            # print distanceAngle[270]
+            # print deerDist
+            # print car.x[2]
+            # print deer_visible[k-1]
 
             if (deerDist < distanceAngle[deerAngle]): 
                 deerSight = True
 
-
             if deerSight == True:
-                deer_visible[k] == True
+                deer_visible[k] = 1.0
                 ##### The commented lines below allow you to test the objective function independently
                 # steervector = 0.01*random.randn(MPC.Np)
                 # bounds = [(-MPC.steering_angle_max,MPC.steering_angle_max)]
@@ -795,8 +808,8 @@ def demo_CVdeer():
                     print(t[k])
 
                     distance_pred = sqrt((MPC.xcar_pred_downsampled[:,0]-MPC.xdeer_pred_downsampled[:,3])**2+(MPC.xcar_pred_downsampled[:,2]-MPC.xdeer_pred_downsampled[:,2])**2)
-                    
-                   
+
+
                 
             #if((deer.x_Deer<car.x[2])):
 
@@ -809,12 +822,11 @@ def demo_CVdeer():
       #          opt_steer = steer_gain*(yr-ep)
         
             else:
-                deer_visible[k] = False
+                deer_visible[k] = 0
                 opt_steer = 0
                 gas = 0
                 brake = 0
 
-            #print min(distance_pred) 
             #print opt_steer
             carx[k,:],carxdot[k,:],actual_steervec[k] = car.rk_update(gas = gas, brake = brake, steer = opt_steer, cruise = 'off')
             cafvec[k] = car.Caf
@@ -823,6 +835,8 @@ def demo_CVdeer():
             deerx[k,:] = deer.updateDeer(car.x[2])
             command_steervec[k] = opt_steer
             distancevec[k] = sqrt((deer.x_Deer - car.x[2])**2+(deer.y_Deer - car.x[0])**2)
+            deer_speed[k] = deer.Speed_Deer
+            deer_psi[k] = deer.Psi_Deer*180/3.1415
 
             ay[k] = carxdot[k,1]+carx[k,3]*carx[k,5]
             ax[k] = carxdot[k,3]-carx[k,1]*carx[k,5]
@@ -854,21 +868,33 @@ def demo_CVdeer():
             actual_steervec[k] = 0.0
             cafvec[k] = cafvec[k-1]
             carvec[k] = carvec[k-1]
+            deer_visible[k] = deer_visible[k-1]
+            deer_speed[k] = deer.Speed_Deer
+            deer_psi[k] = deer.Psi_Deer*180/3.1415
             #deerx[k,:] = array([deer.Speed_Deer, deer.Psi_Deer, deer.x_Deer, deer.y_Deer])#updateDeer(car.x[2])
             deerx[k,:] = array([0.0,deerx[k-1,1],deerx[k-1,2],deerx[k-1,3]])
             command_steervec[k] = 0.0
             distancevec[k] = distancevec[k-1]
-            deer_visible[k] = deer_visible[k-1]
 
             ay[k] = carxdot[k,1]+carx[k,3]*carx[k,5]
             ax[k] = carxdot[k,3]-carx[k,1]*carx[k,5]
 
 
+        xCarPred[k,:] = MPC.XYPrediction[0:10]
+        yCarPred[k,:] = MPC.XYPrediction[10:20]
+        psiCarPred[k,:] = MPC.XYPrediction[20:]
+        xDeerPred[k,:] = MPC.XYDeerPrediction[0:10]
+        yDeerPred[k,:] = MPC.XYDeerPrediction[10:20]
+        psiDeerPred[k,:] = MPC.XYDeerPrediction[20:]
+        #print xCarPred[k,:]
+
+
+
+
     ## SAVE end
 
-    #print min(distancevec[1:])
-    print('DEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEERRRRRRRRRRRRRRRRRRRr')
-    print(deer_visible)
+    print("XY PREDICTION")
+    print(xCarPred)
 
     ayg = (carxdot[:,1]+carx[:,5]*carx[:,3])/9.81
     figure()
@@ -899,6 +925,14 @@ def demo_CVdeer():
     xlabel('time (s)')
     ylabel('Distance(m)')
     figure()
+    plot(t,deer_speed)
+    xlabel('Time(s)')
+    ylabel('Deer Speed (m/s')
+    figure()
+    plot(t,deer_psi)
+    xlabel('Time (s)')
+    ylabel('Deer Psi (rad)')
+    figure()
     plot(ay,ax,'ko-')
     xlabel('ay')
     ylabel('ax')
@@ -908,7 +942,6 @@ def demo_CVdeer():
     y = 0.5*9.8*sin(theta)
     plot(x,y,'r--')
 
-    # print ax,ay
 
     ### CREATE ANIMATION
     import matplotlib.pyplot as plt
@@ -932,34 +965,81 @@ def demo_CVdeer():
     deer_yaw = deerx[:,1]
 
     # Create figure
-    fig = plt.figure()
+    factor = 3
+    fig = plt.figure(figsize=(6.4*factor,4.8*factor))
     ax = fig.add_subplot(111)
     plt.axis('equal')
-    ax.set_xlim(0, 100)
+    ax.set_xlim(x_car, x_car + 100)
     ax.set_ylim(-25, 25)
 
     # Initialize rectangles
+    background = patches.Rectangle((-100,-100),10000,10000,fc='g')
+    car_circle = patches.Circle((100,0),60,fc = 'w', alpha = 0.25)
     car_plot = patches.Rectangle((0, 0), 0, 0,angle = 0.0, fc='b', alpha = 0.5)
-    deer_plot = patches.Rectangle((0, 0), 0, 0,angle = 0.0, fc='y', alpha = 0.5)
-    background = patches.Rectangle((-100,-100),200,200,fc='k')
-    center_line_1 = patches.Rectangle((-10,(1.75+0.025)),200,0.1,fc='y')
-    center_line_2 = patches.Rectangle((-10,(1.75-0.1-0.025)),200,0.1,fc='y')
-    right_line = patches.Rectangle((-10,-1.75),200,0.1,fc='w')
-    left_line = patches.Rectangle((-10,4.75),200,0.1,fc='w')
+    deer_plot = patches.Rectangle((0, 0), 0, 0,angle = 0.0, fc='g', alpha = 0.5)
+    road = patches.Rectangle((-100,-3.75),10000,11,fc='k')
+    center_line_1 = patches.Rectangle((-10,(1.75+0.025)),10000,0.1,fc='y')
+    center_line_2 = patches.Rectangle((-10,(1.75-0.1-0.025)),10000,0.1,fc='y')
+    right_line = patches.Rectangle((-10,-1.75),10000,0.1,fc='w')
+    left_line = patches.Rectangle((-10,4.75),10000,0.1,fc='w')
+
+    car_pred =[]
+    deer_pred =[]
+    for k in range(0,5):
+        car_pred.append(patches.Rectangle((0, 0), car_length, car_width,angle = 0.0, fc='w', alpha = .1))
+        deer_pred.append(patches.Rectangle((0, 0), deer_length, deer_width,angle = 0.0, fc='w', alpha = .1))
+
+    trees_ind = False
+    if fakemap == 'real_tree_wismer':
+        trees = patches.Rectangle((100,-94),80,90,fc='g')
+        trees_ind = True
+    if fakemap == 'real_tree_wismer_6':
+        trees = patches.Rectangle((100,-96),80,90,fc='g')
+        trees_ind = True
+    if fakemap == 'real_tree_wismer_8':
+        trees = patches.Rectangle((100,-98),80,90,fc='g')
+        trees_ind = True
+    if fakemap == 'constant_4':
+        trees = patches.Rectangle((-100,-94),400,90,fc='g')
+        trees_ind = True
+    if fakemap == 'constant_7':
+        trees = patches.Rectangle((-100,-97),400,90,fc='g')
+        trees_ind = True
+    if fakemap == 'constant_10':
+        trees = patches.Rectangle((100,-100),400,90,fc='g')
+        trees_ind = True
 
 
     def init():
+        ax.add_patch(background)
+        ax.add_patch(car_circle)
+        if trees_ind == True:
+            ax.add_patch(trees)
+        ax.add_patch(road)
         ax.add_patch(car_plot)
         ax.add_patch(deer_plot)
-        ax.add_patch(background)
         ax.add_patch(left_line)
         ax.add_patch(right_line)
         ax.add_patch(center_line_1)
         ax.add_patch(center_line_2)
-        return car_plot,deer_plot,
+
+        for k in range(0,5):
+            ax.add_patch(car_pred[k])
+            ax.add_patch(deer_pred[k])            
+
+        if fakemap == 'real_tree_wismer':
+            return car_circle,trees,car_plot,deer_plot,car_pred[0],car_pred[1],car_pred[2],car_pred[3],car_pred[4],deer_pred[0],deer_pred[1],deer_pred[2],deer_pred[3],deer_pred[4],#car_pred[5],#car_pred[6],car_pred[7],car_pred[8],car_pred[9],
+        else:
+            return car_circle,car_plot,deer_plot,car_pred[0],car_pred[1],car_pred[2],car_pred[3],car_pred[4],deer_pred[0],deer_pred[1],deer_pred[2],deer_pred[3],deer_pred[4],#car_pred[5],#car_pred[6],car_pred[7],car_pred[8],car_pred[9],
 
     # Set animation
     def animate(i):
+        car_circle.center = (car_x[i],car_y[i])
+
+        if fakemap == 'real_tree_wismer':
+            trees.set_width(90)
+
+
         car_plot.set_width(car_length)
         car_plot.set_height(car_width)
         car_plot.set_xy([car_x[i]-(car_length/2), car_y[i]-(car_width/2)])
@@ -969,16 +1049,31 @@ def demo_CVdeer():
         deer_plot.set_height(deer_width)
         deer_plot.set_xy([deer_x[i]-(deer_length/2*sin(deer_yaw[i])), deer_y[i]]-(deer_width/2*cos(deer_yaw[i])))
         deer_plot.angle = 90-deer_yaw[i]*180/3.14
-        deer_plot.fc = 'r'
-        if deer_visible[i] == True:
-            deer_plot.fc = 'r'
+        if deer_visible[i] == 1.0:
+            deer_plot.set_color('r') 
         else:
-            deer_plot.fc = 'y'
+            deer_plot.set_color('y')
 
-        return car_plot,deer_plot,
+
+        for k in range(0,5):
+            #print psiDeerPred[i,:]
+            car_pred[k].set_xy([xCarPred[i,2*k]-(car_length/2),yCarPred[i,2*k]-(car_width/2)])
+            car_pred[k].angle = psiCarPred[i,2*k]*180/3.14
+            deer_pred[k].set_xy([xDeerPred[i,2*k]-(deer_length/2*sin(deer_yaw[i])),yDeerPred[i,2*k]-(deer_width/2*cos(deer_yaw[i]))])
+            deer_pred[k].angle = 90-psiDeerPred[i,2*k]*180/3.14
+
+
+        if fakemap == 'real_tree_wismer':
+            return car_circle,trees,car_plot,deer_plot,car_pred[0],car_pred[1],car_pred[2],car_pred[3],car_pred[4],deer_pred[0],deer_pred[1],deer_pred[2],deer_pred[3],deer_pred[4],#car_pred[5],#car_pred[6],car_pred[7],car_pred[8],car_pred[9],   
+            
+        else:
+            return car_circle,car_plot,deer_plot,car_pred[0],car_pred[1],car_pred[2],car_pred[3],car_pred[4],deer_pred[0],deer_pred[1],deer_pred[2],deer_pred[3],deer_pred[4],#car_pred[5],#car_pred[6],car_pred[7],car_pred[8],car_pred[9],
 
     # Run anumation
     anim = animation.FuncAnimation(fig, animate,init_func=init,frames=len(car_x),interval=20,blit=True)
+    Writer = animation.writers['ffmpeg']
+    writer = Writer(fps=60,metadata=dict(artist='ME'),bitrate=1800*4)
+    anim.save('trial_animation.mp4')
 
     ### ANIMATION END
 
@@ -989,9 +1084,8 @@ def demo_CVdeer():
 
 
 
-
 if __name__ == '__main__':
-    demo_GAdeer()
+    demo_CVdeer()
 
 
 
