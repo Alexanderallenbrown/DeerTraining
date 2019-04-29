@@ -17,14 +17,9 @@ import os
 
 def demo():
 
-<<<<<<< HEAD
-    mapa = 'nothing'
-    xCar = 20
-=======
-    mapa = 'real_tree_wismer_7'
+    mapa = 'real_tree_wismer_10'
 
     xCar = 0
->>>>>>> 83d13fe6f87b1c408b0fc42e858776f8c3e4a821
     setSpeed = 25
     generation_number = 1
 

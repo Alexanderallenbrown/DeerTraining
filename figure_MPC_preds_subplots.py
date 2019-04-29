@@ -213,22 +213,33 @@ left_line = patches.Rectangle((-10,4.75),10000,0.1,fc='0')
 
 
 car1 = patches.Rectangle(([car_xs[0]-(car_length/2), car_ys[0]-(car_width/2)]), car_length, car_width,angle = car_yaws[0], fc='0')
+
 deer1 = patches.Rectangle(([deer_xs[0]-(deer_length/2), deer_ys[0]-(deer_width/2)]), deer_length, deer_width,angle = deer_yaws[0], fc='0')
  
 
 radius = 0.5
 
 carPred11 = patches.Circle(([xCarPred1s[0],yCarPred1s[0]]),radius, fc ='1')
-carPred12 = patches.Circle(([xCarPred1s[1],yCarPred1s[1]]),radius, fc ='1')
-carPred13 = patches.Circle(([xCarPred1s[2],yCarPred1s[2]]),radius, fc ='1')
-carPred14 = patches.Circle(([xCarPred1s[3],yCarPred1s[3]]),radius, fc ='1')
-carPred15 = patches.Circle(([xCarPred1s[4],yCarPred1s[4]]),radius, fc ='1')
+
+carPred21 = patches.Circle(([xCarPred2s[0],yCarPred2s[0]]),radius, fc ='1')
+
+carPred31 = patches.Circle(([xCarPred3s[0],yCarPred3s[0]]),radius, fc ='1')
+
+carPred41 = patches.Circle(([xCarPred4s[0],yCarPred4s[0]]),radius, fc ='1')
+
+carPred51 = patches.Circle(([xCarPred5s[0],yCarPred5s[0]]),radius, fc ='1')
+
 
 deerPred11 = patches.Circle(([xDeerPred1s[0],yDeerPred1s[0]]),radius, fc = '1')
-deerPred12 = patches.Circle(([xDeerPred1s[1],yDeerPred1s[1]]),radius, fc = '1')
-deerPred13 = patches.Circle(([xDeerPred1s[2],yDeerPred1s[2]]),radius, fc = '1')
-deerPred14 = patches.Circle(([xDeerPred1s[3],yDeerPred1s[3]]),radius, fc = '1')
-deerPred15 = patches.Circle(([xDeerPred1s[4],yDeerPred1s[4]]),radius, fc = '1')
+
+deerPred21 = patches.Circle(([xDeerPred2s[0],yDeerPred2s[0]]),radius, fc = '1')
+
+deerPred31 = patches.Circle(([xDeerPred3s[0],yDeerPred3s[0]]),radius, fc = '1')
+
+deerPred41 = patches.Circle(([xDeerPred4s[0],yDeerPred4s[0]]),radius, fc = '1')
+
+deerPred51 = patches.Circle(([xDeerPred5s[0],yDeerPred5s[0]]),radius, fc = '1')
+
 
 
 ax.add_patch(background)
@@ -237,66 +248,21 @@ ax.add_patch(left_line)
 ax.add_patch(right_line)
 ax.add_patch(center_line_1)
 ax.add_patch(center_line_2)
-
 ax.add_patch(car1)
 
 ax.add_patch(deer1)
-ax.add_patch(deer2)
-ax.add_patch(deer3)
-ax.add_patch(deer4)
-ax.add_patch(deer5)
 
 ax.add_patch(carPred11)
-ax.add_patch(carPred12)
-ax.add_patch(carPred13)
-ax.add_patch(carPred14)
-ax.add_patch(carPred15)
 ax.add_patch(carPred21)
-ax.add_patch(carPred22)
-ax.add_patch(carPred23)
-ax.add_patch(carPred24)
-ax.add_patch(carPred25)
 ax.add_patch(carPred31)
-ax.add_patch(carPred32)
-ax.add_patch(carPred33)
-ax.add_patch(carPred34)
-ax.add_patch(carPred35)
 ax.add_patch(carPred41)
-ax.add_patch(carPred42)
-ax.add_patch(carPred43)
-ax.add_patch(carPred44)
-ax.add_patch(carPred45)
 ax.add_patch(carPred51)
-ax.add_patch(carPred52)
-ax.add_patch(carPred53)
-ax.add_patch(carPred54)
-ax.add_patch(carPred55)
 
 ax.add_patch(deerPred11)
-ax.add_patch(deerPred12)
-ax.add_patch(deerPred13)
-ax.add_patch(deerPred14)
-ax.add_patch(deerPred15)
 ax.add_patch(deerPred21)
-ax.add_patch(deerPred22)
-ax.add_patch(deerPred23)
-ax.add_patch(deerPred24)
-ax.add_patch(deerPred25)
 ax.add_patch(deerPred31)
-ax.add_patch(deerPred32)
-ax.add_patch(deerPred33)
-ax.add_patch(deerPred34)
-ax.add_patch(deerPred35)
 ax.add_patch(deerPred41)
-ax.add_patch(deerPred42)
-ax.add_patch(deerPred43)
-ax.add_patch(deerPred44)
-ax.add_patch(deerPred45)
 ax.add_patch(deerPred51)
-ax.add_patch(deerPred52)
-ax.add_patch(deerPred53)
-ax.add_patch(deerPred54)
-ax.add_patch(deerPred55)
 
 ax = fig.add_subplot(142)
 plt.axis('equal')
