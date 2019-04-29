@@ -688,13 +688,10 @@ def demo_CVdeer():
     car_x = 0.0
     x_car = car_x
 
-<<<<<<< HEAD
     angle = -84
     speed = 13
-=======
-    angle = -87
-    speed = 10
->>>>>>> 6f4668c9e9b72b395bf0acac5ea42c7c06293d43
+
+
     # Initiate process
     deer = CV_Deer()
     deer.x_Deer = deer_x

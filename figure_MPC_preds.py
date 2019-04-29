@@ -6,7 +6,8 @@ import matplotlib.patches as patches
 from matplotlib import animation
 
 #Gfname = 'GenerationFiles/generations' + str(agent) + '/map_' + str(mapa) + '/xCar' + str(xCar) + '/setSpeed' + str(setSpeed) + '/trialData/generation' + str(generation) + 'ID_' + str(ID) + '/trial_' + str(trial) + '.txt';
-Gfname = 'GenerationFiles/TestTest.txt'
+Gfname = 'Test/Test1.txt'
+Predname = 'Test/pred.txt'
 
 
 print Gfname
@@ -51,7 +52,7 @@ deer_ys = []
 deer_yaws = []
 
 for ind in range(0,5):
-    ind1 = ind * 120
+    ind1 = ind * 90
     car_xs.append(car_x[ind1])
     car_ys.append(car_y[ind1])
     car_yaws.append(car_yaw[ind1])

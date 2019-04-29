@@ -17,47 +17,51 @@ import os
 
 def demo():
 
-    mapa = 'nothing'
+    deer_list = ['0101101011000101111111111','0011001101000001111000000','1000010001000001001110000','0011100110000001111010010','0110101111000001101001111','1000001110000001000001001','0100000101000001110111010','0101101000000011000101001','1010001000000001010001111','0001000100000001000000000','1000101111000011110100110']
+
+    mapa = 'constant_7'
 
     agent = 'D'
 
     xCar = 0
-    setSpeed = 15
 
-    agent_type = "D"
+    for setSpeed in range(15,26):
 
-    n = 100
+        agent_type = "D"
 
-    deer_ind = '000100100100000111000000'
-    CurrentDeer = BinaryConversion(str(deer_ind))
+        n = 100
 
-    DirTrials = 'GenerationFiles/TestGenomes/agent_' + str(agent) + '/map_' + str(mapa)  +  '/setSpeed' + str(setSpeed) + '/trialData'
+        deer_ind = deer_list[setSpeed-15]
 
-    if not os.path.exists(DirTrials):
-        os.makedirs(DirTrials)
+        CurrentDeer = BinaryConversion(str(deer_ind))
 
-    trial_number,min_distance,collision = TestDeer_MPC(CurrentDeer, n, agent, xCar, setSpeed,mapa,DirTrials,int(deer_ind))
+        DirTrials = 'GenerationFiles/TestGenomes/agent_' + str(agent) + '/map_' + str(mapa)  +  '/setSpeed' + str(setSpeed) + '/trialData'
 
+        if not os.path.exists(DirTrials):
+            os.makedirs(DirTrials)
 
-    genomeFileName = 'GenerationFiles/TestGenomes/agent_' + str(agent) + '/map_' + str(mapa)  +  '/setSpeed' + str(setSpeed) + '/genome.txt'
-        
-    genomeFile = open(genomeFileName,'w+');
-    genomeFile.close();
-    genomeFile = open(genomeFileName, 'a');
-    genomeFile.write(str(deer_ind))
-    genomeFile.close()   
+        trial_number,min_distance,collision = TestDeer_MPC(CurrentDeer, n, agent, xCar, setSpeed,mapa,DirTrials,int(deer_ind))
 
 
-    newFileName = 'GenerationFiles/TestGenomes/agent_' + str(agent) + '/map_' + str(mapa)  +  '/setSpeed' + str(setSpeed) + '/results.txt'
+        genomeFileName = 'GenerationFiles/TestGenomes/agent_' + str(agent) + '/map_' + str(mapa)  +  '/setSpeed' + str(setSpeed) + '/genome.txt'
+            
+        genomeFile = open(genomeFileName,'w+');
+        genomeFile.close();
+        genomeFile = open(genomeFileName, 'a');
+        genomeFile.write(str(deer_ind))
+        genomeFile.close()   
 
-    newFile = open(newFileName,'w+');
-    newFile.close();
-    newFile = open(newFileName, 'a');
 
-    for x in range(0,len(trial_number)):
-        newFile.write(str(trial_number[x]) + ' ' + str(min_distance[x]) + ' ' + str(collision[x]))
-        newFile.write('\n')
-    newFile.close()   
+        newFileName = 'GenerationFiles/TestGenomes/agent_' + str(agent) + '/map_' + str(mapa)  +  '/setSpeed' + str(setSpeed) + '/results.txt'
+
+        newFile = open(newFileName,'w+');
+        newFile.close();
+        newFile = open(newFileName, 'a');
+
+        for x in range(0,len(trial_number)):
+            newFile.write(str(trial_number[x]) + ' ' + str(min_distance[x]) + ' ' + str(collision[x]))
+            newFile.write('\n')
+        newFile.close()   
 
 
 def BinaryConversion(ind):
@@ -161,21 +165,21 @@ def TestDeer_MPC(deer_ind, n, agent, xCar, setSpeed,fake_map,Dir,deerID):
         last_steer_t = -0.1
         deerSight = False
         
-        #MPC = MPC_Fb(q_lane_error = weight,q_obstacle_error =0.0/weight*10,q_lateral_velocity=1.0,q_steering_effort=1.0,q_accel = 0.005,predictionmethod='CV')
+        MPC = MPC_Fb(q_lane_error = weight,q_obstacle_error =0.0/weight*10,q_lateral_velocity=1.0,q_steering_effort=1.0,q_accel = 0.005,predictionmethod='CV')
 
         # Initialize data saving files
         FileName = Dir + '/trial_' + str(k_1+1) + '.txt'
-        # predDirName = Dir + '/preds/ID_' + str(int(deerID))
-        # predFileName = predDirName + '/trial_' + str(k_1+1) + '.txt'
+        predDirName = Dir + '/preds/ID_' + str(int(deerID))
+        predFileName = predDirName + '/trial_' + str(k_1+1) + '.txt'
 
 
-        # if not os.path.exists(predDirName):
-        #     os.makedirs(predDirName)
+        if not os.path.exists(predDirName):
+            os.makedirs(predDirName)
 
         newFile = open(FileName,'w+');
         newFile.close();
         newFile = open(FileName, 'a');
-        # predF = open(predFileName,'a')
+        predF = open(predFileName,'a')
 
 
         for k in range(1,len(t)):
@@ -201,9 +205,9 @@ def TestDeer_MPC(deer_ind, n, agent, xCar, setSpeed,fake_map,Dir,deerID):
 
                 if deerSight == True:
 
-                    if ((t[k]- last_steer_t) >= 0.1):#MPC.dtp):
-                        opt_steer = 0 #MPC.calcOptimal(carnow = car,deernow = deer, yroad = 0)
-                        brake = 0.6 #MPC.calcBraking(carnow = car)
+                    if ((t[k]- last_steer_t) >= MPC.dtp):
+                        opt_steer = MPC.calcOptimal(carnow = car,deernow = deer, yroad = 0)
+                        brake = MPC.calcBraking(carnow = car)
                         gas = 0
 
                         last_steer_t = t[k]
@@ -240,12 +244,12 @@ def TestDeer_MPC(deer_ind, n, agent, xCar, setSpeed,fake_map,Dir,deerID):
                     newFile.write(str(deerx[k,ind2]) + '\t');
             newFile.write('\n')
 
-            # predF.write(str(t[k])+'\t')
-            # for ind2 in range(0,len(MPC.XYPrediction)):  
-            #     predF.write(str(MPC.XYPrediction[ind2])+'\t')
-            # for ind2 in range(0,len(MPC.XYDeerPrediction)):
-            #     predF.write(str(MPC.XYDeerPrediction[ind2])+'\t')
-            # predF.write('\n')
+            predF.write(str(t[k])+'\t')
+            for ind2 in range(0,len(MPC.XYPrediction)):  
+                predF.write(str(MPC.XYPrediction[ind2])+'\t')
+            for ind2 in range(0,len(MPC.XYDeerPrediction)):
+                predF.write(str(MPC.XYDeerPrediction[ind2])+'\t')
+            predF.write('\n')
 
 
         distancevec = distancevec[1:len(distancevec)]
@@ -264,6 +268,7 @@ def TestDeer_MPC(deer_ind, n, agent, xCar, setSpeed,fake_map,Dir,deerID):
                 Collision[k_1] = bool(0)
 
         newFile.close();
+        predF.close()
 
     return trial_number, min_distance, Collision
 
