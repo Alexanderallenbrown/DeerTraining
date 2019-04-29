@@ -688,7 +688,7 @@ def demo_CVdeer():
     car_x = 0.0
     x_car = car_x
 
-    angle = -84
+    angle = -87
     speed = 13
 
 

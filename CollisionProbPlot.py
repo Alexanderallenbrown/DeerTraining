@@ -69,9 +69,9 @@ for i in range(0,len(mapa_list)):
     # plot(speedVec,std2,'k--')
     poly = Polygon(sigma1,closed=True,facecolor = '0.9')
     ax.add_patch(poly)
-    ylabel('Minimum Average Distance (m)')
+    ylabel('Average Minimum Distance (m)')
     xlabel('Speed (m/s)')
-    legend(['Open Field','Constant 4m', 'Constant 7m','Constant 10m','1-$\sigma$ bounds'])
+    legend(['Open Field','ds = 4m', 'ds = 7m','ds = 10m','1-$\sigma$ bounds'])
 
 show()
 
