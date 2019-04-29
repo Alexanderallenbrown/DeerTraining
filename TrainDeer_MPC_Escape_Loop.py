@@ -18,7 +18,7 @@ import os
 def demo():
 
     mapa = 'nothing'
-    xCar = 0
+    xCar = 20
     setSpeed = 25
     generation_number = 1
 
