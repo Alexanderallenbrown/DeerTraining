@@ -17,11 +17,16 @@ import os
 
 def demo():
 
+<<<<<<< HEAD
     mapa = 'nothing'
     xCar = 20
+=======
+    mapa = 'real_tree_wismer_7'
+
+    xCar = 0
+>>>>>>> 83d13fe6f87b1c408b0fc42e858776f8c3e4a821
     setSpeed = 25
     generation_number = 1
-
 
     agent_type = "Fb"
     meanRes = 100.
@@ -517,6 +522,10 @@ def TestDeer_MPC(deer_ind, n, agent, xCar, setSpeed,fake_map,Dir,deerID):
 
     # Determine total number of collisions
     Collisions = sum(Collision[:])
+    if Collisions >= n/2:
+        Collisions = 1
+    else:
+        Collisions = 0
 
     results_vec_return = []
     for ind in range(0,n):
