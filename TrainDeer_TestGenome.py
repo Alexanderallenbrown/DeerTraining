@@ -17,22 +17,34 @@ import os
 
 def demo():
 
-    # constan_7 deer_list = ['0101101011000101111111111','0011001101000001111000000','1000010001000001001110000','0011100110000001111010010','0110101111000001101001111','1000001110000001000001001','0100000101000001110111010','0101101000000011000101001','1010001000000001010001111','0001000100000001000000000','1000101111000011110100110']
-    deer_list = ['0100001110000101110110111','0101111000000011100100101','1000010000000001001111011','0111010010000011100101010','1000010100000001111110001','0111101100000010111101100','1000001100000001101110111','0110001001000001000110010','0010000000000000011000001','0010000000000000010000010','0100000000000000000001000']
+    # nothing starting at 7m/s
+    #deer_list = ['0011111111001101111100000','0010111111001101111100000','0010011101001101111000000','0010011010000000111000000','0001111110000111111100000','0000111111000011111100000','0100011101000001001100000',
+    # starting at 14 m/s
+    #deer_list = ['0011011110000001111000000','0001001001000001110000000','0011010100000001001000000','0100011000000001101100000','0010101010000001111000010','0100011000000001111100100','0001100110000011011000000','0010101000000001111100001','0010100010000000111001000','0100001010000001001100011','0000000000000000001000000','0010000000000000100100000']
+    # constant_4 starting at 14m/s
+    deer_list = ['0100001010000001110010010','1010010100000001011111001','0010100100000001101001001','0111101111000000100100100','1000001010000011010110111','1001110111000001111101110','0100000101000011001010000','1000000100000000000000100','1000000100000111011110100','1001000010000000011110100','0010100000000000001000001','1000010000000001011000011']
+    #deer_list = ['1001011011000001111111111','0100001110000101110110111','0101111000000011100100101','1000010000000001001111011','0111010010000011100101010','1000010100000001111110001','0111101100000010111101100','1000001100000001101110111','0110001001000001000110010','0010000000000000011000001','0010000000000000010000010','0100000000000000000001000']
+    # constant_7 starting at 13m/s
+    #deer_list = ['0101110000000101111010111','0110001010000000110011110','0101101011000101111111111','0011001101000001111000000','1000010001000001001110000','0011100110000001111010010','0110101111000001101001111','1000001110000001000001001','0100000101000001110111010','0101101000000011000101001','1010001000000001010001111','0001000100000001000000000','1000101111000011110100110']
+    # constant_10 starting at 15m/s
+    #deer_list = ['0100001110000101110110111','0101111000000011100100101','1000010000000001001111011','0111010010000011100101010','1000010100000001111110001','0111101100000010111101100','1000001100000001101110111','0110001001000001000110010','0010000000000000011000001','0010000000000000010000010','0100000000000000000001000']
 
-    mapa = 'constant_10'
+    start_speed = 24 - len(deer_list)
+    print('start speed is ' + str(start_speed) + ' m/s')
 
-    agent = 'Fb'
+    mapa = 'constant_4'
+
+    agent = 'D'
 
     xCar = 0
 
-    for setSpeed in range(15,26):
+    for setSpeed in range(start_speed,26):
 
         agent_type = agent
 
         n = 100
 
-        deer_ind = deer_list[setSpeed-15]
+        deer_ind = deer_list[setSpeed-start_speed]
 
         CurrentDeer = BinaryConversion(str(deer_ind))
 
@@ -166,21 +178,27 @@ def TestDeer_MPC(deer_ind, n, agent, xCar, setSpeed,fake_map,Dir,deerID):
         last_steer_t = -0.1
         deerSight = False
         
-        MPC = MPC_Fb(q_lane_error = weight,q_obstacle_error =0.0/weight*10,q_lateral_velocity=1.0,q_steering_effort=1.0,q_accel = 0.005,predictionmethod='CV')
+        if agent == 'Fb':
+            MPC = MPC_Fb(q_lane_error = weight,q_obstacle_error =0.0/weight*10,q_lateral_velocity=1.0,q_steering_effort=1.0,q_accel = 0.005,predictionmethod='CV')
+            predDirName = Dir + '/preds/ID_' + str(int(deerID))
+            predFileName = predDirName + '/trial_' + str(k_1+1) + '.txt'
+            if not os.path.exists(predDirName):
+                os.makedirs(predDirName)
+
+
 
         # Initialize data saving files
         FileName = Dir + '/trial_' + str(k_1+1) + '.txt'
-        predDirName = Dir + '/preds/ID_' + str(int(deerID))
-        predFileName = predDirName + '/trial_' + str(k_1+1) + '.txt'
+        
+        
 
-
-        if not os.path.exists(predDirName):
-            os.makedirs(predDirName)
 
         newFile = open(FileName,'w+');
         newFile.close();
         newFile = open(FileName, 'a');
-        predF = open(predFileName,'a')
+
+        if agent == 'Fb':
+            predF = open(predFileName,'a')
 
 
         for k in range(1,len(t)):
@@ -206,13 +224,21 @@ def TestDeer_MPC(deer_ind, n, agent, xCar, setSpeed,fake_map,Dir,deerID):
 
                 if deerSight == True:
 
-                    if ((t[k]- last_steer_t) >= MPC.dtp):
-                        opt_steer = MPC.calcOptimal(carnow = car,deernow = deer, yroad = 0)
-                        brake = MPC.calcBraking(carnow = car)
+                    if agent == 'Fb':
+
+                        if ((t[k]- last_steer_t) >= MPC.dtp):
+                            opt_steer = MPC.calcOptimal(carnow = car,deernow = deer, yroad = 0)
+                            brake = MPC.calcBraking(carnow = car)
+                            gas = 0
+
+                            last_steer_t = t[k]
+        
+
+                    else:
+                        opt_steer = 0
+                        brake = 0.6
                         gas = 0
 
-                        last_steer_t = t[k]
-        
                 else:
                     opt_steer = 0
                     gas = 0
@@ -245,12 +271,13 @@ def TestDeer_MPC(deer_ind, n, agent, xCar, setSpeed,fake_map,Dir,deerID):
                     newFile.write(str(deerx[k,ind2]) + '\t');
             newFile.write('\n')
 
-            predF.write(str(t[k])+'\t')
-            for ind2 in range(0,len(MPC.XYPrediction)):  
-                predF.write(str(MPC.XYPrediction[ind2])+'\t')
-            for ind2 in range(0,len(MPC.XYDeerPrediction)):
-                predF.write(str(MPC.XYDeerPrediction[ind2])+'\t')
-            predF.write('\n')
+            if agent == 'Fb':
+                predF.write(str(t[k])+'\t')
+                for ind2 in range(0,len(MPC.XYPrediction)):  
+                    predF.write(str(MPC.XYPrediction[ind2])+'\t')
+                for ind2 in range(0,len(MPC.XYDeerPrediction)):
+                    predF.write(str(MPC.XYDeerPrediction[ind2])+'\t')
+                predF.write('\n')
 
 
         distancevec = distancevec[1:len(distancevec)]
@@ -269,7 +296,9 @@ def TestDeer_MPC(deer_ind, n, agent, xCar, setSpeed,fake_map,Dir,deerID):
                 Collision[k_1] = bool(0)
 
         newFile.close();
-        predF.close()
+        
+        if agent == 'Fb':
+            predF.close()
 
     return trial_number, min_distance, Collision
 
