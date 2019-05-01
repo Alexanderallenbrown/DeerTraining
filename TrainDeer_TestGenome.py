@@ -17,7 +17,8 @@ import os
 
 def demo():
 
-    mapa = 'constant_4'
+    mapa = 'constant_10'
+    agent = 'Fb'
 
     if mapa == 'nothing':
         # nothing starting at 7m/s
@@ -41,11 +42,9 @@ def demo():
 
     print('start speed is ' + str(start_speed) + ' m/s')
 
-    agent = 'D'
-
     xCar = 0
 
-    for setSpeed in range(start_speed,14):
+    for setSpeed in range(start_speed,15):
 
         agent_type = agent
 
