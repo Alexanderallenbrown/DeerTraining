@@ -11,7 +11,7 @@ plot(distance, speeds_nothing, 'ko-')
 plot(distance, speeds_trees, 'kx-')
 xlabel('$x_{v0}$ (m)')
 ylabel('Maximum Safe Speed (m/s)')
-legend(['Open Field','Wismer Road'])
+legend(['No cover','Rectangular patch of cover'])
 ylim(10,28)
 
 show()

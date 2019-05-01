@@ -4,7 +4,7 @@ from matplotlib.pyplot import *
 mapa_list = ['nothing','constant_4','constant_7','constant_10']
 marker_list = ['x','o','^','s']
 color_list = ['k','b']
-agent_list = ['Fb','D']
+agent_list = ['D']
 
 f1 = figure()
 a1 = subplot(111)
@@ -15,18 +15,22 @@ if len(agent_list)>1:
 else:
     legend(['$y_{sb} = \infty$','$y_{sb} = 4m$', '$y_{sb} = 7m$','$y_{sb} = 10m$','1-$\sigma$ bounds'])
 f2 = figure()
-a21 = subplot(411)
+a21 = subplot(414)
 ylabel('Collision Probability')
 xlabel('Speed (m/s)')
-a22 = subplot(412)
+a21.set_ylim(0,1)
+a22 = subplot(411)
 ylabel('Collision Probability')
 xlabel('Speed (m/s)')
-a23 = subplot(413)
+a22.set_ylim(0,1)
+a23 = subplot(412)
 ylabel('Collision Probability')
 xlabel('Speed (m/s)')
-a24 = subplot(414)
+a23.set_ylim(0,1)
+a24 = subplot(413)
 ylabel('Collision Probability')
 xlabel('Speed (m/s)')
+a24.set_ylim(0,1)
 
 
 for j in range(0,len(agent_list)):
