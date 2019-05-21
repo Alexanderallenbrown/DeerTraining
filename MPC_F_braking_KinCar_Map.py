@@ -5,12 +5,14 @@ from matplotlib.pyplot import *
 from BicycleModel import *
 from scipy.optimize import minimize
 from BinaryConversion import *
-from CV_Deer import *
-from Deer_Escape import *
+#from CV_Deer import *
+#from Deer_Escape import *
 from Deer_Escape_Smooth import *
 from copy import deepcopy
 from KinCar import KinCar
 from RayCasting import *
+from Crash_Test import CollisionCheck
+
 
 
 class MPC_Fb:
@@ -278,17 +280,18 @@ class MPC_Fb:
 
 def demo_GAdeer():
 
-    fakemap = 'nothing'
+    fakemap = 'real_tree_wismer'
     swerveDistance = 50.0
     setSpeed = 25.0
-    x_car = 0.0
+    x_car = 60.0
     x_deer = x_car + 80.0
 
     deer_ind = '0011010011000001111000000'
     deer_ind = '0100010000000111111100000'
     deer_ind = '0000000000000001000100100' #xcar 0, speed 21, generation 17
     deer_ind = '0010101111000001010000011'
-    deer_ind = '0010000000000000100100000'
+    deer_ind = '0010100000000011011011010'
+    
 
     deer_ind = BinaryConversion_Escape(deer_ind)
 
@@ -431,6 +434,7 @@ def demo_GAdeer():
             cafvec[k] = car.Caf
             carvec[k] = car.Car
             #deerx[k,:] = array([deer.Speed_Deer, deer.Psi_Deer, deer.x_Deer, deer.y_Deer])#updateDeer(car.x[2])
+            print car.x[2],car.x[0]
             deerx[k,:] = deer.updateDeer(car.x[2],car.x[0])
             print("deer velocities: "+str(deer.Vturn_Deer)+ "   "+str(deer.Speed_Deer) + "  " + str(deer.turn))
             command_steervec[k] = opt_steer
@@ -801,8 +805,8 @@ def demo_CVdeer():
                 distance_pred = sqrt((MPC.xcar_pred_downsampled[:,0]-MPC.xdeer_pred_downsampled[:,3])**2+(MPC.xcar_pred_downsampled[:,2]-MPC.xdeer_pred_downsampled[:,2])**2)
                 
                 if ((t[k]- last_steer_t) >= MPC.dtp):
-                    opt_steer = MPC.calcOptimal(carnow = car,deernow = deer, yroad = 0)
-                    brake = MPC.calcBraking(carnow = car)
+                    opt_steer = 0 #MPC.calcOptimal(carnow = car,deernow = deer, yroad = 0)
+                    brake = 0.6 #MPC.calcBraking(carnow = car)
                     gas = 0
                     print(min(distance_pred))
 
@@ -987,9 +991,9 @@ def demo_CVdeer():
 
     car_pred =[]
     deer_pred =[]
-    for k in range(0,5):
-        car_pred.append(patches.Rectangle((0, 0), car_length, car_width,angle = 0.0, fc='w', alpha = .1))
-        deer_pred.append(patches.Rectangle((0, 0), deer_length, deer_width,angle = 0.0, fc='w', alpha = .1))
+    # for k in range(0,5):
+    #     car_pred.append(patches.Rectangle((0, 0), car_length, car_width,angle = 0.0, fc='w', alpha = 0))
+    #     deer_pred.append(patches.Rectangle((0, 0), deer_length, deer_width,angle = 0.0, fc='w', alpha = 0))
 
     trees_ind = False
     if fakemap == 'real_tree_wismer':
@@ -1025,9 +1029,9 @@ def demo_CVdeer():
         ax.add_patch(center_line_1)
         ax.add_patch(center_line_2)
 
-        for k in range(0,5):
-            ax.add_patch(car_pred[k])
-            ax.add_patch(deer_pred[k])            
+        # for k in range(0,5):
+        #     ax.add_patch(car_pred[k])
+        #     ax.add_patch(deer_pred[k])            
 
         if fakemap == 'real_tree_wismer':
             return car_circle,trees,car_plot,deer_plot,car_pred[0],car_pred[1],car_pred[2],car_pred[3],car_pred[4],deer_pred[0],deer_pred[1],deer_pred[2],deer_pred[3],deer_pred[4],#car_pred[5],#car_pred[6],car_pred[7],car_pred[8],car_pred[9],
@@ -1057,12 +1061,12 @@ def demo_CVdeer():
             deer_plot.set_color('y')
 
 
-        for k in range(0,5):
-            #print psiDeerPred[i,:]
-            car_pred[k].set_xy([xCarPred[i,2*k]-(car_length/2),yCarPred[i,2*k]-(car_width/2)])
-            car_pred[k].angle = psiCarPred[i,2*k]*180/3.14
-            deer_pred[k].set_xy([xDeerPred[i,2*k]-(deer_length/2*sin(deer_yaw[i])),yDeerPred[i,2*k]-(deer_width/2*cos(deer_yaw[i]))])
-            deer_pred[k].angle = 90-psiDeerPred[i,2*k]*180/3.14
+        # for k in range(0,5):
+        #     #print psiDeerPred[i,:]
+        #     car_pred[k].set_xy([xCarPred[i,2*k]-(car_length/2),yCarPred[i,2*k]-(car_width/2)])
+        #     car_pred[k].angle = psiCarPred[i,2*k]*180/3.14
+        #     deer_pred[k].set_xy([xDeerPred[i,2*k]-(deer_length/2*sin(deer_yaw[i])),yDeerPred[i,2*k]-(deer_width/2*cos(deer_yaw[i]))])
+        #     deer_pred[k].angle = 90-psiDeerPred[i,2*k]*180/3.14
 
 
         if fakemap == 'real_tree_wismer':
@@ -1081,13 +1085,147 @@ def demo_CVdeer():
 
     show()
 
+def CV_Test(speed, angle):
+
+    setSpeed = 25
+
+    fakemap = 'nothing'
+    deer_x = 80.0
+    car_x = 0.0
+    x_car = car_x
+
+    # Initiate process
+    deer = CV_Deer()
+    deer.x_Deer = deer_x
+    deer.y_Deer = -4.0
+    deer.Psi_Deer = angle*3.1415/180
+    deer.Speed_Deer = speed
+        
+    # Define simulation time and dt
+    simtime = 10.
+    dt = deer.dT
+    t = arange(0,simtime,dt) #takes min, max, and timestep\
 
 
+    car = BicycleModel(dT = dt, U = 25.0,tiretype='pacejka')
 
+
+    #car state vector #print array([[Ydot],[vdot],[Xdot],[Udot],[Psidot],[rdot]])
+    carx = zeros((len(t),len(car.x)))
+    carxdot = zeros((len(t),len(car.x)))
+    car.x[3] = setSpeed
+    car.x[0] = -0.0 #let the vehicle start away from lane.
+    car.x[2] = x_car
+    carx[0,:] = car.x
+
+    #initialize for deer as well
+    deerx = zeros((len(t),4))
+    #fill in initial conditions because they're nonzero
+    deerx[0,:] = array([deer.Speed_Deer,deer.Psi_Deer,deer.x_Deer,deer.y_Deer])
+
+    #MPC = MPC_F(q_lane_error = 10.0,q_obstacle_error = 5000000.0,q_lateral_velocity=0.00,q_steering_effort=0.0,q_accel = 0.005)
+    weight = 10.0
+    MPC = MPC_Fb(q_lane_error = weight, q_obstacle_error =0.0/weight*10, q_lateral_velocity=1.0, q_steering_effort=1.0, q_accel = 0.005, predictionmethod='CV')
+
+    opt_steer = 0
+    last_steer_t = 0
+    gas = 0
+    brake = 0
+
+    deerSight = False
+
+    distancevec = zeros(len(t))
+
+
+    #now simulate!!
+    for k in range(1,len(t)):
+
+        if car.x[3] > 1.0:
+
+            distanceAngle = MapRaycasting([car.x[2],car.x[0]],'mapa',KML = False, fake = fakemap)
+
+            deerAngle = arctan2((deer.y_Deer-car.x[0]),(deer.x_Deer-car.x[2]))
+
+            deerDist = sqrt((deer.y_Deer-car.x[0])**2+(deer.x_Deer-car.x[2])**2)
+
+            deerAngle = int(deerAngle *180./3.1415)
+
+            if deerAngle < 0:
+                deerAngle = 360 + deerAngle
+
+            if (deerDist < distanceAngle[deerAngle]): 
+                deerSight = True
+
+            if deerSight == True:
+                
+                if ((t[k]- last_steer_t) >= MPC.dtp):
+                    opt_steer = MPC.calcOptimal(carnow = car,deernow = deer, yroad = 0)
+                    brake = MPC.calcBraking(carnow = car)
+                    gas = 0
+
+
+                    last_steer_t = t[k]
+
+            else:
+                opt_steer = 0
+                gas = 0
+                brake = 0
+
+
+            carx[k,:],carxdot[k,:],junk = car.rk_update(gas = gas, brake = brake, steer = opt_steer, cruise = 'off')
+            deerx[k,:] = deer.updateDeer(car.x[2])
+
+            distancevec[k] = sqrt((deer.x_Deer - car.x[2])**2+(deer.y_Deer - car.x[0])**2)
+
+        else:
+            carx[k,:] = array([carx[k-1,0],0.0,carx[k-1,2],0.0,carx[k-1,4],0.0])
+            carxdot[k,:] = array([0.,0.,0.,0.,0.,0.])
+            deerx[k,:] = array([0.0,deerx[k-1,1],deerx[k-1,2],deerx[k-1,3]])
+            distancevec[k] = distancevec[k-1]
+
+
+    distancevec = distancevec[1:len(distancevec)]
+    min_distance = min(distancevec)
+
+    Collision = bool(0)
+
+    # If the minimum distance is under 2m, check for a collision to occue
+    if min_distance < 2.0:
+
+        check = CollisionCheck()
+        Collision = check.collision(carx[:,2],carx[:,0],carx[:,4],deerx[:,2],deerx[:,3],deerx[:,1])
+        if Collision == True:
+            Collision = bool(1)
+        else:
+            Collision = bool(0)
+
+    return min_distance, Collision
 
 
 if __name__ == '__main__':
-    demo_CVdeer()
+
+    demo_GAdeer()
+
+    # Dir = 'CVTest/' 
+
+    # if not os.path.exists(Dir):
+    #     os.makedirs(Dir)
+
+    # FileName = Dir + 'CV_Results.txt'
+
+    # newFile = open(FileName,'w+');
+    # newFile.close();
+    # newFile = open(FileName, 'a');
+ 
+    # for speed in range(13,19):
+    #     for angle in range(-90,91):
+    #         min_distance, collision = CV_Test(speed, angle)
+
+    #         print(str(speed) + '\t' + str(angle) + '\t' + str(min_distance) + '\t' + str(collision))
+    #         newFile.write(str(speed) + '\t' + str(angle) + '\t' + str(min_distance) + '\t' + str(collision) + '\n')
+
+
+    # newFile.close()
 
 
 

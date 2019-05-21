@@ -8,21 +8,25 @@ agent_list = ['Fb','D']
 
 f1 = figure()
 a11 = subplot(224)
-ylabel('Average Minimum Distance (m)')
-xlabel('Speed (m/s)')
+ylabel('Avg. Min. Distance (m)',fontsize = 12)
+xlabel('Speed (m/s)',fontsize = 12)
 a11.set_ylim(0,30)
+
 a12 = subplot(221)
-ylabel('Average Minimum Distance (m)')
-xlabel('Speed (m/s)')
+ylabel('Avg. Min. Distance (m)',fontsize = 12)
+xlabel('Speed (m/s)',fontsize = 12)
 a12.set_ylim(0,30)
+
 a13 = subplot(223)
-ylabel('Average Minimum Distance (m)')
-xlabel('Speed (m/s)')
+ylabel('Avg. Min. Distance (m)',fontsize = 12)
+xlabel('Speed (m/s)',fontsize = 12)
 a13.set_ylim(0,30)
+
 a14 = subplot(222)
-ylabel('Average Minimum Distance (m)')
-xlabel('Speed (m/s)')
+ylabel('Avg. Min. Distance (m)',fontsize = 12)
+xlabel('Speed (m/s)',fontsize = 12)
 a14.set_ylim(0,30)
+subplots_adjust(wspace=0.5,hspace=0.5)
 
 
 if len(agent_list)>1:
@@ -30,22 +34,29 @@ if len(agent_list)>1:
 else:
     legend(['$y_{sb} = \infty$','$y_{sb} = 4m$', '$y_{sb} = 7m$','$y_{sb} = 10m$','1-$\sigma$ bounds'])
 f2 = figure()
+
 a21 = subplot(224)
-ylabel('Collision Probability')
-xlabel('Speed (m/s)')
+ylabel('Collision Probability',fontsize = 12)
+xlabel('Speed (m/s)',fontsize = 12)
 a21.set_ylim(-0.1,1.1)
+
 a22 = subplot(221)
-ylabel('Collision Probability')
-xlabel('Speed (m/s)')
+ylabel('Collision Probability',fontsize = 12)
+xlabel('Speed (m/s)',fontsize = 12)
 a22.set_ylim(-0.1,1.1)
+
 a23 = subplot(223)
-ylabel('Collision Probability')
-xlabel('Speed (m/s)')
+ylabel('Collision Probability',fontsize = 12)
+xlabel('Speed (m/s)',fontsize = 12)
 a23.set_ylim(-0.1,1.1)
+
 a24 = subplot(222)
-ylabel('Collision Probability')
-xlabel('Speed (m/s)')
+ylabel('Collision Probability',fontsize = 12)
+xlabel('Speed (m/s)',fontsize = 12)
 a24.set_ylim(-0.1,1.1)
+subplots_adjust(wspace=0.5,hspace=0.5)
+savefig('MinDistance.png',dpi =500)
+
 
 
 for j in range(0,len(agent_list)):
@@ -126,13 +137,13 @@ for j in range(0,len(agent_list)):
             a11.set_title('$y_{sb} = \infty$')
             poly = Polygon(sigma1,closed=True,facecolor = '0.9')
             a11.add_patch(poly)
-            if len(agent_list)>1:
-                a11.legend(['MPC','Braking Only','$1-\sigma$ bounds'])
-            else:
-                if agent_list[0] == 'D':
-                    a11.legend(['Braking Only','$1-\sigma$ bounds'])
-                else:
-                    a11.legend(['MPC','$1-\sigma$ bounds'])
+            # if len(agent_list)>1:
+            #     a11.legend(['MPC','Braking Only','$1-\sigma$ bounds'])
+            # else:
+            #     if agent_list[0] == 'D':
+            #         a11.legend(['Braking Only','$1-\sigma$ bounds'])
+            #     else:
+            #         a11.legend(['MPC','$1-\sigma$ bounds'])
 
             a21.plot(speedVec,collisionProb, marker = marker_list[j],color = 'k')
             a21.set_title('$y_{sb} = \infty$')
@@ -159,63 +170,62 @@ for j in range(0,len(agent_list)):
 
             a22.plot(speedVec,collisionProb, marker = marker_list[j],color = 'k')
             a22.set_title('$y_{sb} = 4m$')
-            if len(agent_list)>1:
-                a22.legend(['MPC','Braking Only'])
-            else:
-                if agent_list[0] == 'D':
-                    a22.legend(['Braking Only'])
-                else:
-                    a22.legend(['MPC'])
+            # if len(agent_list)>1:
+            #     a22.legend(['MPC','Braking Only'])
+            # else:
+            #     if agent_list[0] == 'D':
+            #         a22.legend(['Braking Only'])
+            #     else:
+            #         a22.legend(['MPC'])
 
         if mapa == 'constant_7':
             a13.plot(speedVec,distanceVec, marker = marker_list[j],color = 'k')
             a13.set_title('$y_{sb} = 7m$')
             poly = Polygon(sigma1,closed=True,facecolor = '0.9')
             a13.add_patch(poly)
-            if len(agent_list)>1:
-                a13.legend(['MPC','Braking Only','$1-\sigma$ bounds'])
-            else:
-                if agent_list[0] == 'D':
-                    a13.legend(['Braking Only','$1-\sigma$ bounds'])
-                else:
-                    a13.legend(['MPC','$1-\sigma$ bounds'])
+            # if len(agent_list)>1:
+            #     a13.legend(['MPC','Braking Only','$1-\sigma$ bounds'])
+            # else:
+            #     if agent_list[0] == 'D':
+            #         a13.legend(['Braking Only','$1-\sigma$ bounds'])
+            #     else:
+            #         a13.legend(['MPC','$1-\sigma$ bounds'])
 
             a23.plot(speedVec,collisionProb, marker = marker_list[j],color = 'k')
             a23.set_title('$y_{sb} = 7m$')
-            if len(agent_list)>1:
-                a23.legend(['MPC','Braking Only'])
-            else:
-                if agent_list[0] == 'D':
-                    a23.legend(['Braking Only'])
-                else:
-                    a23.legend(['MPC'])
+            # if len(agent_list)>1:
+            #     a23.legend(['MPC','Braking Only'])
+            # else:
+            #     if agent_list[0] == 'D':
+            #         a23.legend(['Braking Only'])
+            #     else:
+            #         a23.legend(['MPC'])
         
         if mapa == 'constant_10':
             a14.plot(speedVec,distanceVec, marker = marker_list[j],color = 'k')
             a14.set_title('$y_{sb} = 10m$')
             poly = Polygon(sigma1,closed=True,facecolor = '0.9')
             a14.add_patch(poly)
-            if len(agent_list)>1:
-                a14.legend(['MPC','Braking Only','$1-\sigma$ bounds'])
-            else:
-                if agent_list[0] == 'D':
-                    a14.legend(['Braking Only','$1-\sigma$ bounds'])
-                else:
-                    a14.legend(['MPC','$1-\sigma$ bounds'])
+            # if len(agent_list)>1:
+            #     a14.legend(['MPC','Braking Only','$1-\sigma$ bounds'])
+            # else:
+            #     if agent_list[0] == 'D':
+            #         a14.legend(['Braking Only','$1-\sigma$ bounds'])
+            #     else:
+            #         a14.legend(['MPC','$1-\sigma$ bounds'])
 
             a24.plot(speedVec,collisionProb, marker = marker_list[j],color = 'k')
             a24.set_title('$y_{sb} = 10m$')
-            if len(agent_list)>1:
-                a24.legend(['MPC','Braking Only'])
-            else:
-                if agent_list[0] == 'D':
-                    a24.legend(['Braking Only'])
-                else:
-                    a24.legend(['MPC'])
+            # if len(agent_list)>1:
+            #     a24.legend(['MPC','Braking Only'])
+            # else:
+            #     if agent_list[0] == 'D':
+            #         a24.legend(['Braking Only'])
+            #     else:
+            #         a24.legend(['MPC'])
 
 
-
-
+f2.savefig('CollisionProb.png',dpi =600)
+f1.savefig('MinDistance.png',dpi =600)
 
 show()
-

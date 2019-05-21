@@ -5,18 +5,18 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 from matplotlib import animation
 
-agent = 'D'
-mapa = 'nothing'
-xCar = 0
-setSpeed = 25
+agent = 'Fb'
+mapa = 'real_tree_wismer'
+xCar = 60
+setSpeed = 22
 generation = 1
-ID = 101
-trial = 96
+ID = 107
+trial = 2
 
 
 
-#Gfname = 'GenerationFiles/generations' + str(agent) + '/map_' + str(mapa) + '/xCar' + str(xCar) + '/setSpeed' + str(setSpeed) + '/trialData/generation' + str(generation) + 'ID_' + str(ID) + '/trial_' + str(trial) + '.txt';
-Gfname = 'GenerationFiles/TestGenomes/agent_D/map_' + str(mapa) + '/setSpeed' + str(setSpeed) + '/trialData/trial_' + str(trial) + '.txt';
+Gfname = 'GenerationFiles/generations' + str(agent) + '/map_' + str(mapa) + '/xCar' + str(xCar) + '/setSpeed' + str(setSpeed) + '/trialData/generation' + str(generation) + '/ID_' + str(ID) + '/trial_' + str(trial) + '.txt';
+#Gfname = 'GenerationFiles/TestGenomes/agent_D/map_' + str(mapa) + '/setSpeed' + str(setSpeed) + '/trialData/trial_' + str(trial) + '.txt';
 
 #Gfname = 'GenerationFiles/TestTest.txt'
 
@@ -58,7 +58,7 @@ plt.plot(car_x,car_y,'ko',deer_x,deer_y,'ro')
 
 
 
-x_car_init = 40
+x_car_init = xCar
 fakemap = 'real_tree_wismer'
 
 # Define parameters
@@ -80,8 +80,8 @@ ax.set_ylim(-25, 25)
 # Initialize rectangles
 background = patches.Rectangle((-100,-100),10000,10000,fc='g')
 car_circle = patches.Circle((100,0),60,fc = 'w', alpha = 0.25)
-car_plot = patches.Rectangle((0, 0), 0, 0,angle = 0.0, fc='b', alpha = 0.5)
-deer_plot = patches.Rectangle((0, 0), 0, 0,angle = 0.0, fc='g', alpha = 0.5)
+car_plot = patches.Rectangle((0, 0), 0, 0,angle = 0.0, fc='b', alpha = 1)
+deer_plot = patches.Rectangle((0, 0), 0, 0,angle = 0.0, fc='y', alpha = 1)
 road = patches.Rectangle((-100,-3.75),10000,11,fc='k')
 center_line_1 = patches.Rectangle((-10,(1.75+0.025)),10000,0.1,fc='y')
 center_line_2 = patches.Rectangle((-10,(1.75-0.1-0.025)),10000,0.1,fc='y')

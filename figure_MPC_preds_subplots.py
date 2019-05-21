@@ -10,6 +10,8 @@ Gfname = 'Test/Test1.txt'
 Predname = 'Test/pred.txt'
 
 
+
+
 print Gfname
 
 #should have an array of size m*h (of object values )
@@ -29,7 +31,7 @@ with open(Gfname, "r") as ins:
     for line in ins:
         values = line.split()
         #print values
-        #print values
+        #print line
         car_x.append(float(values[5]))
         car_y.append(float(values[3]))
         car_yaw.append(float(values[7]))
@@ -85,6 +87,7 @@ yDeerPred9 = []
 with open(Predname, "r") as ins:
     for line in ins:
         values = line.split()
+        #print values
         xCarPred0.append(float(values[1]))
         xCarPred1.append(float(values[2]))
         xCarPred2.append(float(values[3]))
@@ -161,14 +164,14 @@ yDeerPred4s = []
 yDeerPred5s = []
 
 
-for ind in range(0,7):
-    ind1 = 35 + ind * 50
+for ind in range(0,6):
+    ind1 = 55 + ind * 50
     car_xs.append(car_x[ind1])
     car_ys.append(car_y[ind1])
     car_yaws.append(car_yaw[ind1])
     deer_xs.append(deer_x[ind1])
     deer_ys.append(deer_y[ind1])
-    deer_yaws.append(deer_yaw[ind1])
+    deer_yaws.append(deer_yaw[ind1]*180/3.1415)
     xCarPred1s.append(xCarPred0[ind1])
     xCarPred2s.append(xCarPred2[ind1])
     xCarPred3s.append(xCarPred4[ind1])
@@ -208,7 +211,7 @@ ax.spines['left'].set_color('1')
 ax.spines['right'].set_color('1')
 ax.tick_params(axis ='x', colors ='1')
 ax.tick_params(axis ='y', colors ='1')
-ax.set_xlim(0, 140)
+ax.set_xlim(60, 180)
 
 
 
@@ -218,15 +221,16 @@ center_line_1 = patches.Rectangle((-10,(1.75+0.025)),10000,0.1,fc='0')
 center_line_2 = patches.Rectangle((-10,(1.75-0.1-0.025)),10000,0.1,fc='0')
 right_line = patches.Rectangle((-10,-1.75),10000,0.1,fc='0')
 left_line = patches.Rectangle((-10,4.75),10000,0.1,fc='0')
+trees = patches.Rectangle((-100,-100),10000,90,fc='0.8',alpha=0.5)
 
 
 
 
 car1 = patches.Rectangle(([car_xs[0]-(car_length/2), car_ys[0]-(car_width/2)]), car_length, car_width,angle = car_yaws[0], fc='0')
-deer1 = patches.Rectangle(([deer_xs[0]-(deer_length/2), deer_ys[0]-(deer_width/2)]), deer_length, deer_width,angle = deer_yaws[0], fc='0')
+deer1 = patches.Rectangle(([deer_xs[0]-(deer_length/2), deer_ys[0]-(deer_width/2)]), deer_length, deer_width,angle = 90-deer_yaws[0], fc='0')
  
 
-radius = 0.5
+radius = 1.0
 
 carPred11 = patches.Circle(([xCarPred1s[0],yCarPred1s[0]]),radius, fc ='1')
 carPred21 = patches.Circle(([xCarPred2s[0],yCarPred2s[0]]),radius, fc ='1')
@@ -249,6 +253,7 @@ ax.add_patch(right_line)
 ax.add_patch(center_line_1)
 ax.add_patch(center_line_2)
 ax.add_patch(car1)
+ax.add_patch(trees)
 
 ax.add_patch(deer1)
 
@@ -275,7 +280,7 @@ ax.spines['left'].set_color('1')
 ax.spines['right'].set_color('1')
 ax.tick_params(axis ='x', colors ='1')
 ax.tick_params(axis ='y', colors ='1')
-ax.set_xlim(0, 140)
+ax.set_xlim(60, 180)
 
 background = patches.Rectangle((-100,-100),10000,10000,facecolor='1')
 road = patches.Rectangle((-100,-3.75),10000,11,fc='0.8')
@@ -283,9 +288,11 @@ center_line_1 = patches.Rectangle((-10,(1.75+0.025)),10000,0.1,fc='0')
 center_line_2 = patches.Rectangle((-10,(1.75-0.1-0.025)),10000,0.1,fc='0')
 right_line = patches.Rectangle((-10,-1.75),10000,0.1,fc='0')
 left_line = patches.Rectangle((-10,4.75),10000,0.1,fc='0')
+trees = patches.Rectangle((-100,-100),10000,90,fc='0.8',alpha=0.5)
+
 
 car2 = patches.Rectangle(([car_xs[1]-(car_length/2), car_ys[1]-(car_width/2)]), car_length, car_width,angle = car_yaws[1], fc='0')
-deer2 = patches.Rectangle(([deer_xs[1]-(deer_length/2), deer_ys[1]-(deer_width/2)]), deer_length, deer_width,angle = deer_yaws[1], fc='0')
+deer2 = patches.Rectangle(([deer_xs[1]-(deer_length/2), deer_ys[1]-(deer_width/2)]), deer_length, deer_width,angle = 90-deer_yaws[1], fc='0')
 
 carPred12 = patches.Circle(([xCarPred1s[1],yCarPred1s[1]]),radius, fc ='1')
 carPred22 = patches.Circle(([xCarPred2s[1],yCarPred2s[1]]),radius, fc ='1')
@@ -306,6 +313,8 @@ ax.add_patch(center_line_1)
 ax.add_patch(center_line_2)
 ax.add_patch(car2)
 ax.add_patch(deer2)
+ax.add_patch(trees)
+
 
 ax.add_patch(carPred12)
 ax.add_patch(carPred22)
@@ -330,7 +339,7 @@ ax.spines['left'].set_color('1')
 ax.spines['right'].set_color('1')
 ax.tick_params(axis ='x', colors ='1')
 ax.tick_params(axis ='y', colors ='1')
-ax.set_xlim(0, 140)
+ax.set_xlim(60, 180)
 
 background = patches.Rectangle((-100,-100),10000,10000,facecolor='1')
 road = patches.Rectangle((-100,-3.75),10000,11,fc='0.8')
@@ -338,9 +347,11 @@ center_line_1 = patches.Rectangle((-10,(1.75+0.025)),10000,0.1,fc='0')
 center_line_2 = patches.Rectangle((-10,(1.75-0.1-0.025)),10000,0.1,fc='0')
 right_line = patches.Rectangle((-10,-1.75),10000,0.1,fc='0')
 left_line = patches.Rectangle((-10,4.75),10000,0.1,fc='0')
+trees = patches.Rectangle((-100,-100),10000,90,fc='0.8',alpha=0.5)
+
 
 car3 = patches.Rectangle(([car_xs[2]-(car_length/2), car_ys[2]-(car_width/2)]), car_length, car_width,angle = car_yaws[2], fc='0')
-deer3 = patches.Rectangle(([deer_xs[2]-(deer_length/2), deer_ys[2]-(deer_width/2)]), deer_length, deer_width,angle = deer_yaws[2], fc='0')
+deer3 = patches.Rectangle(([deer_xs[2]-(deer_length/2), deer_ys[2]-(deer_width/2)]), deer_length, deer_width,angle = 90-deer_yaws[2], fc='0')
 
 carPred13 = patches.Circle(([xCarPred1s[2],yCarPred1s[2]]),radius, fc ='1')
 carPred23 = patches.Circle(([xCarPred2s[2],yCarPred2s[2]]),radius, fc ='1')
@@ -362,6 +373,8 @@ ax.add_patch(center_line_1)
 ax.add_patch(center_line_2)
 ax.add_patch(car3)
 ax.add_patch(deer3)
+ax.add_patch(trees)
+
 
 ax.add_patch(carPred13)
 ax.add_patch(carPred23)
@@ -385,7 +398,7 @@ ax.spines['left'].set_color('1')
 ax.spines['right'].set_color('1')
 ax.tick_params(axis ='x', colors ='1')
 ax.tick_params(axis ='y', colors ='1')
-ax.set_xlim(0, 140)
+ax.set_xlim(60, 180)
 
 background = patches.Rectangle((-100,-100),10000,10000,facecolor='1')
 road = patches.Rectangle((-100,-3.75),10000,11,fc='0.8')
@@ -393,9 +406,11 @@ center_line_1 = patches.Rectangle((-10,(1.75+0.025)),10000,0.1,fc='0')
 center_line_2 = patches.Rectangle((-10,(1.75-0.1-0.025)),10000,0.1,fc='0')
 right_line = patches.Rectangle((-10,-1.75),10000,0.1,fc='0')
 left_line = patches.Rectangle((-10,4.75),10000,0.1,fc='0')
+trees = patches.Rectangle((-100,-100),10000,90,fc='0.8',alpha=0.5)
+
 
 car4 = patches.Rectangle(([car_xs[3]-(car_length/2), car_ys[3]-(car_width/2)]), car_length, car_width,angle = car_yaws[3], fc='0')
-deer4 = patches.Rectangle(([deer_xs[3]-(deer_length/2), deer_ys[3]-(deer_width/2)]), deer_length, deer_width,angle = deer_yaws[3], fc='0')
+deer4 = patches.Rectangle(([deer_xs[3]-(deer_length/2), deer_ys[3]-(deer_width/2)]), deer_length, deer_width,angle = 90-deer_yaws[3], fc='0')
 
 carPred14 = patches.Circle(([xCarPred1s[3],yCarPred1s[3]]),radius, fc ='1')
 carPred24 = patches.Circle(([xCarPred2s[3],yCarPred2s[3]]),radius, fc ='1')
@@ -418,6 +433,8 @@ ax.add_patch(center_line_1)
 ax.add_patch(center_line_2)
 ax.add_patch(car4)
 ax.add_patch(deer4)
+ax.add_patch(trees)
+
 
 ax.add_patch(carPred14)
 ax.add_patch(carPred24)
@@ -442,7 +459,7 @@ ax.spines['left'].set_color('1')
 ax.spines['right'].set_color('1')
 ax.tick_params(axis ='x', colors ='1')
 ax.tick_params(axis ='y', colors ='1')
-ax.set_xlim(0, 140)
+ax.set_xlim(60, 180)
 
 background = patches.Rectangle((-100,-100),10000,10000,facecolor='1')
 road = patches.Rectangle((-100,-3.75),10000,11,fc='0.8')
@@ -450,9 +467,11 @@ center_line_1 = patches.Rectangle((-10,(1.75+0.025)),10000,0.1,fc='0')
 center_line_2 = patches.Rectangle((-10,(1.75-0.1-0.025)),10000,0.1,fc='0')
 right_line = patches.Rectangle((-10,-1.75),10000,0.1,fc='0')
 left_line = patches.Rectangle((-10,4.75),10000,0.1,fc='0')
+trees = patches.Rectangle((-100,-100),10000,90,fc='0.8',alpha=0.5)
+
 
 car5 = patches.Rectangle(([car_xs[4]-(car_length/2), car_ys[4]-(car_width/2)]), car_length, car_width,angle = car_yaws[4], fc='0')
-deer5 = patches.Rectangle(([deer_xs[4]-(deer_length/2), deer_ys[4]-(deer_width/2)]), deer_length, deer_width,angle = deer_yaws[4], fc='0')
+deer5 = patches.Rectangle(([deer_xs[4]-(deer_length/2), deer_ys[4]-(deer_width/2)]), deer_length, deer_width,angle = 90-deer_yaws[4], fc='0')
 
 carPred15 = patches.Circle(([xCarPred1s[4],yCarPred1s[4]]),radius, fc ='1')
 carPred25 = patches.Circle(([xCarPred2s[4],yCarPred2s[4]]),radius, fc ='1')
@@ -473,6 +492,8 @@ ax.add_patch(center_line_1)
 ax.add_patch(center_line_2)
 ax.add_patch(car5)
 ax.add_patch(deer5)
+ax.add_patch(trees)
+
 
 ax.add_patch(carPred15)
 ax.add_patch(carPred25)
@@ -495,7 +516,7 @@ ax.spines['left'].set_color('1')
 ax.spines['right'].set_color('1')
 ax.tick_params(axis ='x', colors ='1')
 ax.tick_params(axis ='y', colors ='1')
-ax.set_xlim(0, 140)
+ax.set_xlim(60, 180)
 
 background = patches.Rectangle((-100,-100),10000,10000,facecolor='1')
 road = patches.Rectangle((-100,-3.75),10000,11,fc='0.8')
@@ -503,9 +524,11 @@ center_line_1 = patches.Rectangle((-10,(1.75+0.025)),10000,0.1,fc='0')
 center_line_2 = patches.Rectangle((-10,(1.75-0.1-0.025)),10000,0.1,fc='0')
 right_line = patches.Rectangle((-10,-1.75),10000,0.1,fc='0')
 left_line = patches.Rectangle((-10,4.75),10000,0.1,fc='0')
+trees = patches.Rectangle((-100,-100),10000,90,fc='0.8',alpha=0.5)
+
 
 car6 = patches.Rectangle(([car_xs[5]-(car_length/2), car_ys[5]-(car_width/2)]), car_length, car_width,angle = car_yaws[5], fc='0')
-deer6 = patches.Rectangle(([deer_xs[5]-(deer_length/2), deer_ys[5]-(deer_width/2)]), deer_length, deer_width,angle = deer_yaws[5], fc='0')
+deer6 = patches.Rectangle(([deer_xs[5]-(deer_length/2), deer_ys[5]-(deer_width/2)]), deer_length, deer_width,angle = 90-deer_yaws[5], fc='0')
 
 carPred16 = patches.Circle(([xCarPred1s[5],yCarPred1s[5]]),radius, fc ='1')
 carPred26 = patches.Circle(([xCarPred2s[5],yCarPred2s[5]]),radius, fc ='1')
@@ -526,6 +549,8 @@ ax.add_patch(center_line_1)
 ax.add_patch(center_line_2)
 ax.add_patch(car6)
 ax.add_patch(deer6)
+ax.add_patch(trees)
+
 
 ax.add_patch(carPred16)
 ax.add_patch(carPred26)

@@ -17,7 +17,7 @@ import os
 
 def demo():
 
-    mapa = 'constant_10'
+    mapa = 'nothing'
     agent = 'Fb'
 
     if mapa == 'nothing':
@@ -44,11 +44,11 @@ def demo():
 
     xCar = 0
 
-    for setSpeed in range(start_speed,15):
+    for setSpeed in range(start_speed,26):
 
         agent_type = agent
 
-        print('The agent is ' + agent)
+        #print('The agent is ' + agent)
 
         n = 100
 
@@ -56,35 +56,37 @@ def demo():
 
         CurrentDeer = BinaryConversion(str(deer_ind))
 
-        print('The current deer genome is ' + str(deer_ind))
+        #print('The current deer genome is ' + str(CurrentDeer))
 
-        DirTrials = 'GenerationFiles/TestGenomes/agent_' + str(agent) + '/map_' + str(mapa)  +  '/setSpeed' + str(setSpeed) + '/trialData'
+        print(str(setSpeed) + ' & ' + str(round(90-CurrentDeer[0]*180/3.1415,1)) + ' & '+ str(round(CurrentDeer[1],1)) + ' & ' + str(round(CurrentDeer[3],1)) + ' & ' + str(round(CurrentDeer[4],1)) + ' & ' + str(round(CurrentDeer[2],1)) + " \\" )
 
-        if not os.path.exists(DirTrials):
-            os.makedirs(DirTrials)
+        # DirTrials = 'GenerationFiles/TestGenomes/agent_' + str(agent) + '/map_' + str(mapa)  +  '/setSpeed' + str(setSpeed) + '/trialData'
 
-        trial_number,min_distance,collision = TestDeer_MPC(CurrentDeer, n, agent, xCar, setSpeed,mapa,DirTrials,int(deer_ind))
+        # if not os.path.exists(DirTrials):
+        #     os.makedirs(DirTrials)
+
+        # trial_number,min_distance,collision = TestDeer_MPC(CurrentDeer, n, agent, xCar, setSpeed,mapa,DirTrials,int(deer_ind))
 
 
-        genomeFileName = 'GenerationFiles/TestGenomes/agent_' + str(agent) + '/map_' + str(mapa)  +  '/setSpeed' + str(setSpeed) + '/genome.txt'
+        # genomeFileName = 'GenerationFiles/TestGenomes/agent_' + str(agent) + '/map_' + str(mapa)  +  '/setSpeed' + str(setSpeed) + '/genome.txt'
             
-        genomeFile = open(genomeFileName,'w+');
-        genomeFile.close();
-        genomeFile = open(genomeFileName, 'a');
-        genomeFile.write(str(deer_ind))
-        genomeFile.close()   
+        # genomeFile = open(genomeFileName,'w+');
+        # genomeFile.close();
+        # genomeFile = open(genomeFileName, 'a');
+        # genomeFile.write(str(deer_ind))
+        # genomeFile.close()   
 
 
-        newFileName = 'GenerationFiles/TestGenomes/agent_' + str(agent) + '/map_' + str(mapa)  +  '/setSpeed' + str(setSpeed) + '/results.txt'
+        # newFileName = 'GenerationFiles/TestGenomes/agent_' + str(agent) + '/map_' + str(mapa)  +  '/setSpeed' + str(setSpeed) + '/results.txt'
 
-        newFile = open(newFileName,'w+');
-        newFile.close();
-        newFile = open(newFileName, 'a');
+        # newFile = open(newFileName,'w+');
+        # newFile.close();
+        # newFile = open(newFileName, 'a');
 
-        for x in range(0,len(trial_number)):
-            newFile.write(str(trial_number[x]) + ' ' + str(min_distance[x]) + ' ' + str(collision[x]))
-            newFile.write('\n')
-        newFile.close()   
+        # for x in range(0,len(trial_number)):
+        #     newFile.write(str(trial_number[x]) + ' ' + str(min_distance[x]) + ' ' + str(collision[x]))
+        #     newFile.write('\n')
+        # newFile.close()   
 
 
 def BinaryConversion(ind):
