@@ -163,7 +163,9 @@ yDeerPred5s = []
 
 
 for ind in range(0,6):
-    ind1 = 35 + ind * 50
+    toffset = 35#this is a time index (not a time)
+    tplot_interval = 50#this is the number of timesteps you want to skip in between each snapshot.
+    ind1 = toffset + ind * tplot_interval
     car_xs.append(car_x[ind1])
     car_ys.append(car_y[ind1])
     car_yaws.append(car_yaw[ind1])
