@@ -72,7 +72,7 @@ for j in range(0,len(agent_list)):
         std_vec = []
 
         for setSpeed in range(13,26): 
-
+            #this hundred-trial test. trialnumber, distance min, collision yes/no.
             genomeFileName = 'GenerationFiles/TestGenomes/agent_' + str(agent) + '/map_' + str(mapa)  +  '/setSpeed' + str(setSpeed) + '/genome.txt'
             resultFileName = 'GenerationFiles/TestGenomes/agent_' + str(agent) + '/map_' + str(mapa)  +  '/setSpeed' + str(setSpeed) + '/results.txt'
 
